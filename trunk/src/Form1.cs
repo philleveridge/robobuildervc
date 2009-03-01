@@ -47,6 +47,7 @@ namespace RobobuilderVC
 
         int cnt;
         private Button button6;
+        private ListBox listBox2;
         CountingMotionDetector detector;
 
 		public Form1()
@@ -112,12 +113,13 @@ namespace RobobuilderVC
             this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.label1 = new System.Windows.Forms.Label();
             this.button6 = new System.Windows.Forms.Button();
+            this.listBox2 = new System.Windows.Forms.ListBox();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).BeginInit();
             this.SuspendLayout();
             // 
             // cmdStart
             // 
-            this.cmdStart.Location = new System.Drawing.Point(6, 264);
+            this.cmdStart.Location = new System.Drawing.Point(6, 269);
             this.cmdStart.Name = "cmdStart";
             this.cmdStart.Size = new System.Drawing.Size(78, 24);
             this.cmdStart.TabIndex = 1;
@@ -199,7 +201,7 @@ namespace RobobuilderVC
             // 
             // pictureBox2
             // 
-            this.pictureBox2.Location = new System.Drawing.Point(43, 7);
+            this.pictureBox2.Location = new System.Drawing.Point(45, 0);
             this.pictureBox2.Name = "pictureBox2";
             this.pictureBox2.Size = new System.Drawing.Size(320, 240);
             this.pictureBox2.TabIndex = 13;
@@ -246,17 +248,28 @@ namespace RobobuilderVC
             // 
             // button6
             // 
-            this.button6.Location = new System.Drawing.Point(98, 264);
+            this.button6.Location = new System.Drawing.Point(235, 286);
             this.button6.Name = "button6";
             this.button6.Size = new System.Drawing.Size(50, 24);
             this.button6.TabIndex = 17;
             this.button6.Text = "wave";
             this.button6.Click += new System.EventHandler(this.button6_Click);
             // 
+            // listBox2
+            // 
+            this.listBox2.FormattingEnabled = true;
+            this.listBox2.Items.AddRange(new object[] {
+            "<undef>"});
+            this.listBox2.Location = new System.Drawing.Point(6, 246);
+            this.listBox2.Name = "listBox2";
+            this.listBox2.Size = new System.Drawing.Size(147, 17);
+            this.listBox2.TabIndex = 18;
+            // 
             // Form1
             // 
             this.AutoScaleBaseSize = new System.Drawing.Size(5, 13);
             this.ClientSize = new System.Drawing.Size(413, 486);
+            this.Controls.Add(this.listBox2);
             this.Controls.Add(this.button6);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.button5);
@@ -290,6 +303,8 @@ namespace RobobuilderVC
 			Application.Run(new Form1());
 		}
 
+        FilterInfoCollection videoDevices = new FilterInfoCollection(FilterCategory.VideoInputDevice);
+
 		private void Form1_Load(object sender, System.EventArgs e)
 		{
             label1.Visible = false;
@@ -301,11 +316,14 @@ namespace RobobuilderVC
 
 
                 // enumerate video devices
-                FilterInfoCollection videoDevices = new FilterInfoCollection(FilterCategory.VideoInputDevice);
-                // create video source
-                wcam = new VideoCaptureDevice(videoDevices[2].MonikerString); // hard coded 
-                // set NewFrame event handler
-                wcam.NewFrame += new AForge.Video.NewFrameEventHandler(wcam_NewFrame);
+                
+                // set up chooser
+                listBox2.Items.Clear();
+                for (int i = 0; i < videoDevices.Count; i++)
+                {
+                    listBox2.Items.Add(videoDevices[i].Name);
+                }
+                             
             }
             catch (Exception e2)
             {
@@ -423,6 +441,13 @@ namespace RobobuilderVC
 		{
 			// start the video capture.
             label1.Visible = true;
+
+            // create video source
+            wcam = new VideoCaptureDevice(videoDevices[listBox2.SelectedIndex].MonikerString); // hard coded 
+            // wcam = new VideoCaptureDevice(videoDevices[2].MonikerString); // hard coded 
+            // set NewFrame event handler
+            wcam.NewFrame += new AForge.Video.NewFrameEventHandler(wcam_NewFrame);
+
             wcam.Start();
 		}
 
