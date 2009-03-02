@@ -7,4 +7,6 @@ A .NET based client terminal for robobuilderlib.
 
 = Details =
 
-TBD
+Screenshot:
+
+http://code.google.com/p/robobuildervc/trunk/screenshot.jpg
