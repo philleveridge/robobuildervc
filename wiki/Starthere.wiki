@@ -9,4 +9,6 @@ A .NET based client terminal for robobuilderlib.
 
 Screenshot:
 
-http://code.google.com/p/robobuildervc/trunk/screenshot.jpg
+http://code.google.com/p/robobuildervc/svn/trunk/screenshot.jpg
+
+[http://code.google.com/p/robobuildervc/svn/trunk/screenshot.jpg]
