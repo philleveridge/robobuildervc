@@ -4,11 +4,8 @@
 
 A .NET based client terminal for robobuilderlib.
 
-
 = Details =
 
 Screenshot:
 
-http://code.google.com/p/robobuildervc/svn/trunk/screenshot.jpg
-
-[http://code.google.com/p/robobuildervc/svn/trunk/screenshot.jpg]
+http://robobuildervc.googlecode.com/svn/trunk/screenshot.jpg
