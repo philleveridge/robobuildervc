@@ -32,10 +32,6 @@ namespace RobobuilderVC
 		private System.Windows.Forms.Button cmdStart;
         private System.Windows.Forms.Button cmdStop;
         private System.IO.Ports.SerialPort serialPort1;
-        private Button button1;
-        private Button button2;
-        private Button button3;
-        private Button button4;
         private TextBox textBox1;
         private TextBox textBox2;
         private PictureBox pictureBox2;
@@ -49,6 +45,7 @@ namespace RobobuilderVC
         private Button button6;
         private ListBox listBox2;
         private Label robolibver;
+        private PictureBox pictureBox1;
         CountingMotionDetector detector;
 
 		public Form1()
@@ -99,13 +96,10 @@ namespace RobobuilderVC
 		private void InitializeComponent()
 		{
             this.components = new System.ComponentModel.Container();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
             this.cmdStart = new System.Windows.Forms.Button();
             this.cmdStop = new System.Windows.Forms.Button();
             this.serialPort1 = new System.IO.Ports.SerialPort(this.components);
-            this.button1 = new System.Windows.Forms.Button();
-            this.button2 = new System.Windows.Forms.Button();
-            this.button3 = new System.Windows.Forms.Button();
-            this.button4 = new System.Windows.Forms.Button();
             this.textBox1 = new System.Windows.Forms.TextBox();
             this.textBox2 = new System.Windows.Forms.TextBox();
             this.pictureBox2 = new System.Windows.Forms.PictureBox();
@@ -116,7 +110,9 @@ namespace RobobuilderVC
             this.button6 = new System.Windows.Forms.Button();
             this.listBox2 = new System.Windows.Forms.ListBox();
             this.robolibver = new System.Windows.Forms.Label();
+            this.pictureBox1 = new System.Windows.Forms.PictureBox();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.SuspendLayout();
             // 
             // cmdStart
@@ -142,46 +138,6 @@ namespace RobobuilderVC
             this.serialPort1.BaudRate = 115200;
             this.serialPort1.PortName = "COM4";
             this.serialPort1.WriteBufferSize = 1024;
-            // 
-            // button1
-            // 
-            this.button1.Location = new System.Drawing.Point(197, 253);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(18, 19);
-            this.button1.TabIndex = 6;
-            this.button1.Text = "^";
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.button1_Click);
-            // 
-            // button2
-            // 
-            this.button2.Location = new System.Drawing.Point(211, 269);
-            this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(18, 19);
-            this.button2.TabIndex = 7;
-            this.button2.Text = ">";
-            this.button2.UseVisualStyleBackColor = true;
-            this.button2.Click += new System.EventHandler(this.button2_Click);
-            // 
-            // button3
-            // 
-            this.button3.Location = new System.Drawing.Point(182, 269);
-            this.button3.Name = "button3";
-            this.button3.Size = new System.Drawing.Size(18, 19);
-            this.button3.TabIndex = 8;
-            this.button3.Text = "<";
-            this.button3.UseVisualStyleBackColor = true;
-            this.button3.Click += new System.EventHandler(this.button3_Click);
-            // 
-            // button4
-            // 
-            this.button4.Location = new System.Drawing.Point(197, 286);
-            this.button4.Name = "button4";
-            this.button4.Size = new System.Drawing.Size(18, 19);
-            this.button4.TabIndex = 9;
-            this.button4.Text = "v";
-            this.button4.UseVisualStyleBackColor = true;
-            this.button4.Click += new System.EventHandler(this.button4_Click);
             // 
             // textBox1
             // 
@@ -216,16 +172,16 @@ namespace RobobuilderVC
             "COM3",
             "COM4",
             "COM5"});
-            this.listBox1.Location = new System.Drawing.Point(278, 264);
+            this.listBox1.Location = new System.Drawing.Point(233, 264);
             this.listBox1.Name = "listBox1";
-            this.listBox1.Size = new System.Drawing.Size(113, 17);
+            this.listBox1.Size = new System.Drawing.Size(121, 17);
             this.listBox1.TabIndex = 14;
             this.listBox1.SelectedIndexChanged += new System.EventHandler(this.listBox1_SelectedIndexChanged);
             // 
             // button5
             // 
             this.button5.BackColor = System.Drawing.Color.Red;
-            this.button5.Location = new System.Drawing.Point(341, 290);
+            this.button5.Location = new System.Drawing.Point(360, 264);
             this.button5.Name = "button5";
             this.button5.Size = new System.Drawing.Size(50, 25);
             this.button5.TabIndex = 15;
@@ -250,7 +206,7 @@ namespace RobobuilderVC
             // 
             // button6
             // 
-            this.button6.Location = new System.Drawing.Point(235, 286);
+            this.button6.Location = new System.Drawing.Point(177, 264);
             this.button6.Name = "button6";
             this.button6.Size = new System.Drawing.Size(50, 24);
             this.button6.TabIndex = 17;
@@ -275,10 +231,20 @@ namespace RobobuilderVC
             this.robolibver.Size = new System.Drawing.Size(0, 13);
             this.robolibver.TabIndex = 19;
             // 
+            // pictureBox1
+            // 
+            this.pictureBox1.Image = ((System.Drawing.Image)(resources.GetObject("pictureBox1.Image")));
+            this.pictureBox1.Location = new System.Drawing.Point(416, 12);
+            this.pictureBox1.Name = "pictureBox1";
+            this.pictureBox1.Size = new System.Drawing.Size(235, 462);
+            this.pictureBox1.TabIndex = 20;
+            this.pictureBox1.TabStop = false;
+            this.pictureBox1.Click += new System.EventHandler(this.pictureBox1_Click);
+            // 
             // Form1
             // 
             this.AutoScaleBaseSize = new System.Drawing.Size(5, 13);
-            this.ClientSize = new System.Drawing.Size(413, 486);
+            this.ClientSize = new System.Drawing.Size(675, 486);
             this.Controls.Add(this.robolibver);
             this.Controls.Add(this.listBox2);
             this.Controls.Add(this.button6);
@@ -288,17 +254,15 @@ namespace RobobuilderVC
             this.Controls.Add(this.pictureBox2);
             this.Controls.Add(this.textBox2);
             this.Controls.Add(this.textBox1);
-            this.Controls.Add(this.button4);
-            this.Controls.Add(this.button3);
-            this.Controls.Add(this.button2);
-            this.Controls.Add(this.button1);
             this.Controls.Add(this.cmdStop);
             this.Controls.Add(this.cmdStart);
+            this.Controls.Add(this.pictureBox1);
             this.Name = "Form1";
             this.Text = "Robobuilder Video Control";
             this.Load += new System.EventHandler(this.Form1_Load);
             this.Closing += new System.ComponentModel.CancelEventHandler(this.Form1_Closing);
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -468,34 +432,6 @@ namespace RobobuilderVC
             wcam.SignalToStop();
 		}
 
-        private void button1_Click(object sender, EventArgs e)
-        {
-            // forward
-            if (!serialPort1.IsOpen) serialPort1.Open();
-            serialPort1.Write("F");
-        }
-
-        private void button2_Click(object sender, EventArgs e)
-        {
-            //right
-            if (!serialPort1.IsOpen) serialPort1.Open();
-            serialPort1.Write("R");
-        }
-
-        private void button3_Click(object sender, EventArgs e)
-        {
-            //left
-            if (!serialPort1.IsOpen) serialPort1.Open();
-            serialPort1.Write("L");
-        }
-
-        private void button4_Click(object sender, EventArgs e)
-        {
-            //back
-            if (!serialPort1.IsOpen) serialPort1.Open();
-            serialPort1.Write("B");
-        }
-
         private void textBox1_TextChanged(object sender, EventArgs e)
         {
             if (!serialPort1.IsOpen) serialPort1.Open();
@@ -582,6 +518,56 @@ namespace RobobuilderVC
             //back
             if (!serialPort1.IsOpen) serialPort1.Open();
             serialPort1.Write("e11");  //special event 0x11
+        }
+
+        private void pictureBox1_Click(object sender, EventArgs e)
+        {
+            // Controller Image
+            // mouse x/y
+            // 
+            MouseEventArgs m = (MouseEventArgs)e;
+
+            if (m.X > 45 && m.X < 70 && m.Y > 45 && m.Y < 70)
+            {
+                System.Console.WriteLine("A pressed");
+            }
+            else
+            if (m.X > 160 && m.X < 180 && m.Y > 45 && m.Y < 70)
+            {
+                System.Console.WriteLine("B pressed");
+            }
+            else
+            if (m.X > 99 && m.X < 127 && m.Y > 74 && m.Y < 107)
+            {
+                System.Console.WriteLine("F pressed");
+                if (serialPort1.IsOpen) 
+                    serialPort1.Write("F");
+            } 
+            else
+            if (m.X > 105 && m.X < 125 && m.Y > 195 && m.Y < 225)
+            {
+                System.Console.WriteLine("B pressed");
+                if (serialPort1.IsOpen)
+                    serialPort1.Write("B");
+            } 
+            else
+            if (m.X > 163 && m.X < 190 && m.Y > 141 && m.Y < 158)
+            {
+                System.Console.WriteLine("R pressed");
+                if (serialPort1.IsOpen) 
+                    serialPort1.Write("R");
+            }
+            else
+            if (m.X > 36 && m.X < 66 && m.Y > 140 && m.Y < 160)
+            {
+                System.Console.WriteLine("L pressed");
+                if (serialPort1.IsOpen) 
+                    serialPort1.Write("L");
+            }
+            else
+            {
+                System.Console.WriteLine("clicked" + m.X.ToString() + "," + m.Y.ToString());
+            }
         }
 
 
