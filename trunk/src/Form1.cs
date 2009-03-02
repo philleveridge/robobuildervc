@@ -48,6 +48,7 @@ namespace RobobuilderVC
         int cnt;
         private Button button6;
         private ListBox listBox2;
+        private Label robolibver;
         CountingMotionDetector detector;
 
 		public Form1()
@@ -114,6 +115,7 @@ namespace RobobuilderVC
             this.label1 = new System.Windows.Forms.Label();
             this.button6 = new System.Windows.Forms.Button();
             this.listBox2 = new System.Windows.Forms.ListBox();
+            this.robolibver = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).BeginInit();
             this.SuspendLayout();
             // 
@@ -265,10 +267,19 @@ namespace RobobuilderVC
             this.listBox2.Size = new System.Drawing.Size(147, 17);
             this.listBox2.TabIndex = 18;
             // 
+            // robolibver
+            // 
+            this.robolibver.AutoSize = true;
+            this.robolibver.Location = new System.Drawing.Point(12, 347);
+            this.robolibver.Name = "robolibver";
+            this.robolibver.Size = new System.Drawing.Size(0, 13);
+            this.robolibver.TabIndex = 19;
+            // 
             // Form1
             // 
             this.AutoScaleBaseSize = new System.Drawing.Size(5, 13);
             this.ClientSize = new System.Drawing.Size(413, 486);
+            this.Controls.Add(this.robolibver);
             this.Controls.Add(this.listBox2);
             this.Controls.Add(this.button6);
             this.Controls.Add(this.label1);
@@ -528,6 +539,13 @@ namespace RobobuilderVC
             else 
             {
                 serialPort1.Open();
+                //serialPort1.Write("x04FFA20022"); //getPos(2)
+                serialPort1.Write("v"); //version
+                string s =  serialPort1.ReadLine();
+
+                System.Console.WriteLine(s);
+
+                
             }
             serial_status();
         }
