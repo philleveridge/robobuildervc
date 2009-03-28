@@ -128,8 +128,10 @@
     <Compile Include="AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Class1.cs" />
-    <Compile Include="Class2.cs" />
+    <Compile Include="Filters.cs" />
+    <Compile Include="PlayMotion.cs" />
+    <Compile Include="Scene.cs" />
+    <Compile Include="SerialComms.cs" />
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>
     </Compile>

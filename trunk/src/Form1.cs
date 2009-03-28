@@ -320,6 +320,7 @@ namespace RobobuilderVC
             this.micLevel.ForeColor = System.Drawing.Color.Lime;
             this.micLevel.Location = new System.Drawing.Point(360, 7);
             this.micLevel.Maximum = 255;
+            this.micLevel.Minimum = 0;
             this.micLevel.Name = "micLevel";
             this.micLevel.Size = new System.Drawing.Size(59, 18);
             this.micLevel.TabIndex = 25;
@@ -330,6 +331,7 @@ namespace RobobuilderVC
             this.PSDLevel.ForeColor = System.Drawing.Color.Lime;
             this.PSDLevel.Location = new System.Drawing.Point(425, 7);
             this.PSDLevel.Maximum = 255;
+            this.PSDLevel.Minimum=0;
             this.PSDLevel.Name = "PSDLevel";
             this.PSDLevel.Size = new System.Drawing.Size(59, 18);
             this.PSDLevel.TabIndex = 26;
