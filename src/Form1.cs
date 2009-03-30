@@ -59,6 +59,10 @@ namespace RobobuilderVC
         private ProgressBar micLevel;
         private ProgressBar PSDLevel;
         private Button modeB;
+        private MenuStrip menuStrip1;
+        private ToolStripMenuItem toolStripMenuItem1;
+        private ToolStripMenuItem loadRBMToolStripMenuItem;
+        private OpenFileDialog openFileDialog1;
 
         PlayMotion pm = new PlayMotion();
 
@@ -143,12 +147,17 @@ namespace RobobuilderVC
             this.micLevel = new System.Windows.Forms.ProgressBar();
             this.PSDLevel = new System.Windows.Forms.ProgressBar();
             this.modeB = new System.Windows.Forms.Button();
+            this.menuStrip1 = new System.Windows.Forms.MenuStrip();
+            this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
+            this.loadRBMToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
+            this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
             // cmdStart
             // 
-            this.cmdStart.Location = new System.Drawing.Point(6, 279);
+            this.cmdStart.Location = new System.Drawing.Point(6, 296);
             this.cmdStart.Name = "cmdStart";
             this.cmdStart.Size = new System.Drawing.Size(78, 24);
             this.cmdStart.TabIndex = 1;
@@ -157,7 +166,7 @@ namespace RobobuilderVC
             // 
             // cmdStop
             // 
-            this.cmdStop.Location = new System.Drawing.Point(6, 309);
+            this.cmdStop.Location = new System.Drawing.Point(6, 326);
             this.cmdStop.Name = "cmdStop";
             this.cmdStop.Size = new System.Drawing.Size(78, 24);
             this.cmdStop.TabIndex = 2;
@@ -172,7 +181,7 @@ namespace RobobuilderVC
             // 
             // textBox1
             // 
-            this.textBox1.Location = new System.Drawing.Point(89, 321);
+            this.textBox1.Location = new System.Drawing.Point(89, 338);
             this.textBox1.Name = "textBox1";
             this.textBox1.Size = new System.Drawing.Size(265, 20);
             this.textBox1.TabIndex = 10;
@@ -180,7 +189,7 @@ namespace RobobuilderVC
             // 
             // textBox2
             // 
-            this.textBox2.Location = new System.Drawing.Point(90, 347);
+            this.textBox2.Location = new System.Drawing.Point(90, 364);
             this.textBox2.Multiline = true;
             this.textBox2.Name = "textBox2";
             this.textBox2.ReadOnly = true;
@@ -197,7 +206,7 @@ namespace RobobuilderVC
             "COM3",
             "COM4",
             "COM5"});
-            this.listBox1.Location = new System.Drawing.Point(190, 254);
+            this.listBox1.Location = new System.Drawing.Point(190, 271);
             this.listBox1.Name = "listBox1";
             this.listBox1.Size = new System.Drawing.Size(138, 34);
             this.listBox1.TabIndex = 14;
@@ -206,7 +215,7 @@ namespace RobobuilderVC
             // button5
             // 
             this.button5.BackColor = System.Drawing.Color.Red;
-            this.button5.Location = new System.Drawing.Point(278, 288);
+            this.button5.Location = new System.Drawing.Point(278, 305);
             this.button5.Name = "button5";
             this.button5.Size = new System.Drawing.Size(50, 25);
             this.button5.TabIndex = 15;
@@ -231,7 +240,7 @@ namespace RobobuilderVC
             // 
             // button6
             // 
-            this.button6.Location = new System.Drawing.Point(34, 347);
+            this.button6.Location = new System.Drawing.Point(34, 364);
             this.button6.Name = "button6";
             this.button6.Size = new System.Drawing.Size(50, 24);
             this.button6.TabIndex = 17;
@@ -245,7 +254,7 @@ namespace RobobuilderVC
             this.listBox2.ItemHeight = 16;
             this.listBox2.Items.AddRange(new object[] {
             "<undef>"});
-            this.listBox2.Location = new System.Drawing.Point(6, 255);
+            this.listBox2.Location = new System.Drawing.Point(6, 272);
             this.listBox2.Name = "listBox2";
             this.listBox2.Size = new System.Drawing.Size(139, 20);
             this.listBox2.TabIndex = 18;
@@ -272,7 +281,7 @@ namespace RobobuilderVC
             // detectionCheck
             // 
             this.detectionCheck.AutoSize = true;
-            this.detectionCheck.Location = new System.Drawing.Point(239, 294);
+            this.detectionCheck.Location = new System.Drawing.Point(239, 311);
             this.detectionCheck.Name = "detectionCheck";
             this.detectionCheck.Size = new System.Drawing.Size(15, 14);
             this.detectionCheck.TabIndex = 22;
@@ -282,7 +291,7 @@ namespace RobobuilderVC
             // 
             this.videoSourcePlayer.BackColor = System.Drawing.SystemColors.ControlDarkDark;
             this.videoSourcePlayer.ForeColor = System.Drawing.Color.White;
-            this.videoSourcePlayer.Location = new System.Drawing.Point(6, 7);
+            this.videoSourcePlayer.Location = new System.Drawing.Point(6, 27);
             this.videoSourcePlayer.Name = "videoSourcePlayer";
             this.videoSourcePlayer.Size = new System.Drawing.Size(322, 242);
             this.videoSourcePlayer.TabIndex = 0;
@@ -297,7 +306,7 @@ namespace RobobuilderVC
             // 
             // testPM
             // 
-            this.testPM.Location = new System.Drawing.Point(34, 377);
+            this.testPM.Location = new System.Drawing.Point(34, 394);
             this.testPM.Name = "testPM";
             this.testPM.Size = new System.Drawing.Size(50, 24);
             this.testPM.TabIndex = 23;
@@ -320,7 +329,6 @@ namespace RobobuilderVC
             this.micLevel.ForeColor = System.Drawing.Color.Lime;
             this.micLevel.Location = new System.Drawing.Point(360, 7);
             this.micLevel.Maximum = 255;
-            this.micLevel.Minimum = 0;
             this.micLevel.Name = "micLevel";
             this.micLevel.Size = new System.Drawing.Size(59, 18);
             this.micLevel.TabIndex = 25;
@@ -331,7 +339,6 @@ namespace RobobuilderVC
             this.PSDLevel.ForeColor = System.Drawing.Color.Lime;
             this.PSDLevel.Location = new System.Drawing.Point(425, 7);
             this.PSDLevel.Maximum = 255;
-            this.PSDLevel.Minimum=0;
             this.PSDLevel.Name = "PSDLevel";
             this.PSDLevel.Size = new System.Drawing.Size(59, 18);
             this.PSDLevel.TabIndex = 26;
@@ -339,12 +346,41 @@ namespace RobobuilderVC
             // 
             // modeB
             // 
-            this.modeB.Location = new System.Drawing.Point(34, 411);
+            this.modeB.Location = new System.Drawing.Point(34, 428);
             this.modeB.Name = "modeB";
             this.modeB.Size = new System.Drawing.Size(50, 24);
             this.modeB.TabIndex = 27;
             this.modeB.Text = "mode";
             this.modeB.Click += new System.EventHandler(this.modeB_Click);
+            // 
+            // menuStrip1
+            // 
+            this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.toolStripMenuItem1});
+            this.menuStrip1.Location = new System.Drawing.Point(0, 0);
+            this.menuStrip1.Name = "menuStrip1";
+            this.menuStrip1.Size = new System.Drawing.Size(602, 24);
+            this.menuStrip1.TabIndex = 28;
+            this.menuStrip1.Text = "menuStrip1";
+            // 
+            // toolStripMenuItem1
+            // 
+            this.toolStripMenuItem1.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.loadRBMToolStripMenuItem});
+            this.toolStripMenuItem1.Name = "toolStripMenuItem1";
+            this.toolStripMenuItem1.Size = new System.Drawing.Size(37, 20);
+            this.toolStripMenuItem1.Text = "File";
+            // 
+            // loadRBMToolStripMenuItem
+            // 
+            this.loadRBMToolStripMenuItem.Name = "loadRBMToolStripMenuItem";
+            this.loadRBMToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.loadRBMToolStripMenuItem.Text = "Load RBM";
+            this.loadRBMToolStripMenuItem.Click += new System.EventHandler(this.loadRBMToolStripMenuItem_Click);
+            // 
+            // openFileDialog1
+            // 
+            this.openFileDialog1.FileName = "openFileDialog1";
             // 
             // Form1
             // 
@@ -368,11 +404,15 @@ namespace RobobuilderVC
             this.Controls.Add(this.cmdStart);
             this.Controls.Add(this.pictureBox1);
             this.Controls.Add(this.videoSourcePlayer);
+            this.Controls.Add(this.menuStrip1);
+            this.MainMenuStrip = this.menuStrip1;
             this.Name = "Form1";
             this.Text = "Robobuilder Video Control";
             this.Load += new System.EventHandler(this.Form1_Load);
             this.Closing += new System.ComponentModel.CancelEventHandler(this.Form1_Closing);
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
+            this.menuStrip1.ResumeLayout(false);
+            this.menuStrip1.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -775,6 +815,22 @@ namespace RobobuilderVC
                     modeB.Text = v;
             }
 
+        }
+
+        private void loadRBMToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            string filename = "";
+
+            // load rbm file
+            openFileDialog1.Filter = "Motion File|*.rbm";
+
+            if (openFileDialog1.ShowDialog() == DialogResult.OK)
+            {
+                filename = openFileDialog1.FileName;
+            }
+
+            Motion m1 = new Motion();
+            m1.LoadFile(filename);
         }
 
     }

@@ -26,11 +26,12 @@ namespace RobobuilderVC
      */
     class Scene
     {
-        public int TransitionTime;
-        public int Frames;
-        public int[] mPositions;
-        public int[] mTorque;
-        public int[] mExternalData;
+        public string name;
+        public uint TransitionTime;
+        public uint Frames;
+        public uint[] mPositions;
+        public uint[] mTorque;
+        public uint[] mExternalData;
 
         public Scene()
         {
