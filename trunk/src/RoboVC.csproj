@@ -129,6 +129,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Filters.cs" />
+    <Compile Include="Motion.cs" />
     <Compile Include="PlayMotion.cs" />
     <Compile Include="Scene.cs" />
     <Compile Include="SerialComms.cs" />

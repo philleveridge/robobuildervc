@@ -15,6 +15,7 @@ namespace RobobuilderVC
         int SIdx;
         float[] UnitD = new float[32];
         string outBuffer;
+        Motion m;
 
         //----------------------------------------------------------
         // Motion Name : HUNODEMO_HI
@@ -42,39 +43,60 @@ namespace RobobuilderVC
         uint[] TrTime ={
 	      500, 1000,  500,  500, 1000
         };
-        uint[,] Position ={
+        uint[][] Position = new uint[][] {
 	    /* ID
 	        0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14, 15 */
-	    { 125,179,199, 88,108,126, 72, 49,163,141, 51, 47, 49,199,205,205 },
-	    { 125,179,199, 88,108,126, 72, 49,163,141, 51, 47, 49,199,205,205 },	// Idx:0 - Scene_0
-	    { 125,179,199, 88,108,126, 72, 49,163,141,187, 58, 46,199,205,205 },	// Idx:1 - Scene_1
-	    { 125,179,199, 88,108,126, 72, 49,163,141,186,103, 46,199,205,205 },	// Idx:2 - Scene_2
-	    { 125,179,199, 88,108,126, 72, 49,163,141,187, 58, 46,199,205,205 },	// Idx:3 - Scene_1
-	    { 125,179,199, 88,108,126, 72, 49,163,141, 51, 47, 49,199,205,205 } 	// Idx:4 - Scene_4
+	    new uint[] { 125,179,199, 88,108,126, 72, 49,163,141, 51, 47, 49,199,205,205 },
+	    new uint[] { 125,179,199, 88,108,126, 72, 49,163,141, 51, 47, 49,199,205,205 },	// Idx:0 - Scene_0
+	    new uint[] { 125,179,199, 88,108,126, 72, 49,163,141,187, 58, 46,199,205,205 },	// Idx:1 - Scene_1
+	    new uint[] { 125,179,199, 88,108,126, 72, 49,163,141,186,103, 46,199,205,205 },	// Idx:2 - Scene_2
+	    new uint[] { 125,179,199, 88,108,126, 72, 49,163,141,187, 58, 46,199,205,205 },	// Idx:3 - Scene_1
+	    new uint[] { 125,179,199, 88,108,126, 72, 49,163,141, 51, 47, 49,199,205,205 } 	// Idx:4 - Scene_4
         };
-        uint[,] Torque ={
+        uint[][] Torque ={
 	    /* ID
 	        0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14, 15 */
-	    {   2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2 },	// Idx:0 - Scene_0
-	    {   2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2 },	// Idx:1 - Scene_1
-	    {   2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2 },	// Idx:2 - Scene_2
-	    {   2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2 },	// Idx:3 - Scene_1
-	    {   4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4 } 	// Idx:4 - Scene_4
+	    new uint[] {   2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2 },	// Idx:0 - Scene_0
+	    new uint[] {   2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2 },	// Idx:1 - Scene_1
+	    new uint[] {   2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2 },	// Idx:2 - Scene_2
+	    new uint[] {   2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2 },	// Idx:3 - Scene_1
+	    new uint[] {   4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4 } 	// Idx:4 - Scene_4
         };
-        uint[,] Port ={
+        uint[][] Port ={
 	    /* ID
 	        0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14, 15 */
-	    {   0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0 },	// Idx:0 - Scene_0
-	    {   0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0 },	// Idx:1 - Scene_1
-	    {   0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0 },	// Idx:2 - Scene_2
-	    {   0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0 },	// Idx:3 - Scene_1
-	    {   0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0 } 	// Idx:4 - Scene_4
+	    new uint[] {   0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0 },	// Idx:0 - Scene_0
+	    new uint[] {   0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0 },	// Idx:1 - Scene_1
+	    new uint[] {   0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0 },	// Idx:2 - Scene_2
+	    new uint[] {   0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0 },	// Idx:3 - Scene_1
+	    new uint[] {   0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0 } 	// Idx:4 - Scene_4
         };
 
 
         public PlayMotion()
         {
             F_PLAYING = false;
+            m = new Motion();
+            m.IGain = RuntimeIGain;
+            m.PGain = RuntimePGain;
+            m.DGain = RuntimeDGain;
+
+            m.scenes = new Scene[5];
+            for (int i = 0; i < 5; i++)
+            {
+                m.scenes[i] = new Scene();
+                m.scenes[i].Frames = Frames[i];
+                m.scenes[i].TransitionTime = TrTime[i];
+                m.scenes[i].mPositions = Position[i];
+                m.scenes[i].mTorque = Torque[i];
+                m.scenes[i].mExternalData = Port[i];
+            }
+        }
+
+        public PlayMotion(Motion x)
+        {
+            F_PLAYING = false;
+            m = x;
         }
 
         //------------------------------------------------------------------------------
@@ -108,7 +130,7 @@ namespace RobobuilderVC
             string t = "";
             for (i = 0; i < 16; i++)
             {
-                t += SetCmd(i, 100, Port[SIdx, i], Port[SIdx, i]);
+                t += SetCmd(i, 100, Port[SIdx][i], Port[SIdx][i]);
             }
             return t;
         }
@@ -152,9 +174,9 @@ namespace RobobuilderVC
         {
             for (int i = 0; i < NUM_OF_WCKS; i++)
             {
-                if (Position[SIdx + 1, i] != Position[SIdx, i])
+                if (Position[SIdx + 1][i] != Position[SIdx][i])
                 {
-                    float t = (int)Position[SIdx + 1, i] - (int)Position[SIdx, i];
+                    float t = (int)Position[SIdx + 1][i] - (int)Position[SIdx][i];
                     t = t / Frames[SIdx];
                     if (t > 253) t = 254;
                     if (t < -253) t = -254;
@@ -208,7 +230,7 @@ namespace RobobuilderVC
             t = 0;
             for (int i = 0; i < 16; i++)
             {
-                int lt = (int)Position[SIdx,i] + (int)(UnitD[i]*(float)FrameIdx);
+                int lt = (int)Position[SIdx][i] + (int)(UnitD[i]*(float)FrameIdx);
                 if (lt > 254) lt = 254;
                 if (lt < 1) lt = 1;
                 outBuffer += lt.ToString("X2");
