@@ -7,96 +7,20 @@ namespace RobobuilderVC
 
     class PlayMotion
     {
-        int NUM_OF_SCENES = 5;
         int NUM_OF_WCKS = 16;
         bool F_PLAYING;
         int FrameIdx;
-        int NumOfFrame;
         int SIdx;
         float[] UnitD = new float[32];
         string outBuffer;
         Motion m;
 
-        //----------------------------------------------------------
-        // Motion Name : HUNODEMO_HI
-        //----------------------------------------------------------
-
-        uint[] RuntimePGain ={
-	    /* ID
-	      0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14, 15 */
-	     20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20
-        };
-
-        uint[] RuntimeDGain ={
-	    /* ID
-	      0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14, 15 */
-	     30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30
-        };
-        uint[] RuntimeIGain ={
-	    /* ID
-	      0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14, 15 */
-	      0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0
-        };
-        uint[] Frames ={
-	       10,   40,   10,   10,   40
-        };
-        uint[] TrTime ={
-	      500, 1000,  500,  500, 1000
-        };
-        uint[][] Position = new uint[][] {
-	    /* ID
-	        0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14, 15 */
-	    new uint[] { 125,179,199, 88,108,126, 72, 49,163,141, 51, 47, 49,199,205,205 },
-	    new uint[] { 125,179,199, 88,108,126, 72, 49,163,141, 51, 47, 49,199,205,205 },	// Idx:0 - Scene_0
-	    new uint[] { 125,179,199, 88,108,126, 72, 49,163,141,187, 58, 46,199,205,205 },	// Idx:1 - Scene_1
-	    new uint[] { 125,179,199, 88,108,126, 72, 49,163,141,186,103, 46,199,205,205 },	// Idx:2 - Scene_2
-	    new uint[] { 125,179,199, 88,108,126, 72, 49,163,141,187, 58, 46,199,205,205 },	// Idx:3 - Scene_1
-	    new uint[] { 125,179,199, 88,108,126, 72, 49,163,141, 51, 47, 49,199,205,205 } 	// Idx:4 - Scene_4
-        };
-        uint[][] Torque ={
-	    /* ID
-	        0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14, 15 */
-	    new uint[] {   2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2 },	// Idx:0 - Scene_0
-	    new uint[] {   2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2 },	// Idx:1 - Scene_1
-	    new uint[] {   2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2 },	// Idx:2 - Scene_2
-	    new uint[] {   2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2 },	// Idx:3 - Scene_1
-	    new uint[] {   4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4 } 	// Idx:4 - Scene_4
-        };
-        uint[][] Port ={
-	    /* ID
-	        0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14, 15 */
-	    new uint[] {   0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0 },	// Idx:0 - Scene_0
-	    new uint[] {   0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0 },	// Idx:1 - Scene_1
-	    new uint[] {   0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0 },	// Idx:2 - Scene_2
-	    new uint[] {   0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0 },	// Idx:3 - Scene_1
-	    new uint[] {   0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0 } 	// Idx:4 - Scene_4
-        };
-
-
-        public PlayMotion()
-        {
-            F_PLAYING = false;
-            m = new Motion();
-            m.IGain = RuntimeIGain;
-            m.PGain = RuntimePGain;
-            m.DGain = RuntimeDGain;
-
-            m.scenes = new Scene[5];
-            for (int i = 0; i < 5; i++)
-            {
-                m.scenes[i] = new Scene();
-                m.scenes[i].Frames = Frames[i];
-                m.scenes[i].TransitionTime = TrTime[i];
-                m.scenes[i].mPositions = Position[i];
-                m.scenes[i].mTorque = Torque[i];
-                m.scenes[i].mExternalData = Port[i];
-            }
-        }
-
         public PlayMotion(Motion x)
         {
             F_PLAYING = false;
             m = x;
+            Console.WriteLine("Motion: " + m.name + ", No Scenes=" + m.no_scenes);
+            NUM_OF_WCKS = m.no_servos;
         }
 
         //------------------------------------------------------------------------------
@@ -128,9 +52,9 @@ namespace RobobuilderVC
         {
             uint i;
             string t = "";
-            for (i = 0; i < 16; i++)
+            for (i = 0; i < NUM_OF_WCKS; i++)
             {
-                t += SetCmd(i, 100, Port[SIdx][i], Port[SIdx][i]);
+                t += SetCmd(i, 100, m.scenes[SIdx].mExternalData[i], m.scenes[SIdx].mExternalData[i]);
             }
             return t;
         }
@@ -143,15 +67,13 @@ namespace RobobuilderVC
         {
 	        uint i;
             string t="";
-            for (i = 0; i < 16; i++)
+            for (i = 0; i < NUM_OF_WCKS; i++)
             {
-                t += SetCmd(i, 11, RuntimePGain[i], RuntimeDGain[i]);
+                t += SetCmd(i, 11, m.PGain[i], m.DGain[i]);
             }
-            // send that buffer
-            //string t = "";
-            for (i = 0; i < 16; i++)
+            for (i = 0; i < NUM_OF_WCKS; i++)
             {
-                t += SetCmd(i, 24, RuntimeIGain[i], RuntimeIGain[i]);
+                t += SetCmd(i, 24, m.IGain[i], m.IGain[i]);
             }
             return t;
         }
@@ -172,12 +94,20 @@ namespace RobobuilderVC
         //------------------------------------------------------------------------------
         void CalcUnitMove()
         {
-            for (int i = 0; i < NUM_OF_WCKS; i++)
+            for (int i= 0; i < NUM_OF_WCKS; i++)
             {
-                if (Position[SIdx + 1][i] != Position[SIdx][i])
+                uint spos;
+                if (SIdx == 0)
+                    spos = m.Position[i];
+                else
+                    spos = m.scenes[SIdx - 1].mPositions[i];
+
+                uint epos = m.scenes[SIdx].mPositions[i];
+
+                if ( epos != spos)
                 {
-                    float t = (int)Position[SIdx + 1][i] - (int)Position[SIdx][i];
-                    t = t / Frames[SIdx];
+                    float t = (int)epos - (int)spos;
+                    t = t / m.scenes[SIdx].Frames;
                     if (t > 253) t = 254;
                     if (t < -253) t = -254;
                     UnitD[i] = t;
@@ -185,7 +115,6 @@ namespace RobobuilderVC
                 else
                     UnitD[i] = 0;
 
-                //Console.WriteLine("DEBUG S=" + SIdx +"  ui " + i + "=" + UnitD[i]);
             }
         }
 
@@ -195,11 +124,11 @@ namespace RobobuilderVC
         //------------------------------------------------------------------------------
         public int CalcFrameInterval()
         {
-            Console.WriteLine("CI=" + TrTime[SIdx] / Frames[SIdx]);
-            if (TrTime[SIdx] / Frames[SIdx] < 20)
+            Console.WriteLine("CI=" + m.scenes[SIdx].TransitionTime / m.scenes[SIdx].Frames);
+            if (m.scenes[SIdx].TransitionTime / m.scenes[SIdx].Frames < 20)
                 return 0;
             else
-                return (int)(TrTime[SIdx] / Frames[SIdx]); // ms
+                return (int)(m.scenes[SIdx].TransitionTime / m.scenes[SIdx].Frames); // ms
         }
 
         //------------------------------------------------------------------------------
@@ -210,8 +139,8 @@ namespace RobobuilderVC
             string t = "";
             SIdx = 0;
 	        t = SetGain();				    // set the runtime P,D and I from motion structure
-	        //t += ExPortD();			        // Set external port data
-	        CalcUnitMove();			    // Calculate the interpolation steps
+	        //t += ExPortD();			    // Set external port data
+	        CalcUnitMove();			        // Calculate the interpolation steps
             return t;
         }
 
@@ -228,9 +157,9 @@ namespace RobobuilderVC
             t = 16;
             outBuffer += t.ToString("X2");
             t = 0;
-            for (int i = 0; i < 16; i++)
+            for (int i = 0; i < NUM_OF_WCKS; i++)
             {
-                int lt = (int)Position[SIdx][i] + (int)(UnitD[i]*(float)FrameIdx);
+                int lt = (int)m.scenes[SIdx].mPositions[i] + (int)(UnitD[i] * (float)FrameIdx);
                 if (lt > 254) lt = 254;
                 if (lt < 1) lt = 1;
                 outBuffer += lt.ToString("X2");
@@ -245,14 +174,14 @@ namespace RobobuilderVC
         //------------------------------------------------------------------------------
         public string Timer() 
         {
-            Console.WriteLine("Debug: " + SIdx + "," + FrameIdx);
-	        if( FrameIdx == Frames[SIdx] )
+            Console.WriteLine("Debug: " + m.scenes[SIdx].name + "," + FrameIdx);
+	        if( FrameIdx == m.scenes[SIdx].Frames)
             {   // are we at the end of the scene ?
    	            FrameIdx = 0;
 
                 SIdx++; //next scene
 
-                if (SIdx == NUM_OF_SCENES)
+                if (SIdx == m.scenes.Length)
                 {
                     SIdx = 0;
                     F_PLAYING = false;					// clear F_PLAYING state

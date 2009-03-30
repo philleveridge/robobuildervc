@@ -38,21 +38,5 @@ namespace RobobuilderVC
             Frames = 0;
             TransitionTime = 0;
         }
-
-        public string toString()
-        {
-            return "X" + "00" ;
-        }
-
-        public bool play(SerialPort port)
-        {
-            if (port.IsOpen)
-            {
-            //check mode
-            //send scene data
-            }
-
-            return false;
-        }
     }
 }

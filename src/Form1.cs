@@ -64,7 +64,8 @@ namespace RobobuilderVC
         private ToolStripMenuItem loadRBMToolStripMenuItem;
         private OpenFileDialog openFileDialog1;
 
-        PlayMotion pm = new PlayMotion();
+        PlayMotion pm;
+        Motion m1;
 
 
 		public Form1()
@@ -793,6 +794,9 @@ namespace RobobuilderVC
 
             if (timer2.Enabled)
             {
+                Wave w = new Wave();
+                pm = new PlayMotion(w);
+
                 timer2.Interval = pm.CalcFrameInterval();
                 sendCmd(pm.Play());
             }
@@ -829,8 +833,17 @@ namespace RobobuilderVC
                 filename = openFileDialog1.FileName;
             }
 
-            Motion m1 = new Motion();
+            m1 = new Motion();
             m1.LoadFile(filename);
+
+            if (!timer2.Enabled)
+            {
+                pm = new PlayMotion(m1);
+                timer2.Interval = pm.CalcFrameInterval();
+                timer2.Enabled = true;
+                sendCmd(pm.Play());
+            }
+
         }
 
     }
