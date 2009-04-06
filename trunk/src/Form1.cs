@@ -65,6 +65,9 @@ namespace RobobuilderVC
         private OpenFileDialog openFileDialog1;
 
         PlayMotion pm;
+        private ToolStripMenuItem loadBasToolStripMenuItem;
+        private Label label2;
+        private CheckBox pollTst;
         Motion m1;
 
 
@@ -151,7 +154,10 @@ namespace RobobuilderVC
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.loadRBMToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.loadBasToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
+            this.label2 = new System.Windows.Forms.Label();
+            this.pollTst = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
@@ -319,11 +325,12 @@ namespace RobobuilderVC
             this.batLevel.ForeColor = System.Drawing.Color.Lime;
             this.batLevel.Location = new System.Drawing.Point(490, 7);
             this.batLevel.Maximum = 10000;
-            this.batLevel.Minimum = 8000;
+            this.batLevel.Minimum = 5000;
             this.batLevel.Name = "batLevel";
             this.batLevel.Size = new System.Drawing.Size(59, 18);
             this.batLevel.TabIndex = 24;
             this.batLevel.Value = 8000;
+            this.batLevel.Visible = false;
             // 
             // micLevel
             // 
@@ -334,6 +341,7 @@ namespace RobobuilderVC
             this.micLevel.Size = new System.Drawing.Size(59, 18);
             this.micLevel.TabIndex = 25;
             this.micLevel.Value = 255;
+            this.micLevel.Visible = false;
             // 
             // PSDLevel
             // 
@@ -344,6 +352,7 @@ namespace RobobuilderVC
             this.PSDLevel.Size = new System.Drawing.Size(59, 18);
             this.PSDLevel.TabIndex = 26;
             this.PSDLevel.Value = 255;
+            this.PSDLevel.Visible = false;
             // 
             // modeB
             // 
@@ -367,7 +376,8 @@ namespace RobobuilderVC
             // toolStripMenuItem1
             // 
             this.toolStripMenuItem1.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.loadRBMToolStripMenuItem});
+            this.loadRBMToolStripMenuItem,
+            this.loadBasToolStripMenuItem});
             this.toolStripMenuItem1.Name = "toolStripMenuItem1";
             this.toolStripMenuItem1.Size = new System.Drawing.Size(37, 20);
             this.toolStripMenuItem1.Text = "File";
@@ -375,18 +385,45 @@ namespace RobobuilderVC
             // loadRBMToolStripMenuItem
             // 
             this.loadRBMToolStripMenuItem.Name = "loadRBMToolStripMenuItem";
-            this.loadRBMToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.loadRBMToolStripMenuItem.Size = new System.Drawing.Size(128, 22);
             this.loadRBMToolStripMenuItem.Text = "Load RBM";
             this.loadRBMToolStripMenuItem.Click += new System.EventHandler(this.loadRBMToolStripMenuItem_Click);
+            // 
+            // loadBasToolStripMenuItem
+            // 
+            this.loadBasToolStripMenuItem.Name = "loadBasToolStripMenuItem";
+            this.loadBasToolStripMenuItem.Size = new System.Drawing.Size(128, 22);
+            this.loadBasToolStripMenuItem.Text = "Load Bas";
+            this.loadBasToolStripMenuItem.Click += new System.EventHandler(this.loadBasToolStripMenuItem_Click);
             // 
             // openFileDialog1
             // 
             this.openFileDialog1.FileName = "openFileDialog1";
             // 
+            // label2
+            // 
+            this.label2.Location = new System.Drawing.Point(222, 3);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(113, 13);
+            this.label2.TabIndex = 29;
+            this.label2.Text = "MODE: no connection";
+            // 
+            // pollTst
+            // 
+            this.pollTst.AutoSize = true;
+            this.pollTst.Location = new System.Drawing.Point(560, 9);
+            this.pollTst.Name = "pollTst";
+            this.pollTst.Size = new System.Drawing.Size(42, 17);
+            this.pollTst.TabIndex = 30;
+            this.pollTst.Text = "poll";
+            this.pollTst.UseVisualStyleBackColor = true;
+            // 
             // Form1
             // 
             this.AutoScaleBaseSize = new System.Drawing.Size(5, 13);
             this.ClientSize = new System.Drawing.Size(602, 497);
+            this.Controls.Add(this.pollTst);
+            this.Controls.Add(this.label2);
             this.Controls.Add(this.modeB);
             this.Controls.Add(this.PSDLevel);
             this.Controls.Add(this.micLevel);
@@ -430,9 +467,59 @@ namespace RobobuilderVC
 		}
 
         FilterInfoCollection videoDevices ;
+        int mode;
 
-		private void Form1_Load(object sender, System.EventArgs e)
+        void showmode()
+        {
+            switch (mode)
+            {
+                case 0:
+                    label2.Text="MODE: not connected";
+                    break;
+                case 1:
+                    label2.Text="MODE: Idle";
+                    break; 
+                case 2:
+                    label2.Text="MODE: Experimental";
+                    break;
+                case 3:
+                    label2.Text="MODE: Serial";
+                    break;
+                case 4:
+                    label2.Text = "MODE: Program Load";
+                    break;
+                case 5:
+                    label2.Text = "MODE: Program run"; 
+                    break;
+                case 6:
+                    label2.Text = "MODE: ???";
+                    break;
+            }
+        }
+
+        void readmode()
+        {
+            if (serialPort1.IsOpen)
+            {
+                string v = write2serial("?", true);
+                if (v.StartsWith("Idle")) mode = 1;
+                else if (v.StartsWith("?Exper")) mode = 2;
+                else if (v.StartsWith("?Seria")) mode = 3;
+                else mode = 6;
+            }
+            else
+            {
+                mode = 0;
+            }
+            showmode();
+        }
+
+
+        private void Form1_Load(object sender, System.EventArgs e)
 		{
+            mode = 0;
+            showmode();
+
             label1.Visible = false;
             try
             {
@@ -600,11 +687,12 @@ namespace RobobuilderVC
                 try
                 {
                     serialPort1.Open();
-                    string v = write2serial("v", true);
-                    this.Text += v;
-
-                    v = write2serial("?", true);
-                    modeB.Text = v;
+                    readmode();
+                    if (mode == 1)
+                    {
+                        string v = write2serial("v", true);
+                        this.Text += v;
+                    }
                 }
                 catch (Exception es)
                 {
@@ -643,21 +731,29 @@ namespace RobobuilderVC
             {
                 textBox2.AppendText(serialPort1.ReadExisting());
 
-                string qs = write2serial("q", true);
-
-                if (qs.Length >= 74 && qs.Substring(0,1)=="q")
+                if ((mode == 2 || mode == 3) && pollTst.Checked)
                 {
-                    PSDLevel.Value = Convert.ToInt16(qs.Substring(64 + 1, 4), 16);
-                    micLevel.Value = Convert.ToInt16(qs.Substring(68 + 1, 4), 16);
-                    batLevel.Value = Convert.ToInt16(qs.Substring(72 + 1, 4), 16);
+                    batLevel.Visible = true; micLevel.Visible = true; PSDLevel.Visible = true;
+                    string qs = write2serial("q", true);
 
-                    Console.WriteLine("Debug: " + batLevel.Value + micLevel.Value + PSDLevel.Value);
+                    if (qs.Length >= 74 && qs.Substring(0, 1) == "q")
+                    {
+                        PSDLevel.Value = Convert.ToInt16(qs.Substring(64 + 1, 4), 16);
+                        micLevel.Value = Convert.ToInt16(qs.Substring(68 + 1, 4), 16);
+                        batLevel.Value = Convert.ToInt16(qs.Substring(72 + 1, 4), 16);
 
-                    Console.WriteLine("X=" + qs.Substring(76 + 1, 4)
-                        + ", Y=" + qs.Substring(80 + 1, 4)
-                        + ", Z=" + qs.Substring(84 + 1, 4));
+                        Console.WriteLine("Debug: " + batLevel.Value + micLevel.Value + PSDLevel.Value);
 
-                    Console.WriteLine("Elapsed time =" + qs.Substring(84 + 1));
+                        Console.WriteLine("X=" + qs.Substring(76 + 1, 4)
+                            + ", Y=" + qs.Substring(80 + 1, 4)
+                            + ", Z=" + qs.Substring(84 + 1, 4));
+
+                        Console.WriteLine("Elapsed time =" + qs.Substring(84 + 1));
+                    }
+                }
+                else
+                {
+                    batLevel.Visible = false; micLevel.Visible = false; PSDLevel.Visible = false;
                 }
             }
         }
@@ -755,6 +851,31 @@ namespace RobobuilderVC
             }
         }
 
+        private string expect_serial(string s, string e)
+        {
+            string r = "";
+            bool f = timer1.Enabled;
+            timer1.Enabled = false;
+
+            if (serialPort1.IsOpen)
+            {
+                r = serialPort1.ReadExisting();
+                serialPort1.ReadTimeout = 2000;
+                serialPort1.Write(s);
+               
+                try
+                {
+                    r=serialPort1.ReadTo(e);
+                }
+                catch (Exception z)
+                {
+                }
+            }
+            timer1.Enabled = f;
+            Console.WriteLine("[" + r + "]"); //debug
+            return r;
+        }
+
         private string write2serial(string s, bool synch)
         {
             string r="";
@@ -773,15 +894,17 @@ namespace RobobuilderVC
                 {
                     //wait for a response
                     //generally this is the normal mode
-                    serialPort1.ReadTimeout=500;
+                    serialPort1.ReadTimeout=5000;
                     try
                     {
                         r = serialPort1.ReadLine();
+                        if (r=="\r")
+                            r = serialPort1.ReadLine();
                     }
                     catch (Exception z)
                     {
                     }
-                    //textBox2.AppendText("[" + r + "]");
+                    Console.WriteLine(t + "[" + r + "]"); //debug
                 }
             }
             timer1.Enabled=f;
@@ -813,12 +936,7 @@ namespace RobobuilderVC
 
         private void modeB_Click(object sender, EventArgs e)
         {
-            if (serialPort1.IsOpen)
-            {
-                    string v = write2serial("?", true);
-                    modeB.Text = v;
-            }
-
+            readmode();
         }
 
         private void loadRBMToolStripMenuItem_Click(object sender, EventArgs e)
@@ -844,6 +962,78 @@ namespace RobobuilderVC
                 sendCmd(pm.Play());
             }
 
+        }
+
+        private void loadBasToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            string filename = "";
+
+            string[] prog = new string[250];
+
+            bool t1 = timer1.Enabled;
+            bool t2 = timer2.Enabled;
+            timer1.Enabled = false;
+            timer2.Enabled = false;
+
+            // load rbm file
+            openFileDialog1.Filter = "basic File|*.rbas";
+
+            if (openFileDialog1.ShowDialog() == DialogResult.OK)
+            {
+                filename = openFileDialog1.FileName;
+            }
+
+            int i=0;
+
+            textBox2.Text = "";
+
+            try {
+
+                TextReader tr = new StreamReader(filename);
+                string line = "";
+
+                while ((line = tr.ReadLine()) != null)
+                {
+                    prog[i++] = line.Trim(); // +"\r\n";
+                    textBox2.AppendText(line + "\r\n");
+                }
+                tr.Close();
+
+                if (serialPort1.IsOpen)
+                {
+                    String mod;
+
+                    if (mode==1)
+                    {
+                        mod = write2serial("p", true);
+                        readmode();
+                    }
+                    if (mode==2)
+                    {
+                        mode = 4;
+                        showmode();
+
+                        mod = expect_serial("eC0", "> ");
+
+                        for (int j = 0; j < i; j++)
+                        {
+                            mod = expect_serial(prog[j] + "\r\n", "> ");
+                        }
+                    }
+                    else
+                    {
+                        Console.WriteLine("Wrong mode - " + mode);
+                    }
+                    mod = write2serial(".", true); // end of
+                }
+            }
+            catch (Exception e1)
+            {
+                Console.WriteLine("RBas load Exception - " + e1.ToString());
+            }
+
+            timer1.Enabled = t1;
+            timer2.Enabled = t2;
         }
 
     }
