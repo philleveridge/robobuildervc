@@ -37,7 +37,6 @@ namespace RobobuilderVC
         private IContainer components;
 
         int cnt;
-        private Button button6;
         private ListBox listBox2;
         private Label robolibver;
         private PictureBox pictureBox1;
@@ -58,7 +57,6 @@ namespace RobobuilderVC
         private ProgressBar batLevel;
         private ProgressBar micLevel;
         private ProgressBar PSDLevel;
-        private Button modeB;
         private MenuStrip menuStrip1;
         private ToolStripMenuItem toolStripMenuItem1;
         private ToolStripMenuItem loadRBMToolStripMenuItem;
@@ -68,7 +66,11 @@ namespace RobobuilderVC
         private ToolStripMenuItem loadBasToolStripMenuItem;
         private Label label2;
         private CheckBox pollTst;
+        private Button modeB;
+        private Button progmode;
         Motion m1;
+
+        string[] prog = new string[250]; int pgsze;
 
 
 		public Form1()
@@ -139,7 +141,6 @@ namespace RobobuilderVC
             this.button5 = new System.Windows.Forms.Button();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.label1 = new System.Windows.Forms.Label();
-            this.button6 = new System.Windows.Forms.Button();
             this.listBox2 = new System.Windows.Forms.ListBox();
             this.robolibver = new System.Windows.Forms.Label();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
@@ -150,7 +151,6 @@ namespace RobobuilderVC
             this.batLevel = new System.Windows.Forms.ProgressBar();
             this.micLevel = new System.Windows.Forms.ProgressBar();
             this.PSDLevel = new System.Windows.Forms.ProgressBar();
-            this.modeB = new System.Windows.Forms.Button();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.loadRBMToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -158,6 +158,8 @@ namespace RobobuilderVC
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
             this.label2 = new System.Windows.Forms.Label();
             this.pollTst = new System.Windows.Forms.CheckBox();
+            this.modeB = new System.Windows.Forms.Button();
+            this.progmode = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
@@ -213,7 +215,7 @@ namespace RobobuilderVC
             "COM3",
             "COM4",
             "COM5"});
-            this.listBox1.Location = new System.Drawing.Point(190, 271);
+            this.listBox1.Location = new System.Drawing.Point(216, 298);
             this.listBox1.Name = "listBox1";
             this.listBox1.Size = new System.Drawing.Size(138, 34);
             this.listBox1.TabIndex = 14;
@@ -222,7 +224,7 @@ namespace RobobuilderVC
             // button5
             // 
             this.button5.BackColor = System.Drawing.Color.Red;
-            this.button5.Location = new System.Drawing.Point(278, 305);
+            this.button5.Location = new System.Drawing.Point(151, 307);
             this.button5.Name = "button5";
             this.button5.Size = new System.Drawing.Size(50, 25);
             this.button5.TabIndex = 15;
@@ -244,15 +246,6 @@ namespace RobobuilderVC
             this.label1.Size = new System.Drawing.Size(35, 13);
             this.label1.TabIndex = 16;
             this.label1.Text = "label1";
-            // 
-            // button6
-            // 
-            this.button6.Location = new System.Drawing.Point(34, 364);
-            this.button6.Name = "button6";
-            this.button6.Size = new System.Drawing.Size(50, 24);
-            this.button6.TabIndex = 17;
-            this.button6.Text = "wave";
-            this.button6.Click += new System.EventHandler(this.button6_Click);
             // 
             // listBox2
             // 
@@ -288,10 +281,11 @@ namespace RobobuilderVC
             // detectionCheck
             // 
             this.detectionCheck.AutoSize = true;
-            this.detectionCheck.Location = new System.Drawing.Point(239, 311);
+            this.detectionCheck.Location = new System.Drawing.Point(151, 271);
             this.detectionCheck.Name = "detectionCheck";
-            this.detectionCheck.Size = new System.Drawing.Size(15, 14);
+            this.detectionCheck.Size = new System.Drawing.Size(75, 17);
             this.detectionCheck.TabIndex = 22;
+            this.detectionCheck.Text = "visual filter";
             this.detectionCheck.UseVisualStyleBackColor = true;
             // 
             // videoSourcePlayer
@@ -313,7 +307,7 @@ namespace RobobuilderVC
             // 
             // testPM
             // 
-            this.testPM.Location = new System.Drawing.Point(34, 394);
+            this.testPM.Location = new System.Drawing.Point(6, 364);
             this.testPM.Name = "testPM";
             this.testPM.Size = new System.Drawing.Size(50, 24);
             this.testPM.TabIndex = 23;
@@ -353,15 +347,6 @@ namespace RobobuilderVC
             this.PSDLevel.TabIndex = 26;
             this.PSDLevel.Value = 255;
             this.PSDLevel.Visible = false;
-            // 
-            // modeB
-            // 
-            this.modeB.Location = new System.Drawing.Point(34, 428);
-            this.modeB.Name = "modeB";
-            this.modeB.Size = new System.Drawing.Size(50, 24);
-            this.modeB.TabIndex = 27;
-            this.modeB.Text = "mode";
-            this.modeB.Click += new System.EventHandler(this.modeB_Click);
             // 
             // menuStrip1
             // 
@@ -418,10 +403,30 @@ namespace RobobuilderVC
             this.pollTst.Text = "poll";
             this.pollTst.UseVisualStyleBackColor = true;
             // 
+            // modeB
+            // 
+            this.modeB.Location = new System.Drawing.Point(6, 394);
+            this.modeB.Name = "modeB";
+            this.modeB.Size = new System.Drawing.Size(50, 24);
+            this.modeB.TabIndex = 27;
+            this.modeB.Text = "mode";
+            this.modeB.Click += new System.EventHandler(this.modeB_Click);
+            // 
+            // progmode
+            // 
+            this.progmode.Location = new System.Drawing.Point(6, 428);
+            this.progmode.Name = "progmode";
+            this.progmode.Size = new System.Drawing.Size(50, 24);
+            this.progmode.TabIndex = 32;
+            this.progmode.Text = "load";
+            this.progmode.Visible = false;
+            this.progmode.Click += new System.EventHandler(this.progmode_Click);
+            // 
             // Form1
             // 
             this.AutoScaleBaseSize = new System.Drawing.Size(5, 13);
             this.ClientSize = new System.Drawing.Size(602, 497);
+            this.Controls.Add(this.progmode);
             this.Controls.Add(this.pollTst);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.modeB);
@@ -432,7 +437,6 @@ namespace RobobuilderVC
             this.Controls.Add(this.detectionCheck);
             this.Controls.Add(this.robolibver);
             this.Controls.Add(this.listBox2);
-            this.Controls.Add(this.button6);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.button5);
             this.Controls.Add(this.listBox1);
@@ -688,7 +692,7 @@ namespace RobobuilderVC
                 {
                     serialPort1.Open();
                     readmode();
-                    if (mode == 1)
+                    if (mode == 2)
                     {
                         string v = write2serial("v", true);
                         this.Text += v;
@@ -872,7 +876,7 @@ namespace RobobuilderVC
                 }
             }
             timer1.Enabled = f;
-            Console.WriteLine("[" + r + "]"); //debug
+            Console.WriteLine("E=[" + r + e +"]"); //debug
             return r;
         }
 
@@ -904,7 +908,7 @@ namespace RobobuilderVC
                     catch (Exception z)
                     {
                     }
-                    Console.WriteLine(t + "[" + r + "]"); //debug
+                    Console.WriteLine("W2=" + t + "[" + r + "]"); //debug
                 }
             }
             timer1.Enabled=f;
@@ -950,6 +954,8 @@ namespace RobobuilderVC
             {
                 filename = openFileDialog1.FileName;
             }
+            else
+                return;
 
             m1 = new Motion();
             m1.LoadFile(filename);
@@ -968,8 +974,6 @@ namespace RobobuilderVC
         {
             string filename = "";
 
-            string[] prog = new string[250];
-
             bool t1 = timer1.Enabled;
             bool t2 = timer2.Enabled;
             timer1.Enabled = false;
@@ -982,10 +986,14 @@ namespace RobobuilderVC
             {
                 filename = openFileDialog1.FileName;
             }
+            else
+                return;
 
             int i=0;
 
             textBox2.Text = "";
+            progmode.Visible = true;
+            progmode.Text = "Load";
 
             try {
 
@@ -994,38 +1002,17 @@ namespace RobobuilderVC
 
                 while ((line = tr.ReadLine()) != null)
                 {
-                    prog[i++] = line.Trim(); // +"\r\n";
-                    textBox2.AppendText(line + "\r\n");
+                    string l=line.Trim(); // +"\r\n";
+                    if (l.Length > 0)
+                    {
+                        prog[i++] = l;
+                        textBox2.AppendText(l + "\r\n");
+                    }
                 }
                 tr.Close();
 
-                if (serialPort1.IsOpen)
-                {
-                    String mod;
+                pgsze = i;
 
-                    if (mode==1)
-                    {
-                        mod = write2serial("p", true);
-                        readmode();
-                    }
-                    if (mode==2)
-                    {
-                        mode = 4;
-                        showmode();
-
-                        mod = expect_serial("eC0", "> ");
-
-                        for (int j = 0; j < i; j++)
-                        {
-                            mod = expect_serial(prog[j] + "\r\n", "> ");
-                        }
-                    }
-                    else
-                    {
-                        Console.WriteLine("Wrong mode - " + mode);
-                    }
-                    mod = write2serial(".", true); // end of
-                }
             }
             catch (Exception e1)
             {
@@ -1034,6 +1021,68 @@ namespace RobobuilderVC
 
             timer1.Enabled = t1;
             timer2.Enabled = t2;
+        }
+
+        private void progmode_Click(object sender, EventArgs e)
+        {
+            if (progmode.Text == "Load")
+            {
+                if (serialPort1.IsOpen)
+                {
+                    String mod;
+
+                    if (mode == 1)
+                    {
+                        mod = write2serial("p", true);
+                        readmode();
+                    }
+                    if (mode == 2)
+                    {
+                        mode = 4;
+                        showmode();
+
+                        mod = expect_serial("eC0", "> ");
+
+                        for (int j = 0; j < pgsze; j++)
+                        {
+                            mod = expect_serial(prog[j] + "\r", "> ");
+                        }
+
+                        mod = write2serial(".", true); // end of
+
+                        textBox2.AppendText(mod);
+
+                        progmode.Text = "Run";
+                    }
+                    else
+                    {
+                        Console.WriteLine("Wrong mode - " + mode);
+                    }
+
+                }
+            }
+
+
+            if (progmode.Text == "Run")
+            {
+                if (serialPort1.IsOpen)
+                {
+                    String mod;
+
+                    if (mode == 2 || mode == 4)
+                    {
+                        mode = 5;
+                        showmode();
+                    }
+                    string r = expect_serial("eC1", "End of ");
+
+                    textBox2.Text = r;
+
+                    // don't know if this comes back
+
+                }
+            }
+
         }
 
     }
