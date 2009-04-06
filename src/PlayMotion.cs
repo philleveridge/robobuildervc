@@ -154,15 +154,30 @@ namespace RobobuilderVC
             int c = 0;
             outBuffer = "FF";
             outBuffer += t.ToString("X2");
+            
+            
+            Console.Write(t + ","); //debug
+            
             t = 16;
             outBuffer += t.ToString("X2");
             t = 0;
+
             for (int i = 0; i < NUM_OF_WCKS; i++)
             {
-                int lt = (int)m.scenes[SIdx].mPositions[i] + (int)(UnitD[i] * (float)FrameIdx);
+                int lt;
+                if (SIdx == 0)
+                {
+                    lt = (int)m.Position[i] + (int)(UnitD[i] * (float)FrameIdx);
+                }
+                else
+                {
+                    lt = (int)m.scenes[SIdx - 1].mPositions[i] + (int)(UnitD[i] * (float)FrameIdx); 
+                }
                 if (lt > 254) lt = 254;
                 if (lt < 1) lt = 1;
                 outBuffer += lt.ToString("X2");
+                Console.Write(lt + ","); //debug
+
                 t = (byte)((uint)t ^ lt);
             }
             t &= 0x7f;
