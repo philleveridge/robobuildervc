@@ -258,7 +258,6 @@ namespace RobobuilderVC
             this.listBox2.Name = "listBox2";
             this.listBox2.Size = new System.Drawing.Size(139, 20);
             this.listBox2.TabIndex = 18;
-            this.listBox2.SelectedIndexChanged += new System.EventHandler(this.listBox2_SelectedIndexChanged);
             // 
             // robolibver
             // 
@@ -508,7 +507,7 @@ namespace RobobuilderVC
                 string v = write2serial("?", true);
                 if (v.StartsWith("Idle")) mode = 1;
                 else if (v.StartsWith("?Exper")) mode = 2;
-                else if (v.StartsWith("?Seria")) mode = 3;
+                else if (v.StartsWith("Seria")) mode = 3;
                 else mode = 6;
             }
             else
@@ -690,6 +689,8 @@ namespace RobobuilderVC
             {
                 try
                 {
+                    serialPort1.WriteBufferSize = 1;
+
                     serialPort1.Open();
                     readmode();
                     if (mode == 2)
@@ -917,6 +918,7 @@ namespace RobobuilderVC
 
         private void testPM_Click(object sender, EventArgs e)
         {
+            /*
             timer2.Enabled = !timer2.Enabled;
 
             if (timer2.Enabled)
@@ -931,10 +933,42 @@ namespace RobobuilderVC
             {
                 Console.WriteLine("stopped");
             }
-        }
+             */
 
-        private void listBox2_SelectedIndexChanged(object sender, EventArgs e)
-        {
+            bool t1 = timer1.Enabled;
+            bool t2 = timer2.Enabled;
+            timer1.Enabled = false;
+            timer2.Enabled = false;
+
+            readmode();
+
+            //if (mode != 3)
+            //    return;
+
+            SerialSlave s = new SerialSlave();
+            byte[] p1 = { 125, 179, 199, 88, 108, 126, 72, 49, 163, 141, 51,  47, 49, 199, 205, 205};
+            byte[] p2 = { 125, 179, 199, 88, 108, 126, 72, 49, 163, 141, 187, 58, 46, 199, 205, 205};
+            byte[] p3 = { 125, 179, 199, 88, 108, 126, 72, 49, 163, 141, 186, 103,46, 199, 205, 205};
+            byte[] p4 = { 125, 179, 199, 88, 108, 126, 72, 49, 163, 141, 187, 58, 46, 199, 205, 205};
+            byte[] p5 = { 125, 179, 199, 88, 108, 126, 72, 49, 163, 141, 51,  47, 49, 199, 205, 205};
+
+            s.Move(10, 500, p1);
+            s.Play(serialPort1);
+
+            s.Move(40, 1000,p2);
+            s.Play(serialPort1); 
+            
+            s.Move(10, 500, p3);
+            s.Play(serialPort1); 
+            
+            s.Move(10, 500, p4);
+            s.Play(serialPort1); 
+            
+            s.Move(40,1000, p5);
+            s.Play(serialPort1);
+
+            timer1.Enabled = t1;
+            timer2.Enabled = t2;
 
         }
 
