@@ -945,31 +945,25 @@ namespace RobobuilderVC
             //if (mode != 3)
             //    return;
 
-            SerialSlave s = new SerialSlave();
-            byte[] p1 = { 125, 179, 199, 88, 108, 126, 72, 49, 163, 141, 51,  47, 49, 199, 205, 205};
-            byte[] p2 = { 125, 179, 199, 88, 108, 126, 72, 49, 163, 141, 187, 58, 46, 199, 205, 205};
-            byte[] p3 = { 125, 179, 199, 88, 108, 126, 72, 49, 163, 141, 186, 103,46, 199, 205, 205};
-            byte[] p4 = { 125, 179, 199, 88, 108, 126, 72, 49, 163, 141, 187, 58, 46, 199, 205, 205};
-            byte[] p5 = { 125, 179, 199, 88, 108, 126, 72, 49, 163, 141, 51,  47, 49, 199, 205, 205};
+            SerialSlave s = new SerialSlave(serialPort1);
 
-            s.Move(10, 500, p1);
-            s.Play(serialPort1);
+            s.Move(10, 500, new byte[] { 125, 179, 199, 88, 108, 126, 72, 49, 163, 141, 51,  47, 49, 199, 205, 205});
+            s.Play();
 
-            s.Move(40, 1000,p2);
-            s.Play(serialPort1); 
+            s.Move(40,1000, new byte[] { 125, 179, 199, 88, 108, 126, 72, 49, 163, 141, 187, 58, 46, 199, 205, 205});
+            s.Play(); 
             
-            s.Move(10, 500, p3);
-            s.Play(serialPort1); 
+            s.Move(10, 500, new byte[] { 125, 179, 199, 88, 108, 126, 72, 49, 163, 141, 186, 103,46, 199, 205, 205});
+            s.Play(); 
             
-            s.Move(10, 500, p4);
-            s.Play(serialPort1); 
+            s.Move(10, 500, new byte[] { 125, 179, 199, 88, 108, 126, 72, 49, 163, 141, 187, 58, 46, 199, 205, 205});
+            s.Play(); 
             
-            s.Move(40,1000, p5);
-            s.Play(serialPort1);
+            s.Move(40,1000, new byte[] { 125, 179, 199, 88, 108, 126, 72, 49, 163, 141, 51,  47, 49, 199, 205, 205});
+            s.Play();
 
             timer1.Enabled = t1;
             timer2.Enabled = t2;
-
         }
 
         private void modeB_Click(object sender, EventArgs e)
@@ -994,12 +988,21 @@ namespace RobobuilderVC
             m1 = new Motion();
             m1.LoadFile(filename);
 
+            /*
             if (!timer2.Enabled)
             {
                 pm = new PlayMotion(m1);
                 timer2.Interval = pm.CalcFrameInterval();
                 timer2.Enabled = true;
                 sendCmd(pm.Play());
+            }
+            */
+            SerialSlave s1 = new SerialSlave(serialPort1);
+
+            for (int x = 0; x < m1.no_scenes; x++)
+            {
+                s1.Load(m1, x);
+                s1.Play();
             }
 
         }

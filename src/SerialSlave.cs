@@ -17,11 +17,13 @@ namespace RobobuilderVC
         byte[] motionBuf = new byte[5000];
         byte[] scene = new byte[16];
         int bfsz;
+        SerialPort sp1;
 
-        public SerialSlave()
+        public SerialSlave(SerialPort s)
         {
             load_flag = false;
             bfsz = 0;
+            sp1 = s;
         }
 
         public void Move(uint fm, uint tm, byte[] position)
@@ -34,9 +36,9 @@ namespace RobobuilderVC
 
             for (n = 0; n < C; n++) { motionBuf[2 + n] = PGAIN; }        //PGAIN
 
-            for (n = 0; n < C; n++) { motionBuf[2 + C + n] = DGAIN; }       //DGAIN
+            for (n = 0; n < C; n++) { motionBuf[2 + C + n] = DGAIN; }    //DGAIN
 
-            for (n = 0; n < C; n++) { motionBuf[2 + 2 * C + n] = IGAIN; }     //IGAIN		
+            for (n = 0; n < C; n++) { motionBuf[2 + 2 * C + n] = IGAIN; }//IGAIN		
 
             motionBuf[S] = (byte)(tm & 255);
             motionBuf[S + 1] = (byte)(tm >> 8);
@@ -49,10 +51,38 @@ namespace RobobuilderVC
 
             bfsz = S + 4 + n + C * 3;
 
-            load_flag = true;
-			
+            load_flag = true;			
         }
-        public void Play(SerialPort sp1) 
+
+        public void Load(Motion m, int scene_no)
+        {
+            int n;
+            Console.WriteLine("Loading - " + m.scenes[scene_no].name);
+            uint tm = m.scenes[scene_no].TransitionTime;
+            uint fm = m.scenes[scene_no].Frames;
+
+            motionBuf[0] = 1;           //number of scenes
+            motionBuf[1] = (byte)m.no_servos; //number of servos
+
+            for (n = 0; n < C; n++) { motionBuf[2 + n] = (byte)m.PGain[n];         }
+            for (n = 0; n < C; n++) { motionBuf[2 + C + n] = (byte)m.DGain[n];     } 
+            for (n = 0; n < C; n++) { motionBuf[2 + 2 * C + n] = (byte)m.IGain[n]; }
+
+            motionBuf[S] = (byte)(tm & 255);
+            motionBuf[S + 1] = (byte)(tm >> 8);
+            motionBuf[S + 2] = (byte)(fm & 255);
+            motionBuf[S + 3] = (byte)(fm >> 8);
+
+            for (n = 0; n < C; n++) { motionBuf[S + 4 + n] = (byte)m.scenes[scene_no].mPositions[n]; }
+            for (n = 0; n < C; n++) { motionBuf[S + 4 + n + C] = (byte)m.scenes[scene_no].mTorque[n]; }           //torque
+            for (n = 0; n < C; n++) { motionBuf[S + 4 + n + C * 2] = (byte)m.scenes[scene_no].mExternalData[n];}  //ext data
+
+            bfsz = S + 4 + n + C * 3;
+
+            load_flag = true;			
+        }
+
+        public void Play() 
         { 
             //assuming in SSmode
             //send an 'm'
@@ -65,7 +95,6 @@ namespace RobobuilderVC
             buff[1] = (byte)(bfsz&255);
             buff[2] = (byte)(bfsz>>8);
 
-
             if (load_flag && sp1.IsOpen)
             {
                 sp1.WriteTimeout = 2000;
@@ -77,15 +106,6 @@ namespace RobobuilderVC
                 sp1.Write(motionBuf, 0, bfsz);
 
                 Console.WriteLine(sp1.ReadTo("bytes"));
-
-                // its now loaded the motion (or timedout)
-
-                //Console.WriteLine(sp1.ReadTo("Starting"));
-
-                // its now playing the motion
-
-                //Console.WriteLine(sp1.ReadTo("Done with"));
-
             }
             else
             {
