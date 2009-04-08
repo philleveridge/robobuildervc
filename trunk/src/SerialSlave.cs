@@ -13,10 +13,11 @@ namespace RobobuilderVC
         const byte IGAIN = 0;
         const int  S     =(2 + 3 * C);
 
-        bool load_flag;
-        byte[] motionBuf = new byte[5000];
+        public bool load_flag;
+        public byte[] motionBuf = new byte[5000];
+        public int bfsz;
+             
         byte[] scene = new byte[16];
-        int bfsz;
         SerialPort sp1;
 
         public SerialSlave(SerialPort s)

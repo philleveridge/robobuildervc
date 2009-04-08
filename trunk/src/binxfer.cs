@@ -16,6 +16,8 @@ namespace RobobuilderVC
         public binxfer(SerialPort s)
         {
             sp1 = s;
+            sp1.WriteTimeout = 2000;
+            sp1.ReadTimeout = 5000;
         }
 
         public void send_msg_basic(char mt)         // covers 'q', 'v', 'p'
@@ -27,8 +29,26 @@ namespace RobobuilderVC
             sp1.Write(buff, 0, 3);
         }
 
-        public void send_msg_move()
+        public void send_msg_move(byte[] buffer, int bfsz)
         {
+            byte cs = (byte)bfsz;
+            byte[] header = new byte[5];
+            header[0] = MAGIC_REQUEST;
+            header[1] = Convert.ToByte('m');
+
+            header[2] = (byte)(bfsz & 0xFF);
+            header[3] = (byte)((bfsz >> 8) & 0xFF);
+
+            for (int j = 0; j < bfsz; j++)
+            {
+                cs |= buffer[j];
+            }
+            header[4] = (byte)(cs & 0x7f);
+
+            sp1.Write(header, 0, 4);
+            sp1.Write(buffer, 0, bfsz);
+            sp1.Write(header, 4, 1);
+
         }
 
         public void send_msg_raw(char mt, string abytes)
@@ -46,13 +66,11 @@ namespace RobobuilderVC
                 b[j+1] = (byte)Convert.ToInt16(abytes.Substring(j * 2, 2), 16);
                 cs |= b[j+1];
             }
-            b[n + 2] = (byte)(cs & 0x7f);
+            b[n + 1] = (byte)(cs & 0x7f);
 
             sp1.Write(header, 0, 2);
             sp1.Write(b, 0, n + 2);
-
         }
-
 
         public bool recv_packet()
         {
