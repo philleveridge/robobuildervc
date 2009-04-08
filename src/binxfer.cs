@@ -31,8 +31,26 @@ namespace RobobuilderVC
         {
         }
 
-        public void send_msg_raw()
+        public void send_msg_raw(char mt, string abytes)
         {
+            int n = abytes.Length / 2;
+            int cs = n;
+            byte[] header = new byte[2];
+            header[0] = MAGIC_REQUEST;
+            header[1] = Convert.ToByte(mt);
+
+            byte[] b = new byte[n+2];
+            b[0] = (byte)(n & 0xFF);
+            for (int j = 0; j < n; j++)
+            {
+                b[j+1] = (byte)Convert.ToInt16(abytes.Substring(j * 2, 2), 16);
+                cs |= b[j+1];
+            }
+            b[n + 2] = (byte)(cs & 0x7f);
+
+            sp1.Write(header, 0, 2);
+            sp1.Write(b, 0, n + 2);
+
         }
 
 
