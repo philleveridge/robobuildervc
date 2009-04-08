@@ -128,6 +128,7 @@
     <Compile Include="AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="binxfer.cs" />
     <Compile Include="Filters.cs" />
     <Compile Include="Motion.cs" />
     <Compile Include="PlayMotion.cs" />

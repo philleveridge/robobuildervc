@@ -70,8 +70,12 @@ namespace RobobuilderVC
         private Button progmode;
         Motion m1;
 
-        string[] prog = new string[250]; int pgsze;
+        string[] prog = new string[250];
+        private Button button1; int pgsze;
 
+        bool binmode;
+
+        private binxfer btf;
 
 		public Form1()
 		{
@@ -160,6 +164,7 @@ namespace RobobuilderVC
             this.pollTst = new System.Windows.Forms.CheckBox();
             this.modeB = new System.Windows.Forms.Button();
             this.progmode = new System.Windows.Forms.Button();
+            this.button1 = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
@@ -421,10 +426,20 @@ namespace RobobuilderVC
             this.progmode.Visible = false;
             this.progmode.Click += new System.EventHandler(this.progmode_Click);
             // 
+            // button1
+            // 
+            this.button1.Location = new System.Drawing.Point(304, 271);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(50, 24);
+            this.button1.TabIndex = 33;
+            this.button1.Text = "Bin Mode";
+            this.button1.Click += new System.EventHandler(this.button1_Click);
+            // 
             // Form1
             // 
             this.AutoScaleBaseSize = new System.Drawing.Size(5, 13);
             this.ClientSize = new System.Drawing.Size(602, 497);
+            this.Controls.Add(this.button1);
             this.Controls.Add(this.progmode);
             this.Controls.Add(this.pollTst);
             this.Controls.Add(this.label2);
@@ -1118,6 +1133,34 @@ namespace RobobuilderVC
                     // don't know if this comes back
 
                 }
+            }
+
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            readmode();
+
+            if (mode == 2)
+            {
+                binmode = true;
+                btf = new binxfer(serialPort1);
+
+                serialPort1.Write("#"); // enter binary mode
+                btf.send_msg_basic('v');
+
+                if (btf.recv_packet())
+                {
+                    Console.WriteLine("Good packet ver = " + btf.buff[0].ToString());
+                }
+                else
+                {
+                    Console.WriteLine("Bad packet");
+                }
+
+                btf.send_msg_basic('p'); // exit bimary mode (no response required)
+
+                binmode = false;
             }
 
         }
