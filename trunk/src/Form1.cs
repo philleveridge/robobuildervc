@@ -871,6 +871,8 @@ namespace RobobuilderVC
             }
         }
 
+
+
         private string expect_serial(string s, string e)
         {
             string r = "";
@@ -1163,6 +1165,33 @@ namespace RobobuilderVC
                 binmode = false;
             }
 
+        }
+
+        private void sendCmd_bin(string n)
+        {
+            if (!binmode) return;
+
+            string[] cmds = n.Split(':');
+
+            for (int j = 0; j < cmds.Length; j++)
+            {
+                string s;
+                int l = cmds[j].Length / 2;
+                if (l > 0)
+                {
+                    int cn = Convert.ToInt32(cmds[j].Substring(2, 2), 16);
+                    if ((cn >> 5) < 5 && (cn & 0x1F) == 31)
+                    {
+                        //SynchPosSend (no response)
+                        btf.send_msg_raw('x', cmds[j]);
+                    }
+                    else
+                    {
+                        //everything else (wait for response)
+                        btf.send_msg_raw('X', cmds[j]);
+                    }
+                }
+            }
         }
 
     }
