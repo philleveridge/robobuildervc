@@ -1019,8 +1019,19 @@ namespace RobobuilderVC
             for (int x = 0; x < m1.no_scenes; x++)
             {
                 s1.Load(m1, x);
-                s1.Play();
+                if (!binmode)
+                {
+                    s1.Play();
+                }
+                else
+                {
+                    btf.send_msg_move(s1.motionBuf, s1.bfsz);
+                    if (!btf.recv_packet()) { Console.WriteLine("Bad packet " + x); }
+                }
             }
+
+
+
 
         }
 
@@ -1149,13 +1160,15 @@ namespace RobobuilderVC
                 serialPort1.Write("#"); // enter binary mode
                 btf.send_msg_basic('v');
 
-                if (btf.recv_packet())
+                if (btf.recv_packet() && btf.buff[0]==17) // check version
                 {
                     Console.WriteLine("Good packet ver = " + btf.buff[0].ToString());
                 }
                 else
                 {
-                    Console.WriteLine("Bad packet");
+                    Console.WriteLine("Error in bin mode xfer");
+                    binmode = false;
+                    return;
                 }
 
                 btf.send_msg_raw('X', "FFA00020"); // read status servo id 0
@@ -1184,7 +1197,7 @@ namespace RobobuilderVC
                 {
                     Console.WriteLine("Bad packet");
                 }
-
+                
                 SerialSlave s = new SerialSlave(serialPort1);
                 s.Move(10, 500, new byte[] { 125, 179, 199, 88, 108, 126, 72, 49, 163, 141, 51, 47, 49, 199, 205, 205 });
                 btf.send_msg_move(s.motionBuf,s.bfsz); // read status servo id 0
@@ -1205,8 +1218,10 @@ namespace RobobuilderVC
                 s.Move(40, 1000, new byte[] { 125, 179, 199, 88, 108, 126, 72, 49, 163, 141, 51, 47, 49, 199, 205, 205 });
                 btf.send_msg_move(s.motionBuf, s.bfsz); // read status servo id 0
                 if (!btf.recv_packet()) { Console.WriteLine("Bad packet"); }
+                 
 
                 btf.send_msg_basic('p'); // exit bimary mode (no response required)
+                Console.WriteLine("Exit test");
 
                 binmode = false;
             }

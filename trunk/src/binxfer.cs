@@ -76,8 +76,22 @@ namespace RobobuilderVC
         {
             int i;
             bool good_packet = false;
+            string ignore = "";
+            byte b;
 
-            while (sp1.ReadByte() != MAGIC_RESPONSE) ; // ignore till start of message
+            try
+            {
+
+                while ((b=(byte)sp1.ReadByte()) != MAGIC_RESPONSE) 
+                   ignore += b; // ignore till start of message
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Read error" + e + "ignore = [" + ignore + "]");
+                return false;
+            }
+
+            Console.WriteLine("ignore = [" + ignore + "]");
 
             byte mt = (byte)sp1.ReadByte();
 
@@ -86,16 +100,19 @@ namespace RobobuilderVC
                 case (byte)'q':
                     // 43 packets
                     buff = new byte[43];
+                    while (sp1.BytesToRead < 43) ;
+
                     sp1.Read(buff, 0, 43);
                     byte cs = (byte)'q';
                     for (i = 0; i < 42; i++) 
                            cs |= buff[i];
-                    good_packet = ((cs &0x7f) == buff[43]);
+                    good_packet = ((cs &0x7f) == buff[42]);
                     break;
                 case (byte)'x':
                 case (byte)'X':
                     // 5 packets
                     buff = new byte[3];
+                    while (sp1.BytesToRead < 3) ;
                     sp1.Read(buff, 0, 3);
                     good_packet = ((mt | buff[0] | buff[1]) == buff[2]);
                     break;
@@ -104,6 +121,7 @@ namespace RobobuilderVC
                 case (byte)'Z':   
                     // 4 bytes packets
                     buff = new byte[2];
+                    while (sp1.BytesToRead < 2) ;
                     sp1.Read(buff, 0, 2);
                     good_packet = ((mt | buff[0]) == buff[1]);
                     break;
