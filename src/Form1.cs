@@ -432,7 +432,7 @@ namespace RobobuilderVC
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(50, 24);
             this.button1.TabIndex = 33;
-            this.button1.Text = "Bin Mode";
+            this.button1.Text = "Bin";
             this.button1.Click += new System.EventHandler(this.button1_Click);
             // 
             // Form1
@@ -1150,80 +1150,86 @@ namespace RobobuilderVC
 
         private void button1_Click(object sender, EventArgs e)
         {
-            readmode();
-
-            if (mode == 2)
+            if (button1.Text == "Bin")
             {
-                binmode = true;
-                btf = new binxfer(serialPort1);
+                button1.Text = "Text";
+ 
+                readmode();
 
-                serialPort1.Write("#"); // enter binary mode
-                btf.send_msg_basic('v');
-
-                if (btf.recv_packet() && btf.buff[0]==17) // check version
+                if (mode == 2)
                 {
-                    Console.WriteLine("Good packet ver = " + btf.buff[0].ToString());
-                }
-                else
-                {
-                    Console.WriteLine("Error in bin mode xfer");
-                    binmode = false;
-                    return;
-                }
+                    binmode = true;
+                    btf = new binxfer(serialPort1);
 
-                btf.send_msg_raw('X', "FFA00020"); // read status servo id 0
+                    serialPort1.Write("#"); // enter binary mode
+                    btf.send_msg_basic('v');
 
-                if (btf.recv_packet())
-                {
-                    Console.WriteLine("Good packet res = " + btf.buff[0].ToString() + " - " + btf.buff[1].ToString());
+                    if (btf.recv_packet() && btf.buff[0] == 17) // check version
+                    {
+                        Console.WriteLine("Good packet ver = " + btf.buff[0].ToString());
+                    }
+                    else
+                    {
+                        Console.WriteLine("Error in bin mode xfer");
+                        binmode = false;
+                        return;
+                    }
+
+                    btf.send_msg_raw('X', "FFA00020"); // read status servo id 0
+
+                    if (btf.recv_packet())
+                    {
+                        Console.WriteLine("Good packet res = " + btf.buff[0].ToString() + " - " + btf.buff[1].ToString());
+                    }
+                    else
+                    {
+                        Console.WriteLine("Bad packet");
+                    }
+
+                    btf.send_msg_basic('q'); // read status servo id 0
+                    if (btf.recv_packet())
+                    {
+                        Console.WriteLine("Good packet q = "
+                            + btf.buff[0].ToString()
+                            + btf.buff[1].ToString()
+                            + btf.buff[2].ToString()
+                            + btf.buff[3].ToString()
+                            + btf.buff[4].ToString()
+                            );
+                    }
+                    else
+                    {
+                        Console.WriteLine("Bad packet");
+                    }
+
+                    SerialSlave s = new SerialSlave(serialPort1);
+                    s.Move(10, 500, new byte[] { 125, 179, 199, 88, 108, 126, 72, 49, 163, 141, 51, 47, 49, 199, 205, 205 });
+                    btf.send_msg_move(s.motionBuf, s.bfsz); // read status servo id 0
+                    if (!btf.recv_packet()) { Console.WriteLine("Bad packet"); }
+
+                    s.Move(40, 1000, new byte[] { 125, 179, 199, 88, 108, 126, 72, 49, 163, 141, 187, 58, 46, 199, 205, 205 });
+                    btf.send_msg_move(s.motionBuf, s.bfsz); // read status servo id 0
+                    if (!btf.recv_packet()) { Console.WriteLine("Bad packet"); }
+
+                    s.Move(10, 500, new byte[] { 125, 179, 199, 88, 108, 126, 72, 49, 163, 141, 186, 103, 46, 199, 205, 205 });
+                    btf.send_msg_move(s.motionBuf, s.bfsz); // read status servo id 0
+                    if (!btf.recv_packet()) { Console.WriteLine("Bad packet"); }
+
+                    s.Move(10, 500, new byte[] { 125, 179, 199, 88, 108, 126, 72, 49, 163, 141, 187, 58, 46, 199, 205, 205 });
+                    btf.send_msg_move(s.motionBuf, s.bfsz); // read status servo id 0
+                    if (!btf.recv_packet()) { Console.WriteLine("Bad packet"); }
+
+                    s.Move(40, 1000, new byte[] { 125, 179, 199, 88, 108, 126, 72, 49, 163, 141, 51, 47, 49, 199, 205, 205 });
+                    btf.send_msg_move(s.motionBuf, s.bfsz); // read status servo id 0
+                    if (!btf.recv_packet()) { Console.WriteLine("Bad packet"); }
                 }
-                else
-                {
-                    Console.WriteLine("Bad packet");
-                }
-
-                btf.send_msg_basic('q'); // read status servo id 0
-                if (btf.recv_packet())
-                {
-                    Console.WriteLine("Good packet q = "
-                        + btf.buff[0].ToString()
-                        + btf.buff[1].ToString()
-                        + btf.buff[2].ToString()
-                        + btf.buff[3].ToString()
-                        + btf.buff[4].ToString()
-                        );
-                }
-                else
-                {
-                    Console.WriteLine("Bad packet");
-                }
-                
-                SerialSlave s = new SerialSlave(serialPort1);
-                s.Move(10, 500, new byte[] { 125, 179, 199, 88, 108, 126, 72, 49, 163, 141, 51, 47, 49, 199, 205, 205 });
-                btf.send_msg_move(s.motionBuf,s.bfsz); // read status servo id 0
-                if (!btf.recv_packet()) { Console.WriteLine("Bad packet"); }
-           
-                s.Move(40, 1000, new byte[] { 125, 179, 199, 88, 108, 126, 72, 49, 163, 141, 187, 58, 46, 199, 205, 205 });
-                btf.send_msg_move(s.motionBuf, s.bfsz); // read status servo id 0
-                if (!btf.recv_packet()) { Console.WriteLine("Bad packet"); }
-
-                s.Move(10, 500, new byte[] { 125, 179, 199, 88, 108, 126, 72, 49, 163, 141, 186, 103, 46, 199, 205, 205 });
-                btf.send_msg_move(s.motionBuf, s.bfsz); // read status servo id 0
-                if (!btf.recv_packet()) { Console.WriteLine("Bad packet"); }
-                
-                s.Move(10, 500, new byte[] { 125, 179, 199, 88, 108, 126, 72, 49, 163, 141, 187, 58, 46, 199, 205, 205 });
-                btf.send_msg_move(s.motionBuf, s.bfsz); // read status servo id 0
-                if (!btf.recv_packet()) { Console.WriteLine("Bad packet"); }
-
-                s.Move(40, 1000, new byte[] { 125, 179, 199, 88, 108, 126, 72, 49, 163, 141, 51, 47, 49, 199, 205, 205 });
-                btf.send_msg_move(s.motionBuf, s.bfsz); // read status servo id 0
-                if (!btf.recv_packet()) { Console.WriteLine("Bad packet"); }
-                 
-
+            }
+            else
+            {
                 btf.send_msg_basic('p'); // exit bimary mode (no response required)
                 Console.WriteLine("Exit test");
-
                 binmode = false;
+                button1.Text = "Bin";
             }
 
         }
