@@ -5,6 +5,28 @@ using System.IO.Ports;
 
 namespace RobobuilderVC
 {
+    /*
+     * serialSlave mode Binary protocol
+     * 
+     * BE AD mtype ....
+     * mtype:
+     *   ?
+     *   q
+     *   g AA BB CC
+     *   p
+     *   .
+     *   x
+     *   m
+     *   esc
+     *   
+     * response
+     * BE AD k Mt
+     * BE AD E strng 00
+     * 
+     */
+
+
+
     class SerialSlave
     {
         const byte C = 16;
@@ -83,6 +105,81 @@ namespace RobobuilderVC
             load_flag = true;			
         }
 
+
+        public void sendMessage(byte Mt)
+        {
+            byte[] buff = new byte[5];
+            buff[0] = 0xBE;
+            buff[1] = 0xAD;
+            buff[2] = Mt;
+            sp1.Write(buff, 0, 3);
+        }
+
+        public int readResponse()
+        {
+            int ch = 0;
+            int t = 0;
+
+            while (true)
+            {
+                if (ch != 0xBE) ch = sp1.ReadByte();
+                if (ch != 0xBE) continue;
+                ch = sp1.ReadByte();
+                if (ch == 0xAD) break;
+            }
+            // read in correct header BE AD
+            ch = sp1.ReadByte(); // read type
+            t = sp1.ReadByte(); 
+
+            switch (ch) 
+            {
+                case 'k':
+                    // ack for ?
+                    switch (t)
+                    {
+                        case '?':
+                        case 'p':
+                        case 27:
+                            return 0;
+                    }
+                    break;
+                case 'E':
+                    // read error string
+                    string err = "";
+                    while ((ch = sp1.ReadByte()) != 0)
+                    {
+                        err += Convert.ToString(ch);
+                    }
+                    Console.WriteLine("Err=" + err);
+                    return -1;
+            }
+            return 0;
+        }
+
+        public void SetMode()
+        {
+            sendMessage((byte)'?');
+
+            if (readResponse() < 0)
+                return;
+        }
+
+        public void ExitMode()
+        {
+            sendMessage(27);
+
+            if (readResponse() < 0)
+                return;
+        }
+
+        public void SendPose()
+        {
+            sendMessage((byte)'p');
+
+            if (readResponse() < 0)
+                return;
+        }
+
         public void Play() 
         { 
             //assuming in SSmode
@@ -90,7 +187,7 @@ namespace RobobuilderVC
             //send bfsz (two bytes)
             //send motionBuf
 
-            byte[] buff = new byte[3];
+            byte[] buff = new byte[5];
 
             buff[0] = Convert.ToByte('m');
             buff[1] = (byte)(bfsz&255);
