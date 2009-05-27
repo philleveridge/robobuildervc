@@ -129,6 +129,13 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="binxfer.cs" />
+    <Compile Include="config.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="config.Designer.cs">
+      <DependentUpon>config.cs</DependentUpon>
+    </Compile>
+    <Compile Include="PCControlMode.cs" />
     <Compile Include="Filters.cs" />
     <Compile Include="Motion.cs" />
     <Compile Include="PlayMotion.cs" />
@@ -144,6 +151,9 @@
     </Compile>
     <Compile Include="SerialSlave.cs" />
     <Compile Include="Wave.cs" />
+    <EmbeddedResource Include="config.resx">
+      <DependentUpon>config.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>
       <SubType>Designer</SubType>
