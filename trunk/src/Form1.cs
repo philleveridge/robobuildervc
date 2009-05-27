@@ -74,8 +74,12 @@ namespace RobobuilderVC
         private Button button1; int pgsze;
 
         bool binmode;
+        private CheckBox firmware;
 
         private binxfer btf;
+        private ToolStripMenuItem configToolStripMenuItem;
+
+        PC_ControlMode pcm;
 
 		public Form1()
 		{
@@ -110,6 +114,8 @@ namespace RobobuilderVC
             micLevel.Value = 0;
             batLevel.Value = 8000;
 
+            serialPort1 = new SerialPort();
+            pcm = new PC_ControlMode(serialPort1);
         }
 
 		/// <summary>
@@ -165,6 +171,8 @@ namespace RobobuilderVC
             this.modeB = new System.Windows.Forms.Button();
             this.progmode = new System.Windows.Forms.Button();
             this.button1 = new System.Windows.Forms.Button();
+            this.firmware = new System.Windows.Forms.CheckBox();
+            this.configToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
@@ -355,7 +363,8 @@ namespace RobobuilderVC
             // menuStrip1
             // 
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.toolStripMenuItem1});
+            this.toolStripMenuItem1,
+            this.configToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
             this.menuStrip1.Size = new System.Drawing.Size(602, 24);
@@ -374,14 +383,14 @@ namespace RobobuilderVC
             // loadRBMToolStripMenuItem
             // 
             this.loadRBMToolStripMenuItem.Name = "loadRBMToolStripMenuItem";
-            this.loadRBMToolStripMenuItem.Size = new System.Drawing.Size(128, 22);
+            this.loadRBMToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.loadRBMToolStripMenuItem.Text = "Load RBM";
             this.loadRBMToolStripMenuItem.Click += new System.EventHandler(this.loadRBMToolStripMenuItem_Click);
             // 
             // loadBasToolStripMenuItem
             // 
             this.loadBasToolStripMenuItem.Name = "loadBasToolStripMenuItem";
-            this.loadBasToolStripMenuItem.Size = new System.Drawing.Size(128, 22);
+            this.loadBasToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.loadBasToolStripMenuItem.Text = "Load Bas";
             this.loadBasToolStripMenuItem.Click += new System.EventHandler(this.loadBasToolStripMenuItem_Click);
             // 
@@ -435,10 +444,28 @@ namespace RobobuilderVC
             this.button1.Text = "Bin";
             this.button1.Click += new System.EventHandler(this.button1_Click);
             // 
+            // firmware
+            // 
+            this.firmware.AutoSize = true;
+            this.firmware.Location = new System.Drawing.Point(362, 36);
+            this.firmware.Name = "firmware";
+            this.firmware.Size = new System.Drawing.Size(74, 17);
+            this.firmware.TabIndex = 34;
+            this.firmware.Text = "Firmware?";
+            this.firmware.UseVisualStyleBackColor = true;
+            // 
+            // configToolStripMenuItem
+            // 
+            this.configToolStripMenuItem.Name = "configToolStripMenuItem";
+            this.configToolStripMenuItem.Size = new System.Drawing.Size(55, 20);
+            this.configToolStripMenuItem.Text = "Config";
+            this.configToolStripMenuItem.Click += new System.EventHandler(this.configToolStripMenuItem_Click);
+            // 
             // Form1
             // 
             this.AutoScaleBaseSize = new System.Drawing.Size(5, 13);
             this.ClientSize = new System.Drawing.Size(602, 497);
+            this.Controls.Add(this.firmware);
             this.Controls.Add(this.button1);
             this.Controls.Add(this.progmode);
             this.Controls.Add(this.pollTst);
@@ -512,6 +539,9 @@ namespace RobobuilderVC
                 case 6:
                     label2.Text = "MODE: ???";
                     break;
+                case 7:
+                    label2.Text = "MODE: PC Control";
+                    break;
             }
         }
 
@@ -519,11 +549,19 @@ namespace RobobuilderVC
         {
             if (serialPort1.IsOpen)
             {
-                string v = write2serial("?", true);
-                if (v.StartsWith("Idle")) mode = 1;
-                else if (v.StartsWith("?Exper")) mode = 2;
-                else if (v.StartsWith("Seria")) mode = 3;
-                else mode = 6;
+                if (firmware.Checked)
+                {
+                    mode = 7;
+                }
+                else
+                {
+
+                    string v = write2serial("?", true);
+                    if (v.StartsWith("Idle")) mode = 1;
+                    else if (v.StartsWith("?Exper")) mode = 2;
+                    else if (v.StartsWith("Seria")) mode = 3;
+                    else mode = 6;
+                }
             }
             else
             {
@@ -570,8 +608,8 @@ namespace RobobuilderVC
                 }
 
                 //serialPort1.DataReceived += new System.IO.Ports.SerialDataReceivedEventHandler(port_DataReceived);
-                serialPort1.Open();
-                serial_status();
+                //serialPort1.Open();
+                //serial_status();
             }
             catch (Exception e1)
             {
@@ -702,22 +740,42 @@ namespace RobobuilderVC
             }
             else 
             {
-                try
-                {
-                    serialPort1.WriteBufferSize = 1;
 
-                    serialPort1.Open();
-                    readmode();
-                    if (mode == 2)
+                // check if firmware of Robos
+
+                if (firmware.Checked)
+                {
+                    try
                     {
-                        string v = write2serial("v", true);
-                        this.Text += v;
+                        pcm.connect();
+                        textBox2.AppendText(pcm.response + "\r\n");
+                    }
+                    catch (Exception es)
+                    {
+                        Console.WriteLine("serial port open failed " + es);
                     }
                 }
-                catch (Exception es)
+                else
                 {
-                    Console.WriteLine("serial port open failed");
+                    //Robos
+                    try
+                    {
+                        serialPort1.WriteBufferSize = 1;
+
+                        serialPort1.Open();
+                        readmode();
+                        if (mode == 2)
+                        {
+                            string v = write2serial("v", true);
+                            textBox2.AppendText(v);
+                        }
+                    }
+                    catch (Exception es)
+                    {
+                        Console.WriteLine("serial port open failed");
+                    }
                 }
+
             }
             serial_status();
         }
@@ -1259,6 +1317,12 @@ namespace RobobuilderVC
                     }
                 }
             }
+        }
+
+        private void configToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            config cfg = new config();
+            cfg.Show();
         }
 
     }
