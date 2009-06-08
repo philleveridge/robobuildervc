@@ -15,17 +15,20 @@ namespace RobobuilderLib
          * 
          * ********************************************/
 
-        byte[] respnse = new byte[32];
+        int[] sids = new int[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18 };
         SerialPort serialPort1;
 
+        public byte[] respnse = new byte[32];
         public string Message;
+        public byte[] pos;
+
 
         public Motion(SerialPort p)
         {
             serialPort1 = p;
         }
 
-        private bool wckReadPos(int id)
+        public bool wckReadPos(int id)
         {
             byte[] buff = new byte[4];
             buff[0] = 0xFF;
@@ -48,7 +51,7 @@ namespace RobobuilderLib
             }
         }
 
-        private bool wckMovePos(int id, int pos, int torq)
+        public bool wckMovePos(int id, int pos, int torq)
         {
             byte[] buff = new byte[4];
             buff[0] = 0xFF;
@@ -72,7 +75,7 @@ namespace RobobuilderLib
             }
         }
 
-        void SyncPosSend(int LastID, int SpeedLevel, byte[] TargetArray, int Index)
+        public void SyncPosSend(int LastID, int SpeedLevel, byte[] TargetArray, int Index)
         {
             int i;
             byte CheckSum;
@@ -113,5 +116,53 @@ namespace RobobuilderLib
             }
 
         }
+
+        public void servoID_readservo()
+        {
+            Motion m = new Motion(serialPort1);
+
+            pos = new byte[sids[sids.Length - 1] + 1];
+
+            for (int id = 0; id < sids.Length; id++)
+            {
+                //readPOS (servoID)
+
+                if (wckReadPos(sids[id]))
+                {
+                    if (respnse[1] < 255)
+                    {
+                        pos[id] = respnse[1];
+                    }
+                }
+            }
+        }
+
+        public void PlayPose(int duration, int no_steps, byte[] spod)
+        {
+            byte[] temp = new byte[19]; // numbr of servos
+
+            servoID_readservo(); // read start positons
+
+            double[] intervals = new double[spod.Length];
+
+            for (int n = 0; n < sids.Length; n++)
+            {
+                intervals[n] = (double)(spod[n] - pos[n]) / no_steps;
+            }
+
+            for (int s = 1; s <= no_steps; s++)
+            {
+                //
+                for (int n = 0; n < spod.Length; n++)
+                {
+                    temp[n] = (byte)(pos[n] + (double)s * intervals[n]);
+                }
+
+                SyncPosSend(pos.Length - 1, 4, temp, 0);
+
+                delay_ms(duration);
+            }
+        }
+
     }
 }

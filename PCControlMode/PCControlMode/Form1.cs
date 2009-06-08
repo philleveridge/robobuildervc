@@ -229,101 +229,6 @@ namespace RobobuilderLib
             }
         }
 
-        /**********************************************
-         * 
-         * direct Command mode  - wcK prorocol
-         * 
-         * ********************************************/
-
-        private bool wckReadPos(int id)
-        {
-            byte[] buff = new byte[4];
-            buff[0] = 0xFF;
-            buff[1] = (byte)(5 << 5 | (id % 31));
-            buff[2] = 0; // arbitary
-            buff[3] = (byte)((buff[1] ^ buff[2]) & 0x7f);
-
-            try
-            {
-                serialPort1.Write(buff, 0, 4);
-                respnse[0] = (byte)serialPort1.ReadByte();
-                respnse[1] = (byte)serialPort1.ReadByte();
-                textBox1.AppendText("ReadPos "+id+" = " + respnse[0] + ":" + respnse[1] + "\r\n");
-                return true;
-            }
-            catch (Exception e1)
-            {
-                textBox1.AppendText("Failed" +e1.Message +"\r\n");
-                return false;
-            }
-        }
-
-        private bool wckMovePos(int id, int pos, int torq)
-        {
-            byte[] buff = new byte[4];
-            buff[0] = 0xFF;
-            buff[1] = (byte)(((torq % 5) << 5) | (id % 31));
-            buff[2] = (byte)(pos %254); // arbitary
-            buff[3] = (byte)((buff[1] ^ buff[2]) & 0x7f);
-
-            try
-            {
-                serialPort1.Write(buff, 0, 4);
-                respnse[0] = (byte)serialPort1.ReadByte();
-                respnse[1] = (byte)serialPort1.ReadByte();
-                textBox1.AppendText("MovePos " + id + " = " + respnse[0] + ":" + respnse[1] + "\r\n");
-
-                return true;
-            }
-            catch (Exception e1)
-            {
-                textBox1.AppendText("Failed" + e1.Message + "\r\n");
-                return false;
-            }
-        }
-
-        void SyncPosSend(int LastID, int SpeedLevel, byte[] TargetArray, int Index)
-        {
-            int i;
-            byte CheckSum;
-            byte[] buff = new byte[5+LastID];
-
-            i = 0;
-            CheckSum = 0;
-            buff[0] = 0xFF;
-            buff[1] = (byte)((SpeedLevel << 5) | 0x1f);
-            buff[2] = (byte)(LastID + 1);
-
-
-            while (true)
-            {
-                if (i > LastID) break;
-                buff[3+i] = TargetArray[Index * (LastID + 1) + i];
-                CheckSum ^= (byte)( TargetArray[Index * (LastID + 1) + i]);
-                i++;
-            }
-            CheckSum = (byte)(CheckSum & 0x7f);
-            buff[3+i] = CheckSum;
-
-            //now output buff[]
-            for (i = 0; i < buff.Length - 1; i++) Console.Write(buff[i] + ","); Console.WriteLine(buff[i]);
-
-
-            try
-            {
-                serialPort1.Write(buff, 0, buff.Length);
-                textBox1.AppendText("MoveSyncPos\r\n");
-
-                return;
-            }
-            catch (Exception e1)
-            {
-                textBox1.AppendText("Failed" + e1.Message + "\r\n");
-                return;
-            }
-        
-        }
-
         private string readVer()
         {
             //read firmware version number
@@ -353,26 +258,6 @@ namespace RobobuilderLib
             return r;
         }
 
-        private void servoID_readservo()
-        {
-            pos = new byte[sids[sids.Length-1]+1];
-
-            for (int id = 0; id < sids.Length; id++)
-            {
-                //readPOS (servoID)
-
-                if (wckReadPos(sids[id]))
-                {
-                    if (respnse[1] < 255)
-                    {
-                        pos[id] = respnse[1];
-                        servoPos[id].Value = respnse[1];
-                        servoID[id].Text = sids[id].ToString() + " - " + servoPos[id].Value.ToString();
-                    }
-                }
-            }
-        }
-
         private void NewBasicPose()
         {
             PlayPose(100, 10, new byte[] {
@@ -393,27 +278,7 @@ namespace RobobuilderLib
             if (!command_1B(0x10, 0x01)) return;
             displayResponse(true);
 
-            servoID_readservo(); // read start positons
-
-            double[] intervals = new double[spod.Length];
-
-            for (int n = 0; n < sids.Length; n++)
-            {
-                intervals[n] = (double)(spod[n] - pos[n]) / no_steps;
-            }
-
-            for (int s = 1; s <= no_steps; s++)
-            {
-                //
-                for (int n = 0; n < spod.Length; n++)
-                {
-                    temp[n] = (byte)(pos[n] + (double)s * intervals[n]);
-                }
-
-                SyncPosSend(pos.Length - 1, 4, temp, 0);
-
-                delay_ms(duration);
-            }
+            new Motion(serialPort1).PlayPose(duration, no_steps, spod);
 
             // end DC mode
 
@@ -421,7 +286,17 @@ namespace RobobuilderLib
         }
 
 
+        private void servoID_readservo()
+        {
+            Motion m= new Motion(serialPort1);
+            m.servoID_readservo();
 
+            for (int id = 0; id < sids.Length; id++)
+            {
+                servoPos[id].Value = m.pos[id];
+                servoID[id].Text = sids[id].ToString() + " - " + servoPos[id].Value.ToString();
+            }
+        }
 
         /**********************************************
          * 
@@ -566,8 +441,6 @@ namespace RobobuilderLib
                 serialPort1.PortName = listBox1.Items[listBox1.SelectedIndex].ToString();
         }
 
-
-
         private void hScrollBar1_Scroll(object sender, ScrollEventArgs e)
         {
             int id = Convert.ToInt32(((HScrollBar)sender).Name.Substring(9));
@@ -575,7 +448,7 @@ namespace RobobuilderLib
             Console.WriteLine("Id=" + sids[id] + ", V=" + v);
 
             servoID[id].Text = sids[id].ToString() + " - " + v;
-            wckMovePos(sids[id], v, 2);
+            new Motion(serialPort1).wckMovePos(sids[id], v, 2);
         }
 
         private void readll_Click(object sender, EventArgs e)
@@ -658,6 +531,8 @@ namespace RobobuilderLib
                 TextReader tr = new StreamReader(filename);
                 string line = "";
 
+                Motion m = new Motion(serialPort1);
+
                 while ((line = tr.ReadLine()) != null)
                 {
                     line = line.Trim();
@@ -675,7 +550,7 @@ namespace RobobuilderLib
                             servoID[i-1].Text = sids[i-1].ToString() + " - " + v;
 
                             
-                            if (!wckMovePos(sids[i - 1], v, 2))
+                            if (!m.wckMovePos(sids[i - 1], v, 2))
                             {
                                 MessageBox.Show("Error - can't write to servo");
                                 play.Enabled = true;
