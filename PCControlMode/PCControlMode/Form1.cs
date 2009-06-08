@@ -19,13 +19,15 @@ namespace RobobuilderLib
 
         string filename = "";
 
+        Motion dcontrol;
+
         public Form1()
         {
 
             InitializeComponent();
 
             //
-
+            
             servoPos = new System.Windows.Forms.HScrollBar[20];
             servoID = new System.Windows.Forms.TextBox[20];
             readID = new System.Windows.Forms.CheckBox[20];
@@ -260,7 +262,7 @@ namespace RobobuilderLib
 
         private void NewBasicPose()
         {
-            PlayPose(100, 10, new byte[] {
+            PlayPose(1000, 10, new byte[] {
 /*0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18 */
 171,179,198,83,105,78,72,49,172,141,47,47,49,200,205,205,122,125,127 });
 
@@ -270,30 +272,19 @@ namespace RobobuilderLib
         void PlayPose(int duration, int no_steps, byte[] spod )
         {
             if (!serialPort1.IsOpen) return;
-
-            byte[] temp = new byte[19]; // numbr of servos
-
-            // DC mode
-
-            if (!command_1B(0x10, 0x01)) return;
-            displayResponse(true);
-
-            new Motion(serialPort1).PlayPose(duration, no_steps, spod);
-
-            // end DC mode
-
-            serialPort1.Write(new byte[] { 0xFF, 0xE0, 0xFB, 0x1, 0x00, 0x1A }, 0, 6);
+            Motion m = new Motion(serialPort1);
+            m.PlayPose(duration, no_steps, spod, true);
+            m.close();
         }
 
 
         private void servoID_readservo()
         {
-            Motion m= new Motion(serialPort1);
-            m.servoID_readservo();
+            dcontrol.servoID_readservo();
 
             for (int id = 0; id < sids.Length; id++)
             {
-                servoPos[id].Value = m.pos[id];
+                servoPos[id].Value = dcontrol.pos[id];
                 servoID[id].Text = sids[id].ToString() + " - " + servoPos[id].Value.ToString();
             }
         }
@@ -320,8 +311,7 @@ namespace RobobuilderLib
             // DC mode
             if (serialPort1.IsOpen)
             {
-                command_1B(0x10, 0x01);
-                displayResponse(true);
+                dcontrol = new Motion(serialPort1);
 
                 set_buttons(false);
                 set_servocntl(true);
@@ -335,7 +325,7 @@ namespace RobobuilderLib
             // DC mode release
             if (serialPort1.IsOpen)
             {
-                serialPort1.Write(new byte[] {0xFF, 0xE0, 0xFB, 0x1, 0x00, 0x1A},0, 6);
+                dcontrol = null;
 
                 set_buttons(true);
                 set_servocntl(false);
@@ -401,7 +391,10 @@ namespace RobobuilderLib
             byte[] MotionZeroPos = new byte[] {
                 /* ID
                  0 ,1 ,2 ,3 ,4 ,5 ,6 ,7 ,8 ,9 ,10,11,12,13,14,15 */
-                125,201,163,67,108,125,48,89,184,142,89,39,124,162,211,127};
+             //   125,201,163,67,108,125,48,89,184,142,89,39,124,162,211,127};
+            /* ID
+                 0 ,1  ,2  ,3 ,4  ,5  ,6 ,7 ,8  ,9  ,10,11,12 ,13 ,14, 15, 16,17,18*/
+            	125,202,162,66,108,124,48,88,184,142,90,40,125,161,210,127,4, 0, 0};
 
             if (serialPort1.IsOpen)
             {
@@ -412,7 +405,7 @@ namespace RobobuilderLib
                         0x00, 0x00, 0x00, (byte)MotionZeroPos.Length,    //command size (4)
                      }, 0, 6);
 
-                serialPort1.Write(MotionZeroPos, 0, 16);
+                serialPort1.Write(MotionZeroPos, 0, MotionZeroPos.Length);
 
                 byte[] cs = new byte[1];
 
@@ -448,7 +441,9 @@ namespace RobobuilderLib
             Console.WriteLine("Id=" + sids[id] + ", V=" + v);
 
             servoID[id].Text = sids[id].ToString() + " - " + v;
-            new Motion(serialPort1).wckMovePos(sids[id], v, 2);
+            //Motion m = new Motion(serialPort1);
+            dcontrol.wckMovePos(sids[id], v, 2);
+            //m.close();
         }
 
         private void readll_Click(object sender, EventArgs e)
@@ -498,17 +493,6 @@ namespace RobobuilderLib
 
         }
 
-        private void delay_ms(int t1)
-        {
-            DateTime t = DateTime.Now;
-            TimeSpan d;
-            do
-            {
-                d = DateTime.Now - t;
-                Application.DoEvents();
-            } while (d < TimeSpan.FromMilliseconds(t1));
-        }
-
         private void play_Click(object sender, EventArgs e)
         {
             // play
@@ -531,42 +515,37 @@ namespace RobobuilderLib
                 TextReader tr = new StreamReader(filename);
                 string line = "";
 
-                Motion m = new Motion(serialPort1);
+                bool ff = true;
 
                 while ((line = tr.ReadLine()) != null)
                 {
                     line = line.Trim();
+                    if (line.StartsWith("#")) // comment
+                        continue;
+
                     string[] r = line.Split(',');
 
                     if (r.Length > 2)
                     {
                         n++;
                         label2.Text = n.ToString();
+                        byte[] t = new byte[r.Length - 1];
 
                         for (int i = 2; i < r.Length; i++)
                         {
-                            int v = Convert.ToInt32(r[i]);
-                            servoPos[i-1].Value = v;
-                            servoID[i-1].Text = sids[i-1].ToString() + " - " + v;
+                            t[i-2] = Convert.ToByte(r[i]);
+                            servoPos[i - 2].Value = t[i - 2];
+                            servoID[i - 2].Text = sids[i - 2].ToString() + " - " + t[i - 2];
+                        }
+                        dcontrol.PlayPose(Convert.ToInt32(r[1]), Convert.ToInt32(r[0]), t, ff);
+                        if (ff) ff = false;
 
-                            
-                            if (!m.wckMovePos(sids[i - 1], v, 2))
-                            {
-                                MessageBox.Show("Error - can't write to servo");
-                                play.Enabled = true;
-                                return;
-                            }
+                        if (checkBox1.Checked)
+                        {
+                            MessageBox.Show("Next " + n);
                         }
                     }
 
-                    if (checkBox1.Enabled)
-                    {
-                        MessageBox.Show("next "+n);
-                    }
-                    else
-                    {
-                        delay_ms(Convert.ToInt32(r[0]));
-                    }
                 }
 
                 tr.Close();
@@ -578,6 +557,12 @@ namespace RobobuilderLib
 
             play.Enabled = true;
 
+        }
+
+
+        private void s0_Click(object sender, EventArgs e)
+        {
+            Console.WriteLine(((Label)sender).Text);
         }
 
     }
