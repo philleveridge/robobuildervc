@@ -22,10 +22,57 @@ namespace RobobuilderLib
         public string Message;
         public byte[] pos;
 
+        public bool DCmode = false;
+
 
         public Motion(SerialPort p)
         {
             serialPort1 = p;
+            setDCmode(true);
+        }
+
+        ~Motion()
+        {
+            close();
+        }
+
+        public void close()
+        {
+            setDCmode(false);
+        }
+
+
+        private void setDCmode(bool f)
+        {
+            DCmode = f;
+            if (f)
+            {
+                // DC mode
+
+                byte type = 0x10;
+                byte cmd = 0x01;
+
+                serialPort1.Write(new byte[] { 
+                                0xFF, 0xFF, 0xAA, 0x55, 0xAA, 0x55, 0x37, 0xBA,
+                                type,                       //type (1)
+                                0x00,                      //platform (1)
+                                0x00, 0x00, 0x00, 0x01,    //command size (4)
+                                cmd,                       //command contents (1)
+                                cmd               //checksum
+                            }, 0, 16);
+
+                for (int i = 0; i < 16; i++)
+                {
+                    respnse[i] = (byte)serialPort1.ReadByte();
+                }
+
+                // check response valid
+            }
+            else
+            {
+                // end DC mode
+                if (serialPort1.IsOpen) serialPort1.Write(new byte[] { 0xFF, 0xE0, 0xFB, 0x1, 0x00, 0x1A }, 0, 6);
+            }
         }
 
         public bool wckReadPos(int id)
@@ -42,6 +89,7 @@ namespace RobobuilderLib
                 respnse[0] = (byte)serialPort1.ReadByte();
                 respnse[1] = (byte)serialPort1.ReadByte();
                 Message = "ReadPos " + id + " = " + respnse[0] + ":" + respnse[1];
+                Console.WriteLine(Message); // debug
                 return true;
             }
             catch (Exception e1)
@@ -87,7 +135,6 @@ namespace RobobuilderLib
             buff[1] = (byte)((SpeedLevel << 5) | 0x1f);
             buff[2] = (byte)(LastID + 1);
 
-
             while (true)
             {
                 if (i > LastID) break;
@@ -101,7 +148,6 @@ namespace RobobuilderLib
             //now output buff[]
             for (i = 0; i < buff.Length - 1; i++) Console.Write(buff[i] + ","); Console.WriteLine(buff[i]);
 
-
             try
             {
                 serialPort1.Write(buff, 0, buff.Length);
@@ -114,20 +160,15 @@ namespace RobobuilderLib
                 Message = "Failed" + e1.Message;
                 return;
             }
-
         }
 
         public void servoID_readservo()
         {
-            Motion m = new Motion(serialPort1);
-
-            pos = new byte[sids[sids.Length - 1] + 1];
+            pos = new byte[sids.Length];
 
             for (int id = 0; id < sids.Length; id++)
             {
-                //readPOS (servoID)
-
-                if (wckReadPos(sids[id]))
+                if (wckReadPos(id))                 //readPOS (servoID)
                 {
                     if (respnse[1] < 255)
                     {
@@ -137,11 +178,22 @@ namespace RobobuilderLib
             }
         }
 
-        public void PlayPose(int duration, int no_steps, byte[] spod)
+        private void delay_ms(int t1)
+        {
+            DateTime t = DateTime.Now;
+            TimeSpan d;
+            do
+            {
+                d = DateTime.Now - t;
+                //Application.DoEvents();
+            } while (d < TimeSpan.FromMilliseconds(t1));
+        }
+
+        public void PlayPose(int duration, int no_steps, byte[] spod, bool first)
         {
             byte[] temp = new byte[19]; // numbr of servos
 
-            servoID_readservo(); // read start positons
+            if (first) servoID_readservo(); // read start positons
 
             double[] intervals = new double[spod.Length];
 
@@ -160,7 +212,15 @@ namespace RobobuilderLib
 
                 SyncPosSend(pos.Length - 1, 4, temp, 0);
 
-                delay_ms(duration);
+                int td = duration / no_steps;
+                if (td<25) td=25;
+
+                delay_ms(td);
+            }
+
+            for (int n = 0; n < sids.Length; n++)
+            {
+                pos[n] = spod[n];
             }
         }
 
