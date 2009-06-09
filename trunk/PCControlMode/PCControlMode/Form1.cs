@@ -19,7 +19,7 @@ namespace RobobuilderLib
 
         string filename = "";
 
-        Motion dcontrol;
+        wckMotion dcontrol;
 
         public Form1()
         {
@@ -272,7 +272,7 @@ namespace RobobuilderLib
         void PlayPose(int duration, int no_steps, byte[] spod )
         {
             if (!serialPort1.IsOpen) return;
-            Motion m = new Motion(serialPort1);
+            wckMotion m = new wckMotion(serialPort1);
             m.PlayPose(duration, no_steps, spod, true);
             m.close();
         }
@@ -311,7 +311,7 @@ namespace RobobuilderLib
             // DC mode
             if (serialPort1.IsOpen)
             {
-                dcontrol = new Motion(serialPort1);
+                dcontrol = new wckMotion(serialPort1);
 
                 set_buttons(false);
                 set_servocntl(true);
