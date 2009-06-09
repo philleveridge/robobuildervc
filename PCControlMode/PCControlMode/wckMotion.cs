@@ -7,7 +7,7 @@ using System.IO.Ports;
 
 namespace RobobuilderLib
 {
-    class Motion
+    class wckMotion
     {
         /**********************************************
          * 
@@ -25,13 +25,13 @@ namespace RobobuilderLib
         public bool DCmode = false;
 
 
-        public Motion(SerialPort p)
+        public wckMotion(SerialPort p)
         {
             serialPort1 = p;
             setDCmode(true);
         }
 
-        ~Motion()
+        ~wckMotion()
         {
             close();
         }
@@ -180,13 +180,7 @@ namespace RobobuilderLib
 
         private void delay_ms(int t1)
         {
-            DateTime t = DateTime.Now;
-            TimeSpan d;
-            do
-            {
-                d = DateTime.Now - t;
-                //Application.DoEvents();
-            } while (d < TimeSpan.FromMilliseconds(t1));
+            System.Threading.Thread.Sleep(t1);
         }
 
         public void PlayPose(int duration, int no_steps, byte[] spod, bool first)
