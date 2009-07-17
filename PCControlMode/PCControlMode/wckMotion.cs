@@ -44,6 +44,7 @@ namespace RobobuilderLib
 
         private void setDCmode(bool f)
         {
+            if (DCmode == f) return; //only output chnages
             DCmode = f;
             if (f)
             {
