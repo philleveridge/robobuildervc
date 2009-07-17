@@ -165,6 +165,7 @@ namespace RobobuilderVC
             this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.loadRBMToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.loadBasToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.configToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
             this.label2 = new System.Windows.Forms.Label();
             this.pollTst = new System.Windows.Forms.CheckBox();
@@ -172,7 +173,6 @@ namespace RobobuilderVC
             this.progmode = new System.Windows.Forms.Button();
             this.button1 = new System.Windows.Forms.Button();
             this.firmware = new System.Windows.Forms.CheckBox();
-            this.configToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
@@ -271,6 +271,7 @@ namespace RobobuilderVC
             this.listBox2.Name = "listBox2";
             this.listBox2.Size = new System.Drawing.Size(139, 20);
             this.listBox2.TabIndex = 18;
+            this.listBox2.SelectedIndexChanged += new System.EventHandler(this.listBox2_SelectedIndexChanged);
             // 
             // robolibver
             // 
@@ -299,6 +300,7 @@ namespace RobobuilderVC
             this.detectionCheck.TabIndex = 22;
             this.detectionCheck.Text = "visual filter";
             this.detectionCheck.UseVisualStyleBackColor = true;
+            this.detectionCheck.CheckedChanged += new System.EventHandler(this.detectionCheck_CheckedChanged);
             // 
             // videoSourcePlayer
             // 
@@ -383,16 +385,23 @@ namespace RobobuilderVC
             // loadRBMToolStripMenuItem
             // 
             this.loadRBMToolStripMenuItem.Name = "loadRBMToolStripMenuItem";
-            this.loadRBMToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.loadRBMToolStripMenuItem.Size = new System.Drawing.Size(128, 22);
             this.loadRBMToolStripMenuItem.Text = "Load RBM";
             this.loadRBMToolStripMenuItem.Click += new System.EventHandler(this.loadRBMToolStripMenuItem_Click);
             // 
             // loadBasToolStripMenuItem
             // 
             this.loadBasToolStripMenuItem.Name = "loadBasToolStripMenuItem";
-            this.loadBasToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.loadBasToolStripMenuItem.Size = new System.Drawing.Size(128, 22);
             this.loadBasToolStripMenuItem.Text = "Load Bas";
             this.loadBasToolStripMenuItem.Click += new System.EventHandler(this.loadBasToolStripMenuItem_Click);
+            // 
+            // configToolStripMenuItem
+            // 
+            this.configToolStripMenuItem.Name = "configToolStripMenuItem";
+            this.configToolStripMenuItem.Size = new System.Drawing.Size(55, 20);
+            this.configToolStripMenuItem.Text = "Config";
+            this.configToolStripMenuItem.Click += new System.EventHandler(this.configToolStripMenuItem_Click);
             // 
             // openFileDialog1
             // 
@@ -453,13 +462,6 @@ namespace RobobuilderVC
             this.firmware.TabIndex = 34;
             this.firmware.Text = "Firmware?";
             this.firmware.UseVisualStyleBackColor = true;
-            // 
-            // configToolStripMenuItem
-            // 
-            this.configToolStripMenuItem.Name = "configToolStripMenuItem";
-            this.configToolStripMenuItem.Size = new System.Drawing.Size(55, 20);
-            this.configToolStripMenuItem.Text = "Config";
-            this.configToolStripMenuItem.Click += new System.EventHandler(this.configToolStripMenuItem_Click);
             // 
             // Form1
             // 
@@ -1323,6 +1325,16 @@ namespace RobobuilderVC
         {
             config cfg = new config();
             cfg.Show();
+        }
+
+        private void listBox2_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void detectionCheck_CheckedChanged(object sender, EventArgs e)
+        {
+
         }
 
     }
