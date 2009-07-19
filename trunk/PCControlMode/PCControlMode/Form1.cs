@@ -261,18 +261,6 @@ namespace RobobuilderLib
             m.close();
         }
 
-
-        private void servoID_readservo()
-        {
-            dcontrol.servoID_readservo();
-
-            for (int id = 0; id < sids.Length; id++)
-            {
-                servoPos[id].Value = dcontrol.pos[id];
-                servoID[id].Text = sids[id].ToString() + " - " + servoPos[id].Value.ToString();
-            }
-        }
-
         /**********************************************
          * 
          * Action buttons  - Remote / serial prorocol
@@ -287,32 +275,6 @@ namespace RobobuilderLib
         private void button2_Click(object sender, EventArgs e)
         {
             textBox1.AppendText("S/N="+readSN()+"\r\n");
-        }
-
-
-        private void button3_Click(object sender, EventArgs e)
-        {
-            // DC mode
-            if (serialPort1.IsOpen)
-            {
-                dcontrol = new wckMotion(serialPort1);
-
-                set_buttons(false);
-
-                servoID_readservo();
-            }
-        }
-
-        private void button4_Click(object sender, EventArgs e)
-        {
-            // DC mode release
-            if (serialPort1.IsOpen)
-            {
-                dcontrol.close();
-                dcontrol = null;
-
-                set_buttons(true);
-            }
         }
 
         private void button5_Click(object sender, EventArgs e)
@@ -411,13 +373,6 @@ namespace RobobuilderLib
                 serialPort1.PortName = listBox1.Items[listBox1.SelectedIndex].ToString();
         }
 
-
-        private void readll_Click(object sender, EventArgs e)
-        {
-            servoID_readservo();
-        }
-
-
         private void s0_Click(object sender, EventArgs e)
         {
             Console.WriteLine(((Label)sender).Text);
@@ -452,6 +407,11 @@ namespace RobobuilderLib
                 case DialogResult.Cancel:
                     break;
             }
+        }
+
+        private void pictureBox1_mouse(object sender, MouseEventArgs e)
+        {
+            Console.WriteLine("Mouse - " + e.X + "," + e.Y);
         }
 
     }
