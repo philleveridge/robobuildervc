@@ -23,66 +23,12 @@ namespace RobobuilderLib
 
         Form2 presets = new Form2();
         Form3 videoc = new Form3();
+        Form4 medit = new Form4();
 
         public Form1()
         {
 
             InitializeComponent();
-
-            //
-            
-            servoPos = new System.Windows.Forms.HScrollBar[20];
-            servoID = new System.Windows.Forms.TextBox[20];
-            readID = new System.Windows.Forms.CheckBox[20];
-
-            for (int i = 0; i < sids.Length; i++)
-            {
-                servoPos[i] = new System.Windows.Forms.HScrollBar();
-                servoID[i] = new System.Windows.Forms.TextBox();
-                readID[i] = new System.Windows.Forms.CheckBox();
-
-                // 
-                // servoPos
-                // 
-                servoPos[i].Location = new System.Drawing.Point(318, 33+20*i);
-                servoPos[i].Minimum = 0;
-                servoPos[i].Maximum = 254;
-                servoPos[i].Value = 127;
-                servoPos[i].Name = "servoPos-" + i.ToString();
-                servoPos[i].Size = new System.Drawing.Size(67, 20);
-                servoPos[i].TabIndex = 11;
-                servoPos[i].Visible = true;
-                servoPos[i].Scroll += new System.Windows.Forms.ScrollEventHandler(this.hScrollBar1_Scroll);
-                // 
-                // servoID
-                // 
-                servoID[i].Location = new System.Drawing.Point(391, 36+20*i);
-                servoID[i].Name = "servoID-"+i.ToString();
-                servoID[i].ReadOnly = true;
-                servoID[i].Size = new System.Drawing.Size(80, 20);
-                servoID[i].TabIndex = 12;
-                servoID[i].Text = sids[i].ToString();
-                servoID[i].Visible = true;
-
-                // 
-                // readID
-                // 
-                readID[i].AutoSize = true;
-                readID[i].Location = new System.Drawing.Point(300, 36+20*i);
-                readID[i].Name = "readID-" + i.ToString();
-                readID[i].Size = new System.Drawing.Size(80, 17);
-                readID[i].TabIndex = 36;
-                readID[i].Text = "";
-                readID[i].UseVisualStyleBackColor = true;
-                readID[i].CheckedChanged += new System.EventHandler(this.checkBox1_CheckedChanged);
-
-                this.Controls.Add(servoID[i]);
-                this.Controls.Add(servoPos[i]);
-                this.Controls.Add(readID[i]);
-
-            }
-
-            h = 36 + 20 * (sids.Length+2) +10;
 
             serialPort1.PortName = "COM3";
             serialPort1.BaudRate = 115200;
@@ -101,8 +47,9 @@ namespace RobobuilderLib
 
             presets.sp1 = serialPort1;
 
-            presets.Show();
-            videoc.Show();
+            //presets.Show();
+            //videoc.Show();
+            //medit.Show();
         }
 
         void loadconfig()
@@ -169,7 +116,6 @@ namespace RobobuilderLib
                 serialPort1.Close();
                 connect.Text = "Connect";
                 set_buttons(false);
-                set_servocntl(false);
                 listBox1.Enabled = true;
 
                 label1.Text = "Disconnected";
@@ -178,16 +124,22 @@ namespace RobobuilderLib
             else
             {
                 serialPort1.Open();
+
+                // start up on connect
+                string v = readVer();
+                if (v == "")
+                {
+                    serialPort1.Close();
+                    label1.Text = "Failed to connect";
+                    return;
+                }
+
+                label1.Text = "Firmware=" + v + ", S/N=" + readSN();
+
                 connect.Text = "Close";
                 listBox1.Enabled = false;
                 set_buttons(true);
-                set_servocntl(false);
                 textBox1.Text = "";
-
-                // start up on connect
-
-                label1.Text = "Firmware=" + readVer() + ", S/N=" + readSN();
-                //basicPose();
             }
         }
 
@@ -200,30 +152,13 @@ namespace RobobuilderLib
         {
             //button1.Enabled = f;
             //button2.Enabled = f;
-            button3.Enabled = f;
-            button4.Enabled = f;
             button5.Enabled = f;
             button6.Enabled = f;
             button7.Enabled = f;
-            button8.Enabled = f;
             button9.Enabled = f;
             button10.Enabled = f;
         }
 
-        private void set_servocntl(bool f)
-        {
-            // enable servo control
-            button4.Enabled = f;
-            servomsg.Visible = f;
-
-            if (f)
-            {
-                Form1.ActiveForm.Size = new System.Drawing.Size(600, h);
-            }
-            else
-                Form1.ActiveForm.Size = new System.Drawing.Size(300, 300);
-
-        }
 
 
         /**********************************************
@@ -363,7 +298,6 @@ namespace RobobuilderLib
                 dcontrol = new wckMotion(serialPort1);
 
                 set_buttons(false);
-                set_servocntl(true);
 
                 servoID_readservo();
             }
@@ -378,7 +312,6 @@ namespace RobobuilderLib
                 dcontrol = null;
 
                 set_buttons(true);
-                set_servocntl(false);
             }
         }
 
@@ -417,14 +350,6 @@ namespace RobobuilderLib
                         + (respnse[16] << 8) + respnse[17]) 
                         + " Bytes\r\n");
             }
-        }
-
-        private void button8_Click(object sender, EventArgs e)
-        {
-            // basic Pose
-
-            presets.Show();
-
         }
 
         private void button9_Click(object sender, EventArgs e)
@@ -486,138 +411,10 @@ namespace RobobuilderLib
                 serialPort1.PortName = listBox1.Items[listBox1.SelectedIndex].ToString();
         }
 
-        private void hScrollBar1_Scroll(object sender, ScrollEventArgs e)
-        {
-            int id = Convert.ToInt32(((HScrollBar)sender).Name.Substring(9));
-            int v = ((HScrollBar)sender).Value;
-            Console.WriteLine("Id=" + sids[id] + ", V=" + v);
-
-            servoID[id].Text = sids[id].ToString() + " - " + v;
-            //Motion m = new Motion(serialPort1);
-            dcontrol.wckMovePos(sids[id], v, 2);
-            //m.close();
-        }
 
         private void readll_Click(object sender, EventArgs e)
         {
             servoID_readservo();
-        }
-
-        private void checkBox1_CheckedChanged(object sender, EventArgs e)
-        {
-            int id = Convert.ToInt32(((CheckBox)sender).Name.Substring(7));
-            bool v = ((CheckBox)sender).Checked;
-            Console.WriteLine("Id=" + sids[id] + ", V=" + v);
-
-        }
-
-        private void button1_Click_1(object sender, EventArgs e)
-        {
-            //record !
-
-
-            if (filename == "")
-            {
-                SaveFileDialog s = new SaveFileDialog();
-                if (s.ShowDialog() == DialogResult.OK)
-                {
-                    filename = s.FileName;      
-                }
-                else
-                    return;
-            }
-
-            try
-            {
-                TextWriter tw = new StreamWriter(filename, true);
-
-                tw.Write("500,10");
-
-                for (int i = 0; i < sids.Length; i++)
-                {
-                    tw.Write("," + servoPos[i].Value.ToString());
-                }
-                tw.WriteLine("");
-                tw.Close();
-
-                // ---------------------------
-
-                string[] a1 = filename.Split('\\');
-                string[] a2 = a1[a1.Length - 1].Split('.');
-                presets.update(a2[0]);
-
-            }
-            catch (Exception e1)
-            {
-                MessageBox.Show("Error - can't write to file - " + e1);
-            }
-
-        }
-
-        private void play_Click(object sender, EventArgs e)
-        {
-            // play
-
-            play.Enabled = false;
-
-            int n=0;
-
-            if (filename == "")
-            {
-                OpenFileDialog o = new OpenFileDialog();
-                if (o.ShowDialog() == DialogResult.OK)
-                    filename = o.FileName;
-                else
-                    return;
-            }
-
-            try
-            {
-                TextReader tr = new StreamReader(filename);
-                string line = "";
-
-                bool ff = true;
-
-                while ((line = tr.ReadLine()) != null)
-                {
-                    line = line.Trim();
-                    if (line.StartsWith("#")) // comment
-                        continue;
-
-                    string[] r = line.Split(',');
-
-                    if (r.Length > 2)
-                    {
-                        n++;
-                        label2.Text = n.ToString();
-                        byte[] t = new byte[r.Length - 2];
-
-                        for (int i = 2; i < r.Length; i++)
-                        {
-                            t[i-2] = Convert.ToByte(r[i]);
-                            servoPos[i - 2].Value = t[i - 2];
-                            servoID[i - 2].Text = sids[i - 2].ToString() + " - " + t[i - 2];
-                        }
-                        dcontrol.PlayPose(Convert.ToInt32(r[0]), Convert.ToInt32(r[1]), t, ff);
-                        if (ff) ff = false;
-
-                        if (checkBox1.Checked)
-                        {
-                            MessageBox.Show("Next " + n);
-                        }
-                    }
-
-                }
-
-                tr.Close();
-            }
-            catch (Exception e1)
-            {
-                MessageBox.Show("Error - can't load file " + e1);
-            }
-
-            play.Enabled = true;
-
         }
 
 
@@ -626,16 +423,34 @@ namespace RobobuilderLib
             Console.WriteLine(((Label)sender).Text);
         }
 
-        private void button1_Click_2(object sender, EventArgs e)
+        private void presetsToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            saveconfig();
+            presets.Show();
         }
 
-        private void button2_Click_1(object sender, EventArgs e)
+        private void videoToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (filename != "")
+            videoc.Show();
+        }
+
+        private void motionEditToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            medit.connect(serialPort1);
+        }
+
+        private void exitToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            switch (MessageBox.Show("Update default.ini?", "exit", MessageBoxButtons.YesNoCancel))
             {
-                presets.update("New," + filename);
+                case DialogResult.Yes:
+                    saveconfig();
+                    this.Close();
+                    break;
+                case DialogResult.No:
+                    this.Close();
+                    break;
+                case DialogResult.Cancel:
+                    break;
             }
         }
 

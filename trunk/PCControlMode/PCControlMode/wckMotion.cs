@@ -76,6 +76,32 @@ namespace RobobuilderLib
             }
         }
 
+        public bool wckPassive(int id)
+        {
+            byte[] buff = new byte[4];
+            buff[0] = 0xFF;
+            buff[1] = (byte)(6 << 5 | (id % 31));
+            buff[2] = 0x10; // Mode=1, arbitary
+            buff[3] = (byte)((buff[1] ^ buff[2]) & 0x7f);
+
+            try
+            {
+                serialPort1.Write(buff, 0, 4);
+                respnse[0] = (byte)serialPort1.ReadByte();
+                respnse[1] = (byte)serialPort1.ReadByte();
+                Message = "Passive " + id + " = " + respnse[0] + ":" + respnse[1];
+                Console.WriteLine(Message); // debug
+                return true;
+            }
+            catch (Exception e1)
+            {
+                Message = "Failed" + e1.Message;
+                return false;
+            }
+
+        }
+
+
         public bool wckReadPos(int id)
         {
             byte[] buff = new byte[4];
