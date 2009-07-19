@@ -101,7 +101,6 @@ namespace RobobuilderLib
 
         }
 
-
         public bool wckReadPos(int id)
         {
             byte[] buff = new byte[4];
