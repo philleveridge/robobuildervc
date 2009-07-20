@@ -47,6 +47,8 @@
             this.motionEditToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
+            this.viewModelToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.button1 = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
@@ -197,6 +199,7 @@
             this.presetsToolStripMenuItem,
             this.videoToolStripMenuItem,
             this.motionEditToolStripMenuItem,
+            this.viewModelToolStripMenuItem,
             this.exitToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
@@ -204,11 +207,30 @@
             this.menuStrip1.TabIndex = 62;
             this.menuStrip1.Text = "menuStrip1";
             // 
+            // viewModelToolStripMenuItem
+            // 
+            this.viewModelToolStripMenuItem.Name = "viewModelToolStripMenuItem";
+            this.viewModelToolStripMenuItem.Size = new System.Drawing.Size(81, 20);
+            this.viewModelToolStripMenuItem.Text = "View Model";
+            this.viewModelToolStripMenuItem.Click += new System.EventHandler(this.viewModelToolStripMenuItem_Click);
+            // 
+            // button1
+            // 
+            this.button1.Enabled = false;
+            this.button1.Location = new System.Drawing.Point(175, 89);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(74, 29);
+            this.button1.TabIndex = 63;
+            this.button1.Text = "Read XYZ";
+            this.button1.UseVisualStyleBackColor = true;
+            this.button1.Click += new System.EventHandler(this.button1_Click_1);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(426, 294);
+            this.Controls.Add(this.button1);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.button10);
             this.Controls.Add(this.button9);
@@ -251,6 +273,8 @@
         private System.Windows.Forms.ToolStripMenuItem motionEditToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem exitToolStripMenuItem;
         private System.Windows.Forms.MenuStrip menuStrip1;
+        private System.Windows.Forms.ToolStripMenuItem viewModelToolStripMenuItem;
+        private System.Windows.Forms.Button button1;
     }
 }
 
