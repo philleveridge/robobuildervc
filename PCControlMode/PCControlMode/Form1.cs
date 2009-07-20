@@ -9,21 +9,11 @@ namespace RobobuilderLib
         byte[] header ;
         byte[] respnse = new byte[32];
         int[] sids = new int[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18 };
-        byte[] pos;
-
-        private System.Windows.Forms.HScrollBar[] servoPos;
-        private System.Windows.Forms.TextBox[] servoID;
-        private System.Windows.Forms.CheckBox[] readID;
-
-        int h;
-
-        string filename = "";
-
-        wckMotion dcontrol;
 
         Form2 presets = new Form2();
         Form3 videoc = new Form3();
         Form4 medit = new Form4();
+        Form5 view = new Form5();
 
         public Form1()
         {
@@ -47,9 +37,6 @@ namespace RobobuilderLib
 
             presets.sp1 = serialPort1;
 
-            //presets.Show();
-            //videoc.Show();
-            //medit.Show();
         }
 
         void loadconfig()
@@ -150,7 +137,7 @@ namespace RobobuilderLib
 
         private void set_buttons(bool f)
         {
-            //button1.Enabled = f;
+            button1.Enabled = f;
             //button2.Enabled = f;
             button5.Enabled = f;
             button6.Enabled = f;
@@ -158,8 +145,6 @@ namespace RobobuilderLib
             button9.Enabled = f;
             button10.Enabled = f;
         }
-
-
 
         /**********************************************
          * 
@@ -252,7 +237,6 @@ namespace RobobuilderLib
             return r;
         }
 
-
         void PlayPose(int duration, int no_steps, byte[] spod )
         {
             if (!serialPort1.IsOpen) return;
@@ -299,6 +283,23 @@ namespace RobobuilderLib
                 command_1B(0x1F, 0x02); // reset action memory
                 displayResponse(true);
             }
+        }
+
+        private void button1_Click_1(object sender, EventArgs e)
+        {
+            //read XYZ
+            if (serialPort1.IsOpen)
+            {
+                command_1B(0x1A, 1); // reset motion memory
+                if (displayResponse(false))
+                {
+                    textBox1.AppendText(
+                        "X=" + (Int16)(((respnse[15] << 8) + (respnse[14]))) +
+                        ", Y=" + (Int16)(((respnse[17] << 8) + (respnse[16]))) +
+                        ", Z=" + (Int16)(((respnse[19] << 8) + (respnse[18]))) +
+                        "\r\n");
+                }
+            }  
         }
         
         private void button7_Click(object sender, EventArgs e)
@@ -413,6 +414,13 @@ namespace RobobuilderLib
         {
             Console.WriteLine("Mouse - " + e.X + "," + e.Y);
         }
+
+        private void viewModelToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            view.Show();
+        }
+
+
 
     }
 }
