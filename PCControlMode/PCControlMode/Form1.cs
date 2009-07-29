@@ -13,7 +13,6 @@ namespace RobobuilderLib
         Form2 presets = new Form2();
         Form3 videoc = new Form3();
         Form4 medit = new Form4();
-        Form5 view = new Form5();
 
         public Form1()
         {
@@ -417,7 +416,14 @@ namespace RobobuilderLib
 
         private void viewModelToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            Form5 view = new Form5();
             view.Show();
+            while (view.Created)
+            {
+                view.render();
+                view.processKeys();
+                Application.DoEvents();
+            }
         }
 
 
