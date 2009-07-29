@@ -475,34 +475,6 @@ namespace RobobuilderLib
             renderDevice.RenderState.Lighting = last_lighting;
         }
 
-        void Form5_KeyPress(object sender, System.Windows.Forms.KeyPressEventArgs e)
-        {
-            System.Console.WriteLine("E=" + e.KeyChar);
-            switch (e.KeyChar)
-            {
-                case 'w':
-                    Ty.Text = (System.Convert.ToInt32(Ty.Text) + 1).ToString();
-                    e.Handled = true;
-                    break;
-                case 'x':
-                    Ty.Text = (System.Convert.ToInt32(Ty.Text) - 1).ToString();
-                    e.Handled = true;
-                    break;
-                case 'a':
-                    Tx.Text = (System.Convert.ToInt32(Tx.Text) + 1).ToString();
-                    e.Handled = true;
-                    break;
-                case 's':
-                    e.Handled = true;
-                    break;
-                case 'd':
-                    Tx.Text = (System.Convert.ToInt32(Tx.Text) - 1).ToString();
-                    e.Handled = true;
-                    break;
-            }
-
-        }
-
         private void viewport_MouseDown(object sender, MouseEventArgs e)
         {
             Console.WriteLine("Click = " + e.X + e.Y + e.Button);
