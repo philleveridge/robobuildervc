@@ -18,7 +18,6 @@ namespace RobobuilderLib
 {
     public partial class Form5 : Form
     {
-        public int[] servo_pos = new int[20];
         Vector3 cameraRot;
         Vector3 cameraPos;
         protected CustomVertex.PositionColored[] vertices;
@@ -50,13 +49,11 @@ namespace RobobuilderLib
         ModelData[] models;
         int MaxModels = 10;
 
-        ServoModel[] servos;
+        List<ServoModel> servos;
 
         public Form5()
         {
             InitializeComponent();
-            cameraPos = new Vector3(7.5f, 10, -11);
-            cameraRot = new Vector3(30, 170, -14);
 
             InitializeGraphics();
 
@@ -64,7 +61,8 @@ namespace RobobuilderLib
 
             init();
 
-            initSetup();
+            //initSetup("config-t.txt");
+            initSetup("config.txt");
         }
 
         public bool InitializeGraphics()
@@ -95,12 +93,6 @@ namespace RobobuilderLib
             keyb.Acquire();
         }
 
-       public float clampFloat(float num, float min, float max)
-        {
-            if (num < min) { num = min; }
-            if (num > max) { num = max; }
-            return num;
-        }
 
         private void ReadKeyboard()
         {
@@ -116,18 +108,18 @@ namespace RobobuilderLib
             if (keys[Key.S])
             { driveInput.Z += 1; }
             if (keys[Key.A])
-            { driveInput.X -= 1; }
-            if (keys[Key.D])
             { driveInput.X += 1; }
+            if (keys[Key.D])
+            { driveInput.X -= 1; }
             if (keys[Key.F])
             { driveInput.X -= 1; }
             if (keys[Key.R])
             { driveInput.X += 1; }
 
             if (keys[Key.Up])
-            { rotateInput.X += 1; }
-            if (keys[Key.Down])
             { rotateInput.X -= 1; }
+            if (keys[Key.Down])
+            { rotateInput.X += 1; }
 
             if (keys[Key.Q] || keys[Key.Left])
             { rotateInput.Y -= 1; }
@@ -139,7 +131,7 @@ namespace RobobuilderLib
             driveInput *= driveScale;
             rotateInput *= rotateScale;
 
-            cameraRot.X = clampFloat(cameraRot.X + rotateInput.X, -85, 85);	//clamp angle between -85 and 85 degrees
+            cameraRot.X = UTIL.clampFloat(cameraRot.X + rotateInput.X, -85, 85);	//clamp angle between -85 and 85 degrees
             cameraRot.Y += rotateInput.Y;
 
             Vector3 dir = new Vector3((float)Math.Sin((float)(Math.PI / 180) * cameraRot.Y), 0, (float)Math.Cos((float)(Math.PI / 180) * cameraRot.Y));
@@ -164,7 +156,6 @@ namespace RobobuilderLib
             { return; }
 
             renderDevice.Clear(ClearFlags.Target | ClearFlags.ZBuffer, Color.Black, 1.0f, 0);
-            //renderDevice.Clear(ClearFlags.ZBuffer | ClearFlags.Target, System.Drawing.Color.CornflowerBlue, 1.0f, 0);
             renderDevice.BeginScene();
 
             drawScene();
@@ -177,68 +168,36 @@ namespace RobobuilderLib
 
         public void drawScene()
         {
-            drawline(new Vector3(-100f, 0f, 0f), new Vector3(100f, 0f, 0f), Color.Red);
-            drawline(new Vector3(0f, -100f, 0f), new Vector3(0f, 100f, 0f), Color.Blue);
-            drawline(new Vector3(0f, 0f, -100f), new Vector3(0f, 0f, 100f), Color.White);
+            // draw axis
+            drawline(new Vector3(-100f, 0f, 0f), new Vector3(100f, 0f, 0f), Color.Red, Matrix.Identity);
+            drawline(new Vector3(0f, -100f, 0f), new Vector3(0f, 100f, 0f), Color.Blue, Matrix.Identity);
+            drawline(new Vector3(0f, 0f, -100f), new Vector3(0f, 0f, 100f), Color.White, Matrix.Identity);
 
+            // ground plan
             drawplane();
 
-            for (int s = 0; s < 30; s++)
+            //object and joints
+            foreach (ServoModel s in servos)
             {
-                if (servos[s] != null)
-                {
-                    drawModel(servos[s].mod_no, servos[s].loc, servos[s].rot);
-
-                }
+                if (s.joint)
+                    drawline(s.loc, s.rot, s.mod_no == 0 ? Color.Red : Color.Yellow, Matrix.Identity);
+                else
+                    drawModel(s.mod_no, s.loc, s.rot);
             }
-
-            for (int s = 30; s < 60; s++)
-            {
-                if (servos[s] != null)
-                {
-                    drawline(servos[s].loc, servos[s].rot, servos[s].mod_no == 0 ? Color.Red : Color.Yellow);
-                }
-            }
+            //set camera
             setupView();
-        }
-
-        public void setMatrixPos(ref Matrix mat, Vector3 pos)
-        {
-            mat.M41 = pos.X;
-            mat.M42 = pos.Y;
-            mat.M43 = pos.Z;
-        }
-
-        public Vector3 getMatrixZaxis(ref Matrix mat)
-        { 
-            return new Vector3(mat.M31, mat.M32, mat.M33); 
         }
 
         public void setupView()
         {
-            Vector3 tv = new Vector3(0, 0, -5);
-            Vector3 hv = new Vector3(0, 0, 0);
             Vector3 upDir = new Vector3(0, 1, 0);
-
-            try
-            {
-                tv = new Vector3(Convert.ToInt32(Tx.Text), Convert.ToInt32(Ty.Text), Convert.ToInt32(Tz.Text));
-                hv = new Vector3(Convert.ToInt32(Vx.Text), Convert.ToInt32(Vy.Text), Convert.ToInt32(Vz.Text));
-            }
-            catch (Exception e1) { }
-
-            renderDevice.Transform.View = Matrix.LookAtLH(
-               cameraPos,	 // target location
-               cameraRot,	 // eye/camera location
-               upDir);	     // “up” axis
-
 
             float aspectRatio = ((float)viewPort.ClientSize.Width) / ((float)viewPort.ClientSize.Height);
             cameraMatrix = Matrix.Translation(cameraPos) * Matrix.RotationYawPitchRoll(cameraRot.Y * (float)(Math.PI / 180), -cameraRot.X * (float)(Math.PI / 180), 0);
 
-            setMatrixPos(ref cameraMatrix, cameraPos);
+            UTIL.setMatrixPos(ref cameraMatrix, cameraPos);
 
-            Vector3 dir = getMatrixZaxis(ref cameraMatrix);
+            Vector3 dir = UTIL.getMatrixZaxis(ref cameraMatrix);
             Vector3 target = cameraPos + dir;
 
             renderDevice.Transform.View = Matrix.LookAtLH(target, cameraPos, upDir);
@@ -246,30 +205,11 @@ namespace RobobuilderLib
         }
 
 
-        void drawBoxOutline(float x, float y, float z, float h, float w, float d, Color c)
-        {
-            drawline(new Vector3(x, y, z), new Vector3(x+w, y, z), c);
-            drawline(new Vector3(x, y, z), new Vector3(x, y+h, z), c);
-            drawline(new Vector3(x, y, z), new Vector3(x, y, z+d), c);
-
-            drawline(new Vector3(x+w, y+h, z), new Vector3(x+w, y+h, z+d), c);
-            drawline(new Vector3(x+w, y+h, z), new Vector3(x+w, y, z), c);
-            drawline(new Vector3(x+w, y+h, z), new Vector3(x, y+h, z), c);
-
-            drawline(new Vector3(x+w, y, z), new Vector3(x+w, y, z+d), c);
-            drawline(new Vector3(x, y, z), new Vector3(x, y, z), c);
-            drawline(new Vector3(x, y, z), new Vector3(x, y, z), c);
-
-            drawline(new Vector3(x, y+h, z+d), new Vector3(x+w, y+h, z+d), c);
-            drawline(new Vector3(x, y+h, z+d), new Vector3(x, y, z+d), c);
-            drawline(new Vector3(x, y+h, z+d), new Vector3(x+w, y+h, z+d), c);
-
-        }
 
         void drawModel(int n, Vector3 loc, Vector3 rot)
         {
             Mesh m;
-            if (cylinder == null) cylinder = Mesh.Cylinder(renderDevice, 0.5f, 0.5f, 2, 16, 4);
+            if (cylinder == null) cylinder = Mesh.Cylinder(renderDevice, 0.25f, 0.25f, 1, 16, 4);
 
             if (checkBox1.Checked == true && (n == 5 || n == 6)) return;
 
@@ -277,26 +217,28 @@ namespace RobobuilderLib
             {
                 Matrix locrot = Matrix.RotationYawPitchRoll(0f, 0f, 0f);
 
-                if (checkBox1.Checked == true && n == 1)
-                {
-                    m = cylinder;
-                    drawBoxOutline(loc.X, loc.Y, loc.Z, 0.5f, 0.5f, 0.3f, Color.White);
-                }
-                else
-                {
-                    m = models[n].modelsmesh;
-                }
-
+                m = models[n].modelsmesh;
 
                 if (n == 1)
                 {
-                    locrot = Matrix.RotationYawPitchRoll(0, 0, (float)(Math.PI / 2)); //Matrix.CreateFromYawPitchRoll(MathHelper.ToRadians(y), MathHelper.ToRadians(p), MathHelper.ToRadians(r));
-                    locrot *= Matrix.RotationYawPitchRoll(rot.X * (float)Math.PI / 180f, rot.Y * (float)Math.PI / 180f, rot.Z * (float)Math.PI / 180f);
+                    locrot = Matrix.RotationYawPitchRoll(0, 0, (float)(Math.PI / 2)); 
+                    locrot *= Matrix.RotationYawPitchRoll(UTIL.DegToRads(rot.X ), UTIL.DegToRads(rot.Y), UTIL.DegToRads(rot.Z));
                 }
 
-                Matrix wp = Matrix.Scaling(models[n].scale) * models[n].pose * locrot;
+                Matrix wp;
 
-                renderDevice.Transform.World = wp * Matrix.Translation(loc);
+                if (checkBox1.Checked == true && n == 1)
+                {
+                    m = cylinder;
+                    drawBoxOutline(loc.X,loc.Y,loc.Z, 1f, 1.5f, 1f, Color.White, locrot);
+                    renderDevice.Transform.World = locrot * Matrix.Translation(loc.X, loc.Y, loc.Z) ;
+                }
+                else
+                {
+                    wp = Matrix.Scaling(models[n].scale) * models[n].pose * locrot;
+                    renderDevice.Transform.World = wp * Matrix.Translation(loc);
+                }
+
 
                 for (int i = 0; i < models[n].mat.Length; ++i)
                 {
@@ -321,13 +263,18 @@ namespace RobobuilderLib
             renderDevice.Lights[0].Diffuse = Color.White;
             renderDevice.Lights[0].Specular = Color.White;
             renderDevice.Lights[0].Enabled = true;
+
+            cameraPos = new Vector3(7.5f, 10, -11);
+            cameraRot = new Vector3(30, 170, -14);
         }
 
         // process Ini file
-        void initSetup()
+        void initSetup(string fn)
         {
+            float[] t1;
+
             IniData = new Simulator.IniManager();
-            IniData.Load("config.txt"); // use default
+            IniData.Load(fn); // use default
 
             loadmodels();
 
@@ -341,97 +288,90 @@ namespace RobobuilderLib
                 cameraPos = new Vector3(float.Parse(t[0]), float.Parse(t[1]), float.Parse(t[2]));
             }
 
-            servos = new ServoModel[60];
+            servos = new List<ServoModel>();
 
-            for (int id = 0; id < 20; id++)
+            for (int id = 0; id < 32; id++)
             {
-                if (IniData.getParameter("S" + id) != "")
+                if ((t1 = IniData.getParameterEvalArray("S" + id)).Length>5)
                 {
-                    //S0=  $L,  4.6,     0.2,     0,  0,  90     #Hip
-                    float[] t = IniData.getParameterEvalArray("S" + id);
-                    servos[id] = new ServoModel();
-                    servos[id].mod_no = 1; // use servo mesh for display
-                    servos[id].id = "S" + id;
-                    servos[id].loc = new Vector3(t[0], t[1], t[2]);
-                    servos[id].rot = new Vector3(t[3], t[4], t[5]);
+                    addModel("S" + id, new Vector3(t1[0], t1[1], t1[2]), new Vector3(t1[3], t1[4], t1[5]), 1);
                 }
             }
-            if (IniData.getParameter("FootL") != "")
+
+            if ((t1 = IniData.getParameterEvalArray("FootL")).Length>2)
             {
-                servos[20] = new ServoModel();
-                servos[20].id = "FootL";
-                servos[20].mod_no = 4;
-                float[] t = IniData.getParameterEvalArray("FootL");
-                servos[20].loc = new Vector3(t[0], t[1], t[2]);
-                servos[20].rot = new Vector3(0, 0, 0);
+                addModel("FootL", new Vector3(t1[0], t1[1], t1[2]), new Vector3(0, 0, 0), 4);
             }
-            if (IniData.getParameter("FootR") != "")
+            if ((t1 = IniData.getParameterEvalArray("FootR")).Length>2)
             {
-                servos[21] = new ServoModel();
-                servos[21].id = "FootR";
-                servos[21].mod_no = 4;
-                float[] t = IniData.getParameterEvalArray("FootR");
-                servos[21].loc = new Vector3(t[0], t[1], t[2]);
-                servos[21].rot = new Vector3(0, 0, 0);
+                addModel("FootR", new Vector3(t1[0], t1[1], t1[2]), new Vector3(0, 0, 0), 4);
             }
-            if (IniData.getParameter("HandL") != "")
+
+            if ((t1 = IniData.getParameterEvalArray("HandL")).Length >2)
             {
-                servos[22] = new ServoModel();
-                servos[22].id = "HandL";
-                servos[22].mod_no = 2;
-                float[] t = IniData.getParameterEvalArray("HandL");
-                servos[22].loc = new Vector3(t[0], t[1], t[2]);
-                servos[22].rot = new Vector3(0, 0, 0);
+                addModel("HandL", new Vector3(t1[0], t1[1], t1[2]), new Vector3(0, 0, 0), 2);
+                addJoint("HandLJ", new Vector3(t1[0], t1[1], t1[2]), findServo("S" + t1[3].ToString()).loc, (int)t1[4]);
             }
-            if (IniData.getParameter("HandR") != "")
+
+            if ((t1 = IniData.getParameterEvalArray("HandR")).Length > 2)
             {
-                servos[23] = new ServoModel();
-                servos[23].id = "HandR";
-                servos[23].mod_no = 3;
-                float[] t = IniData.getParameterEvalArray("HandR");
-                servos[23].loc = new Vector3(t[0], t[1], t[2]);
-                servos[23].rot = new Vector3(0, 0, 0);
+                addModel("HandR", new Vector3(t1[0], t1[1], t1[2]), new Vector3(0, 0, 0), 3);
+                addJoint("HandRJ", new Vector3(t1[0], t1[1], t1[2]), findServo("S" + t1[3].ToString()).loc, (int)t1[4]);
             }
-            if (IniData.getParameter("Body") != "")
+            if ((t1 = IniData.getParameterEvalArray("Body")).Length > 2)
             {
-                servos[26] = new ServoModel();
-                servos[26].id = "Body";
-                servos[26].mod_no = 5;
-                float[] t = IniData.getParameterEvalArray("Body");
-                servos[26].loc = new Vector3(t[0], t[1], t[2]);
-                servos[26].rot = new Vector3(0, 0, 0);
+                addModel("Body", new Vector3(t1[0], t1[1], t1[2]), new Vector3(0, 0, 0), 5);
             }
-            if (IniData.getParameter("KneeL") != "")
+            if ((t1 = IniData.getParameterEvalArray("KneeL")).Length >2)
             {
-                servos[24] = new ServoModel();
-                servos[24].id = "KneeL";
-                servos[24].mod_no = 6;
-                float[] t = IniData.getParameterEvalArray("KneeL");
-                servos[24].loc = new Vector3(t[0], t[1], t[2]);
-                servos[24].rot = new Vector3(0, 0, 0);
+                addModel("KneeL", new Vector3(t1[0], t1[1], t1[2]), new Vector3(0, 0, 0), 6);
             }
-            if (IniData.getParameter("KneeR") != "")
+            if ((t1 = IniData.getParameterEvalArray("KneeR")).Length >2)
             {
-                servos[25] = new ServoModel();
-                servos[25].id = "KneeR";
-                servos[25].mod_no = 6;
-                float[] t = IniData.getParameterEvalArray("KneeR");
-                servos[25].loc = new Vector3(t[0], t[1], t[2]);
-                servos[25].rot = new Vector3(0, 0, 0);
+                addModel("KneeR", new Vector3(t1[0], t1[1], t1[2]), new Vector3(0, 0, 0), 6);
             }
-            for (int id = 0; id < 30; id++)
+            for (int id = 0; id < 50; id++)
             {
-                if (IniData.getParameter("Joint" + id) != "")
+                if ((t1 = IniData.getParameterEvalArray("Joint" + id)).Length>2)
                 {
-                    //S0=  $L,  4.6,     0.2,     0,  0,  90     #Hip
-                    float[] t = IniData.getParameterEvalArray("Joint" + id);
-                    servos[30 + id] = new ServoModel();
-                    servos[30 + id].mod_no = (int)t[2]; // use servo mesh for display
-                    servos[30 + id].id = "Joint" + id;
-                    servos[30 + id].loc = servos[(int)t[0]].loc;
-                    servos[30 + id].rot = servos[(int)t[1]].loc;
+                    addJoint("Joint" + id, findServo("S" + t1[0].ToString()).loc, findServo("S" + t1[1].ToString()).loc, (int)t1[2]);
                 }
             }
+        }
+
+        void addModel(string n, Vector3 loc, Vector3 rot, int t)
+        {
+            ServoModel s = new ServoModel();
+            s.id = n;
+            s.mod_no = t;
+            s.loc = loc;
+            s.rot = rot;
+            servos.Add(s);
+        }
+
+        void addJoint(string n, Vector3 from, Vector3 to, int c)
+        {
+            ServoModel s = new ServoModel();
+            s.mod_no = c; // type 0/1
+            s.id = n;
+            s.loc = from;
+            s.rot = to;
+            s.joint = true;
+            servos.Add(s);
+        }
+
+        ServoModel findServo(string n)
+        {
+            foreach (ServoModel r in servos)
+            {
+                if (r.id == n) return r;
+            }
+            return null;
+        }
+
+        public void  setServoPos(int n, int v)
+        {
+            findServo("S"+n).pos = v;
         }
 
         void loadmodels()
@@ -494,13 +434,37 @@ namespace RobobuilderLib
             }
         }
 
-
         private void button1_Click(object sender, EventArgs e)
         {
             this.Dispose();
         }
 
-        public void drawline(Vector3 src, Vector3 dest, Color colour) //, Matrix viewProjection)
+
+        void drawBoxOutline(float x, float y, float z, float h, float w, float d, Color c, Matrix wp)
+        {
+            Vector3 loc = new Vector3(x, y, z);
+            x = -w/2; y = -h/2; z = -d/2;
+
+            wp *= Matrix.Translation(loc);
+
+            drawline(new Vector3(x, y, z), new Vector3(x + w, y, z), c, wp);
+            drawline(new Vector3(x, y, z), new Vector3(x, y + h, z), c, wp);
+            drawline(new Vector3(x, y, z), new Vector3(x, y, z + d), c, wp);
+
+            drawline(new Vector3(x + w, y + h, z), new Vector3(x + w, y + h, z + d), c, wp);
+            drawline(new Vector3(x + w, y + h, z), new Vector3(x + w, y, z), c, wp);
+            drawline(new Vector3(x + w, y + h, z), new Vector3(x, y + h, z), c, wp);
+
+            drawline(new Vector3(x + w, y, z + d), new Vector3(x + w, y, z), c, wp);
+            drawline(new Vector3(x + w, y, z + d), new Vector3(x, y, z + d), c, wp);
+            drawline(new Vector3(x + w, y, z + d), new Vector3(x + w, y + h, z + d), c, wp);
+
+            drawline(new Vector3(x, y + h, z + d), new Vector3(x + w, y + h, z + d), c, wp);
+            drawline(new Vector3(x, y + h, z + d), new Vector3(x, y, z + d), c, wp);
+            drawline(new Vector3(x, y + h, z + d), new Vector3(x, y + h, z), c, wp);
+        }
+
+        public void drawline(Vector3 src, Vector3 dest, Color colour, Matrix wp) //, Matrix viewProjection)
         {
             vertices = new CustomVertex.PositionColored[2];
             vertices[0] = new CustomVertex.PositionColored(src, colour.ToArgb());
@@ -516,7 +480,7 @@ namespace RobobuilderLib
             m.Diffuse = colour;
             m.Emissive = colour;
 
-            renderDevice.Transform.World = Matrix.Identity;
+            renderDevice.Transform.World = wp;
 
             //Set our VertexFormat so the device knows the format of the array we pass in
             renderDevice.VertexFormat = CustomVertex.PositionColored.Format;
@@ -577,11 +541,40 @@ namespace RobobuilderLib
 
     }
 
+    static class UTIL
+    {
+        static public float clampFloat(float num, float min, float max)
+        {
+            if (num < min) { num = min; }
+            if (num > max) { num = max; }
+            return num;
+        }
+
+        static public void setMatrixPos(ref Matrix mat, Vector3 pos)
+        {
+            mat.M41 = pos.X;
+            mat.M42 = pos.Y;
+            mat.M43 = pos.Z;
+        }
+
+        static public Vector3 getMatrixZaxis(ref Matrix mat)
+        {
+            return new Vector3(mat.M31, mat.M32, mat.M33);
+        }
+
+        static public float DegToRads(float x)
+        {
+            return (float)(Math.PI / 180)*x;
+        }
+    }
+
     class ServoModel
     {
         public Vector3 loc;
         public Vector3 rot;
         public string id;
         public int mod_no;
+        public bool joint = false;
+        public int pos;
     }
 }

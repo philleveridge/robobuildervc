@@ -137,7 +137,7 @@ namespace RobobuilderLib
         private void set_buttons(bool f)
         {
             button1.Enabled = f;
-            //button2.Enabled = f;
+            button2.Enabled = f;
             button5.Enabled = f;
             button6.Enabled = f;
             button7.Enabled = f;
@@ -323,6 +323,19 @@ namespace RobobuilderLib
                 displayResponse(true);
             }
         }
+
+        private void button2_Click_1(object sender, EventArgs e)
+        {
+            // read IR
+            if (serialPort1.IsOpen)
+            {
+                //command_1B(25, 0x01);
+                //while (serialPort1.BytesToRead == 0) ;
+                //displayResponse(true);
+            }
+        }
+
+
 
         private void button10_Click(object sender, EventArgs e)
         {
