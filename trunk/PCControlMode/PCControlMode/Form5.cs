@@ -8,6 +8,7 @@ using System.IO;
 using System.Windows.Forms;
 using Microsoft.DirectX;
 using Microsoft.DirectX.Direct3D;
+using Microsoft.DirectX.DirectInput;
 
 using TCVertex = Microsoft.DirectX.Direct3D.CustomVertex.TransformedColored;	// simply our code
 using PCVertex = Microsoft.DirectX.Direct3D.CustomVertex.PositionColored;
@@ -22,19 +23,16 @@ namespace RobobuilderLib
         Vector3 cameraPos;
         protected CustomVertex.PositionColored[] vertices;
 
-        Device renderDevice = null;
+        Microsoft.DirectX.DirectInput.Device keyb;
+        Microsoft.DirectX.Direct3D.Device renderDevice = null;
+
         Matrix cameraMatrix;
-        bool[] keyStates = new bool[256];
 
         float verticalFOV = 60.0f;
         float nearClipDistance = 0.01f;
         float farClipDistance = 2000.0f;
 
         Mesh cylinder = null;
-        
-
-        private Microsoft.DirectX.Direct3D.Mesh cubeMesh;
-        private Material servoMat;
 
         public struct ModelData
         {
@@ -57,27 +55,17 @@ namespace RobobuilderLib
         public Form5()
         {
             InitializeComponent();
-            cameraRot = new Vector3(4, 8, -14); 
-            cameraPos = new Vector3(2, 10, -23);
+            cameraPos = new Vector3(7.5f, 10, -11);
+            cameraRot = new Vector3(30, 170, -14);
 
             InitializeGraphics();
 
-            init(); 
-            
+            InitializeKeyboard();
+
+            init();
+
             initSetup();
-
-            Tx.Text = cameraPos.X.ToString();
-            Ty.Text = cameraPos.Y.ToString();
-            Tz.Text = cameraPos.Z.ToString();
-
-            Vx.Text = cameraRot.X.ToString();
-            Vy.Text = cameraRot.Y.ToString();
-            Vz.Text = cameraRot.Z.ToString();
-
-            Tx.Focus();
-
         }
-
 
         public bool InitializeGraphics()
         {
@@ -89,8 +77,8 @@ namespace RobobuilderLib
                 presentParams.AutoDepthStencilFormat = DepthFormat.D16;
                 presentParams.EnableAutoDepthStencil = true;
 
-                renderDevice = new Device(0, DeviceType.Hardware, viewPort, CreateFlags.HardwareVertexProcessing, presentParams);
-                
+                renderDevice = new Microsoft.DirectX.Direct3D.Device(0, Microsoft.DirectX.Direct3D.DeviceType.Hardware, viewPort, CreateFlags.HardwareVertexProcessing, presentParams);
+
                 return true;
             }
             catch (DirectXException e)
@@ -98,6 +86,76 @@ namespace RobobuilderLib
                 MessageBox.Show(e.Message, "InitializeGraphics Error");
                 return false;
             }
+        }
+
+        public void InitializeKeyboard()
+        {
+            keyb = new Microsoft.DirectX.DirectInput.Device(SystemGuid.Keyboard);
+            keyb.SetCooperativeLevel(this, CooperativeLevelFlags.Background | CooperativeLevelFlags.NonExclusive);
+            keyb.Acquire();
+        }
+
+       public float clampFloat(float num, float min, float max)
+        {
+            if (num < min) { num = min; }
+            if (num > max) { num = max; }
+            return num;
+        }
+
+        private void ReadKeyboard()
+        {
+            KeyboardState keys = keyb.GetCurrentKeyboardState();
+
+            float driveScale = 0.2f;
+            float rotateScale = 2.0f;
+            Vector3 driveInput = new Vector3(0, 0, 0);
+            Vector3 rotateInput = new Vector3(0, 0, 0);
+
+            if (keys[Key.W])
+            { driveInput.Z -= 1; }
+            if (keys[Key.S])
+            { driveInput.Z += 1; }
+            if (keys[Key.A])
+            { driveInput.X -= 1; }
+            if (keys[Key.D])
+            { driveInput.X += 1; }
+            if (keys[Key.F])
+            { driveInput.X -= 1; }
+            if (keys[Key.R])
+            { driveInput.X += 1; }
+
+            if (keys[Key.Up])
+            { rotateInput.X += 1; }
+            if (keys[Key.Down])
+            { rotateInput.X -= 1; }
+
+            if (keys[Key.Q] || keys[Key.Left])
+            { rotateInput.Y -= 1; }
+            if (keys[Key.E] || keys[Key.Right])
+            { rotateInput.Y += 1; }
+
+            // update camera view
+
+            driveInput *= driveScale;
+            rotateInput *= rotateScale;
+
+            cameraRot.X = clampFloat(cameraRot.X + rotateInput.X, -85, 85);	//clamp angle between -85 and 85 degrees
+            cameraRot.Y += rotateInput.Y;
+
+            Vector3 dir = new Vector3((float)Math.Sin((float)(Math.PI / 180) * cameraRot.Y), 0, (float)Math.Cos((float)(Math.PI / 180) * cameraRot.Y));
+            Vector3 perpDir = new Vector3(dir.Z, 0, -dir.X);
+            Vector3 upDir = new Vector3(0, 1, 0);
+
+            cameraPos = cameraPos + (dir * driveInput.Z) + (perpDir * driveInput.X) + (upDir * driveInput.Y);
+
+            Tx.Text = cameraPos.X.ToString();
+            Ty.Text = cameraPos.Y.ToString();
+            Tz.Text = cameraPos.Z.ToString();
+
+            Vx.Text = cameraRot.X.ToString();
+            Vy.Text = cameraRot.Y.ToString();
+            Vz.Text = cameraRot.Z.ToString();
+        
         }
 
         public void render()
@@ -113,19 +171,16 @@ namespace RobobuilderLib
 
             renderDevice.EndScene();
             renderDevice.Present();
+
+            ReadKeyboard();
         }
 
         public void drawScene()
         {
-            //ensure rotation speed is independent of computer speed
-            //float rotationAngle = (float)((2 * Math.PI) *
-            //        (double)((Environment.TickCount % 1000) / 1000f));
-            //renderDevice.Transform.World = Matrix.RotationY(rotationAngle);
-
             drawline(new Vector3(-100f, 0f, 0f), new Vector3(100f, 0f, 0f), Color.Red);
             drawline(new Vector3(0f, -100f, 0f), new Vector3(0f, 100f, 0f), Color.Blue);
             drawline(new Vector3(0f, 0f, -100f), new Vector3(0f, 0f, 100f), Color.White);
-            
+
             drawplane();
 
             for (int s = 0; s < 30; s++)
@@ -133,17 +188,82 @@ namespace RobobuilderLib
                 if (servos[s] != null)
                 {
                     drawModel(servos[s].mod_no, servos[s].loc, servos[s].rot);
+
                 }
             }
-            //drawModel(2, new Vector3(0, 0, 9));   
+
             for (int s = 30; s < 60; s++)
             {
                 if (servos[s] != null)
                 {
-                    drawline(servos[s].loc, servos[s].rot,servos[s].mod_no==0? Color.Red:Color.Yellow);
+                    drawline(servos[s].loc, servos[s].rot, servos[s].mod_no == 0 ? Color.Red : Color.Yellow);
                 }
             }
             setupView();
+        }
+
+        public void setMatrixPos(ref Matrix mat, Vector3 pos)
+        {
+            mat.M41 = pos.X;
+            mat.M42 = pos.Y;
+            mat.M43 = pos.Z;
+        }
+
+        public Vector3 getMatrixZaxis(ref Matrix mat)
+        { 
+            return new Vector3(mat.M31, mat.M32, mat.M33); 
+        }
+
+        public void setupView()
+        {
+            Vector3 tv = new Vector3(0, 0, -5);
+            Vector3 hv = new Vector3(0, 0, 0);
+            Vector3 upDir = new Vector3(0, 1, 0);
+
+            try
+            {
+                tv = new Vector3(Convert.ToInt32(Tx.Text), Convert.ToInt32(Ty.Text), Convert.ToInt32(Tz.Text));
+                hv = new Vector3(Convert.ToInt32(Vx.Text), Convert.ToInt32(Vy.Text), Convert.ToInt32(Vz.Text));
+            }
+            catch (Exception e1) { }
+
+            renderDevice.Transform.View = Matrix.LookAtLH(
+               cameraPos,	 // target location
+               cameraRot,	 // eye/camera location
+               upDir);	     // “up” axis
+
+
+            float aspectRatio = ((float)viewPort.ClientSize.Width) / ((float)viewPort.ClientSize.Height);
+            cameraMatrix = Matrix.Translation(cameraPos) * Matrix.RotationYawPitchRoll(cameraRot.Y * (float)(Math.PI / 180), -cameraRot.X * (float)(Math.PI / 180), 0);
+
+            setMatrixPos(ref cameraMatrix, cameraPos);
+
+            Vector3 dir = getMatrixZaxis(ref cameraMatrix);
+            Vector3 target = cameraPos + dir;
+
+            renderDevice.Transform.View = Matrix.LookAtLH(target, cameraPos, upDir);
+            renderDevice.Transform.Projection = Matrix.PerspectiveFovLH(verticalFOV * (float)(Math.PI / 180), aspectRatio, nearClipDistance, farClipDistance);
+        }
+
+
+        void drawBoxOutline(float x, float y, float z, float h, float w, float d, Color c)
+        {
+            drawline(new Vector3(x, y, z), new Vector3(x+w, y, z), c);
+            drawline(new Vector3(x, y, z), new Vector3(x, y+h, z), c);
+            drawline(new Vector3(x, y, z), new Vector3(x, y, z+d), c);
+
+            drawline(new Vector3(x+w, y+h, z), new Vector3(x+w, y+h, z+d), c);
+            drawline(new Vector3(x+w, y+h, z), new Vector3(x+w, y, z), c);
+            drawline(new Vector3(x+w, y+h, z), new Vector3(x, y+h, z), c);
+
+            drawline(new Vector3(x+w, y, z), new Vector3(x+w, y, z+d), c);
+            drawline(new Vector3(x, y, z), new Vector3(x, y, z), c);
+            drawline(new Vector3(x, y, z), new Vector3(x, y, z), c);
+
+            drawline(new Vector3(x, y+h, z+d), new Vector3(x+w, y+h, z+d), c);
+            drawline(new Vector3(x, y+h, z+d), new Vector3(x, y, z+d), c);
+            drawline(new Vector3(x, y+h, z+d), new Vector3(x+w, y+h, z+d), c);
+
         }
 
         void drawModel(int n, Vector3 loc, Vector3 rot)
@@ -160,12 +280,13 @@ namespace RobobuilderLib
                 if (checkBox1.Checked == true && n == 1)
                 {
                     m = cylinder;
+                    drawBoxOutline(loc.X, loc.Y, loc.Z, 0.5f, 0.5f, 0.3f, Color.White);
                 }
                 else
                 {
                     m = models[n].modelsmesh;
                 }
-                
+
 
                 if (n == 1)
                 {
@@ -175,7 +296,7 @@ namespace RobobuilderLib
 
                 Matrix wp = Matrix.Scaling(models[n].scale) * models[n].pose * locrot;
 
-                renderDevice.Transform.World = wp * Matrix.Translation(loc) ;
+                renderDevice.Transform.World = wp * Matrix.Translation(loc);
 
                 for (int i = 0; i < models[n].mat.Length; ++i)
                 {
@@ -242,7 +363,7 @@ namespace RobobuilderLib
                 servos[20].mod_no = 4;
                 float[] t = IniData.getParameterEvalArray("FootL");
                 servos[20].loc = new Vector3(t[0], t[1], t[2]);
-                servos[20].rot = new Vector3(0,0,0);
+                servos[20].rot = new Vector3(0, 0, 0);
             }
             if (IniData.getParameter("FootR") != "")
             {
@@ -304,11 +425,11 @@ namespace RobobuilderLib
                 {
                     //S0=  $L,  4.6,     0.2,     0,  0,  90     #Hip
                     float[] t = IniData.getParameterEvalArray("Joint" + id);
-                    servos[30+id] = new ServoModel();
+                    servos[30 + id] = new ServoModel();
                     servos[30 + id].mod_no = (int)t[2]; // use servo mesh for display
-                    servos[30+id].id = "Joint" + id;
-                    servos[30+id].loc = servos[(int)t[0]].loc;
-                    servos[30+id].rot = servos[(int)t[1]].loc;
+                    servos[30 + id].id = "Joint" + id;
+                    servos[30 + id].loc = servos[(int)t[0]].loc;
+                    servos[30 + id].rot = servos[(int)t[1]].loc;
                 }
             }
         }
@@ -316,7 +437,7 @@ namespace RobobuilderLib
         void loadmodels()
         {
             string mb;
-           
+
             models = new ModelData[MaxModels];
 
             for (int id = 0; id < MaxModels; id++)
@@ -331,7 +452,7 @@ namespace RobobuilderLib
 
                     models[id].name = n[0];
                     models[id].pose = Matrix.RotationYawPitchRoll(
-                        float.Parse(n[5].Trim()) * (float)(Math.PI/180),
+                        float.Parse(n[5].Trim()) * (float)(Math.PI / 180),
                         -float.Parse(n[6].Trim()) * (float)(Math.PI / 180),
                         float.Parse(n[7].Trim()) * (float)(Math.PI / 180));
                     models[id].scale = new Vector3(
@@ -373,32 +494,6 @@ namespace RobobuilderLib
             }
         }
 
-        public void setupView()
-        {
-            Vector3 tv = new Vector3(0, 0, -5);
-            Vector3 hv = new Vector3(0, 0, 0);
-            Vector3 upDir = new Vector3(0, 1, 0);
-
-            try
-            {
-                tv = new Vector3(Convert.ToInt32(Tx.Text), Convert.ToInt32(Ty.Text), Convert.ToInt32(Tz.Text));
-                hv = new Vector3(Convert.ToInt32(Vx.Text), Convert.ToInt32(Vy.Text), Convert.ToInt32(Vz.Text));
-            }
-            catch (Exception e1) { }
-
-            renderDevice.Transform.View = Matrix.LookAtLH(
-               tv,	 // target location
-               hv,	 // eye/camera location
-               upDir);	// “up” axis
-
-            float aspectRatio = ((float)viewPort.ClientSize.Width) / ((float)viewPort.ClientSize.Height);
-            cameraMatrix = Matrix.Translation(cameraPos) * Matrix.RotationYawPitchRoll(cameraRot.Y * (float)(Math.PI / 180), -cameraRot.X * (float)(Math.PI / 180), 0);
-            Vector3 dir = new Vector3(0, 1, 0);
-            Vector3 target = cameraPos + dir;
-
-            //renderDevice.Transform.View = Matrix.LookAtLH(cameraPos, target, upDir);
-            renderDevice.Transform.Projection = Matrix.PerspectiveFovLH(verticalFOV * (float)(Math.PI / 180), aspectRatio, nearClipDistance, farClipDistance);
-        }
 
         private void button1_Click(object sender, EventArgs e)
         {
@@ -480,160 +575,6 @@ namespace RobobuilderLib
             Console.WriteLine("Click = " + e.X + e.Y + e.Button);
         }
 
-        private void clearKeyStates()
-        {
-            for (int i = 0; i < 256; i++)
-            { keyStates[i] = false; }
-        }
-
-        public void processKeys()
-        {
-            if (this != Form.ActiveForm)	//Lost focus so reset the keys
-            { clearKeyStates(); }
-
-            if (keyStates[(int)Keys.NumPad1])
-            {
-                //int p = servos[current_servo].getPos();
-                //setServoValue(current_servo, p + 1);
-                keyStates[(int)Keys.NumPad1] = false;
-            }
-
-
-            if (keyStates[(int)Keys.V])
-            {
-                //bodyvis = !bodyvis;
-                keyStates[(int)Keys.V] = false;
-            }
-
-
-            if (keyStates[(int)Keys.NumPad3])
-            {
-                //int p = servos[current_servo].getPos();
-                //setServoValue(current_servo, p - 1);
-                keyStates[(int)Keys.NumPad3] = false;
-            }
-            if (keyStates[(int)Keys.Insert])
-            {
-                // next servo in use (i.e. non-null)
-                //do { current_servo = (current_servo + 1) % 16; } while (servos[current_servo] == null);
-                //selectedActor = servos[current_servo].getActor();
-                //setCS(current_servo);
-                keyStates[(int)Keys.Insert] = false;
-            }
-            if (keyStates[(int)Keys.Delete])
-            {
-                //do
-                //{
-                //    current_servo = (current_servo - 1) % 16;
-                //    if (current_servo < 0) current_servo = 15;
-                //} while (servos[current_servo] == null);
-                //selectedActor = servos[current_servo].getActor();
-                //setCS(current_servo);
-
-                keyStates[(int)Keys.Delete] = false;
-            }
-
-            driveObject(ref cameraRot, ref cameraPos, false);
-        }
-
-        void driveObject(ref Vector3 objectRot, ref Vector3 objectPos, bool alternateKeysFlag)
-        {
-            float driveScale = 0.2f;
-            float rotateScale = 2.0f;
-            Vector3 driveInput = new Vector3(0, 0, 0);
-            Vector3 rotateInput = new Vector3(0, 0, 0);
-
-            if (keyStates[(int)Keys.ShiftKey])
-            {
-                driveScale *= 3.0f;
-                rotateScale *= 2.0f;
-            }
-
-            if (!alternateKeysFlag)
-            {
-                if (keyStates[(int)Keys.W])
-                { driveInput.Z += 1; }
-                if (keyStates[(int)Keys.S])
-                { driveInput.Z -= 1; }
-                if (keyStates[(int)Keys.A])
-                { driveInput.X -= 1; }
-                if (keyStates[(int)Keys.D])
-                { driveInput.X += 1; }
-                if (keyStates[(int)Keys.R])
-                { driveInput.Y += 1; }
-                if (keyStates[(int)Keys.F])
-                { driveInput.Y -= 1; }
-                if (keyStates[(int)Keys.Q] || keyStates[(int)Keys.Left])
-                { rotateInput.Y -= 1; }
-                if (keyStates[(int)Keys.E] || keyStates[(int)Keys.Right])
-                { rotateInput.Y += 1; }
-                if (keyStates[(int)Keys.Up])
-                { rotateInput.X += 1; }
-                if (keyStates[(int)Keys.Down])
-                { rotateInput.X -= 1; }
-            }
-            else
-            {
-                if (keyStates[(int)Keys.I])
-                { driveInput.Z += 1; }
-                if (keyStates[(int)Keys.K])
-                { driveInput.Z -= 1; }
-                if (keyStates[(int)Keys.J])
-                { driveInput.X -= 1; }
-                if (keyStates[(int)Keys.L])
-                { driveInput.X += 1; }
-                if (keyStates[(int)Keys.Y])
-                { driveInput.Y += 1; }
-                if (keyStates[(int)Keys.H])
-                { driveInput.Y -= 1; }
-                if (keyStates[(int)Keys.U])
-                { rotateInput.Y -= 1; }
-                if (keyStates[(int)Keys.O])
-                { rotateInput.Y += 1; }
-            }
-
-            driveInput *= driveScale;
-            rotateInput *= rotateScale;
-
-            /*
-           objectRot.X  += rotateInput.X;	//clamp angle between -85 and 85 degrees
-           objectRot.Y += rotateInput.Y;
-
-           Vector3 dir = new Vector3(1, 0, 0); //((float)Math.Sin(NovodexUtil.DEG_TO_RAD * objectRot.Y), 0, (float)Math.Cos(NovodexUtil.DEG_TO_RAD * objectRot.Y));
-           Vector3 perpDir = new Vector3(dir.Z, 0, -dir.X);
-           Vector3 upDir = new Vector3(0, 1, 0);
-
-           objectPos = objectPos + (dir * driveInput.Z) + (perpDir * driveInput.X) + (upDir * driveInput.Y);
-           */
-
-            Tx.Text = (Convert.ToInt32(Tx.Text) + driveInput.X).ToString();
-            Ty.Text = (Convert.ToInt32(Ty.Text) + driveInput.Y).ToString();
-            Tz.Text = (Convert.ToInt32(Tz.Text) + driveInput.Z).ToString();
-
-            Vx.Text = (Convert.ToInt32(Vx.Text) + rotateInput.X).ToString();
-            Vy.Text = (Convert.ToInt32(Vy.Text) + rotateInput.Y).ToString();
-            Vz.Text = (Convert.ToInt32(Vz.Text) + rotateInput.Z).ToString();
-        }
-
-        private const int WM_KEYDOWN = 0x0100;
-        private const int WM_KEYUP = 0x0101;
-        protected override bool ProcessKeyPreview(ref Message m)	//This is required because the viewport panel receives no key events.
-        {
-            //if(startedFlag)
-            {
-                switch (m.Msg)
-                {
-                    case WM_KEYDOWN:
-                        if ((((uint)m.LParam) >> 30 & 1) == 0)
-                        { keyStates[(int)m.WParam] = true; }
-                        break;
-                    case WM_KEYUP:
-                        keyStates[(int)m.WParam] = false;
-                        break;
-                }
-            }
-            return base.ProcessKeyPreview(ref m);
-        }
     }
 
     class ServoModel

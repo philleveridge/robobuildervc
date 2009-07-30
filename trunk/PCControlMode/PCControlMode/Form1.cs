@@ -421,7 +421,6 @@ namespace RobobuilderLib
             while (view.Created)
             {
                 view.render();
-                view.processKeys();
                 Application.DoEvents();
             }
         }

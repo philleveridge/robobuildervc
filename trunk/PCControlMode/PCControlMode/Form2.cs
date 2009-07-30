@@ -154,12 +154,30 @@ namespace RobobuilderLib
             }
         }
 
+
+        Hashtable vars;
+
+        private string evalExpr(string x)
+        {
+            //
+            IDictionaryEnumerator en = vars.GetEnumerator();
+
+            while (en.MoveNext())
+            {
+                string k = en.Key.ToString();
+                string v = en.Value.ToString();
+                x = x.Replace("$" + k, v);
+            }
+            return x;
+        }
+
         private void run(string script)
         {
             Console.WriteLine("Script=" + script);
             int[] loop_l = new int[MAXDEPTH];
             int[] loop_c = new int[MAXDEPTH];
-            Hashtable vars = new Hashtable();
+
+            vars = new Hashtable();
 
             int lc = 0;
 
@@ -180,24 +198,24 @@ namespace RobobuilderLib
                 {
                     case "wait":
                         // wait x ms
-                        int t = Convert.ToInt32(words[1]);
+                        int t = Convert.ToInt32(evalExpr(words[1]));
                         System.Threading.Thread.Sleep(t);
                         break;
                     case "message":
-                        MessageBox.Show(words[1]);
+                        MessageBox.Show(evalExpr(line.Substring(8)));
                         break;
                     case "if":
                         // if [condition] [true] [false]
                         break;
                     case "kfactor":
                         // kfactor val
-                        k = Convert.ToDouble(words[1]);
+                        k = Convert.ToDouble(evalExpr(words[1]));
                         break;
                     case "setservo":
                         // setservo id pos
                         {
-                            int id = Convert.ToInt32(words[1]);
-                            int pos = Convert.ToInt32(words[2]);
+                            int id = Convert.ToInt32(evalExpr(words[1]));
+                            int pos = Convert.ToInt32(evalExpr(words[2]));
                             wckMotion m = new wckMotion(sp1);
                             m.wckMovePos(id, pos, 0);
                             m.close();                      
@@ -206,8 +224,8 @@ namespace RobobuilderLib
                     case "modservo":
                         // mod id relative-pos
                         {
-                            int id = Convert.ToInt32(words[1]);
-                            int pos = Convert.ToInt32(words[2]);
+                            int id = Convert.ToInt32(evalExpr(words[1]));
+                            int pos = Convert.ToInt32(evalExpr(words[2]));
                             wckMotion m = new wckMotion(sp1);
                             if (m.wckReadPos(id))
                             {
@@ -218,12 +236,13 @@ namespace RobobuilderLib
                         break;
                     case "let":
                         // let var (=value or expression)
-                        vars[words[1]] = words[2];
+                        vars[words[1]] = evalExpr(words[2]);
                         break;
                     case "repeat":
                         // loop x times
-                        loop_c[lc] = Convert.ToInt32(words[1]);
+                        loop_c[lc] = Convert.ToInt32(evalExpr(words[1]));
                         loop_l[lc] = i;
+                        vars["_count"] = "0";
                         lc++;
                         break;
                     case "end":
@@ -231,6 +250,7 @@ namespace RobobuilderLib
                         if (lc > 0)
                         {
                             loop_c[lc-1] -= 1;
+                            vars["_count"] = (Convert.ToInt32(vars["_count"]) + 1).ToString();
                             if (loop_c[lc-1] == 0)
                             {
                                 lc--;
