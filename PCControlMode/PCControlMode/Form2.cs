@@ -20,6 +20,9 @@ namespace RobobuilderLib
         double k = 1.0; //speed factor
         public bool presets_flg;
 
+        PCremote remote;
+        wckMotion wckm;
+
         public Form2()
         {
             InitializeComponent();
@@ -34,12 +37,32 @@ namespace RobobuilderLib
             presets_flg = false;
         }
 
+        public void connect(PCremote r)
+        {
+            remote = r;
+            if (r.serialPort1.IsOpen)
+            {
+                wckm = new wckMotion(r);
+                this.Show();
+            }
+            else
+                MessageBox.Show("Must connect first");
+        }
+
+        public void disconnect()
+        {
+            wckm.close();
+            wckm = null;
+            remote = null;
+            this.Hide();
+        }
+
         public string list_presets()
         {
             string r = "";
             for (int i = 0; i < cnt; i++)
             {
-                r += "BUTTON=" + button_array[i].Text + "," + fnames[i] + "\n";
+                r += "BUTTON=" + button_array[i].Text + "," + fnames[i] + "\r\n";
             }
             return r;
         }
@@ -87,31 +110,22 @@ namespace RobobuilderLib
             presets_flg=true;
         }
 
-        private void button1_Click(object sender, EventArgs e)
+        private void exit_btn_Click(object sender, EventArgs e)
         {
-            this.Hide();
-        }
-
-        void PlayPose(int duration, int no_steps, byte[] spod)
-        {
-            if ((pcR.serialPort1 != null) && (!pcR.serialPort1.IsOpen)) return;
-            wckMotion m = new wckMotion(pcR);
-            m.PlayPose(duration, no_steps, spod, true);
-            m.close();
+            disconnect();
         }
 
         private void NewBasicPose()
         {
-            PlayPose(1000, 10, new byte[] {
+            wckm.PlayPose(1000, 10, new byte[] {
                 /*0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18 */
-                171,179,198,83,105,78,72,49,172,141,47,47,49,200,205,205,122,125,127 });
+                171,179,198,83,105,78,72,49,172,141,47,47,49,200,205,205,122,125,127 },true);
         }
 
         private void play(string filename)
         {
             // play
             int n = 0;
-            wckMotion m = new wckMotion(pcR);
             bool ff = true;
             bool stepflg = checkBox1.Checked;
 
@@ -141,7 +155,7 @@ namespace RobobuilderLib
                             t[i - 2] = Convert.ToByte(r[i]);
                         }
 
-                        m.PlayPose((int)(((double)Convert.ToInt32(r[0]))*k), Convert.ToInt32(r[1]), t, ff);
+                        wckm.PlayPose((int)(((double)Convert.ToInt32(r[0]))*k), Convert.ToInt32(r[1]), t, ff);
                         if (ff) ff = false;
 
                         if (stepflg)
@@ -152,7 +166,6 @@ namespace RobobuilderLib
 
                 }
                 tr.Close();
-                m.close();
             }
             catch (Exception e1)
             {
@@ -297,7 +310,7 @@ namespace RobobuilderLib
             }
         }
 
-        private void button2_Click(object sender, EventArgs e)
+        private void run_btn_Click(object sender, EventArgs e)
         {
             // run
             string n = action.Text;
@@ -325,7 +338,7 @@ namespace RobobuilderLib
             label1.Text = k.ToString();
         }
 
-        private void button3_Click(object sender, EventArgs e)
+        private void store_btn_Click(object sender, EventArgs e)
         {
             //store 
             string c = script.Text;

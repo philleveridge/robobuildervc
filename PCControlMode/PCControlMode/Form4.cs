@@ -276,6 +276,7 @@ namespace RobobuilderLib
             {
                 TextWriter tw = new StreamWriter(filename);
 
+                tw.WriteLine("#V=01");
                 tw.WriteLine("#T,N,0,1,2,3,4,5,6,7,8,9,10,11,12,1,3,14,15,16,17,18,X,Y,Z");
 
                 foreach (ServoPoseData r in motiondata)
@@ -310,8 +311,8 @@ namespace RobobuilderLib
 
                 // ---------------------------
 
-                //string[] a1 = filename.Split('\\');
-                //string[] a2 = a1[a1.Length - 1].Split('.');
+                string[] a1 = filename.Split('\\');
+                string[] a2 = a1[a1.Length - 1].Split('.');
                 //presets.update(a2[0]);
 
             }

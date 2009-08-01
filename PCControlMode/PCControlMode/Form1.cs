@@ -220,8 +220,7 @@ namespace RobobuilderLib
 
         private void presetsToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            presets.pcR = pcR;
-            presets.Show();
+            presets.connect(pcR);
         }
 
         private void videoToolStripMenuItem_Click(object sender, EventArgs e)
