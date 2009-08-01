@@ -35,6 +35,8 @@ namespace Simulator
 
                 while ((line = tr.ReadLine()) != null)
                 {
+                    Console.WriteLine("Debug: " + line);
+
                     line = line.Trim();
                     if ((p = line.IndexOf("#")) >= 0) line = line.Substring(0, p);
                     if ((p = line.IndexOf("//")) >= 0) line = line.Substring(0, p);
