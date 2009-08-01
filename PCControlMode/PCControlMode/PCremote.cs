@@ -37,8 +37,29 @@ namespace RobobuilderLib
                                 0x00,                      //platform (1)
                                 0x00, 0x00, 0x00, 0x01,    //command size (4)
                                 cmd,                       //command contents (1)
-                                (byte)(cmd)                //checksum
+                                cmd                         //checksum
                             }, 0, 8);
+            return true;
+        }
+
+        bool command_nB(byte platform, byte type, byte[] buffer)
+        {
+            serialPort1.Write(header, 0, 8);
+            serialPort1.Write(new byte[] { 
+                                type,                                   //type (1)
+                                platform,                               //platform (1)
+                                0x00, 0x00, 0x00, (byte)buffer.Length,  //command size (4)
+                            }, 0, 6);
+
+            serialPort1.Write(buffer, 0, buffer.Length);
+
+            byte[] cs = new byte[1];
+
+            for (int i = 0; i < buffer.Length; i++)
+            {
+                cs[0] ^= buffer[i];
+            }
+            serialPort1.Write(cs, 0, 1);
             return true;
         }
 
@@ -134,8 +155,10 @@ namespace RobobuilderLib
         {
             string r = "";
             x = 0; y = 0; z = 0;
+
             if (serialPort1.IsOpen)
             {
+                bool tf = DCmode; setDCmode(false);
                 command_1B(0x1A, 1); // reset motion memory
                 if (displayResponse(false))
                 {
@@ -144,6 +167,7 @@ namespace RobobuilderLib
                     z = (Int16)(((respnse[19] << 8) + (respnse[18])));
                     r = "X=" + x.ToString() + ", Y=" + y.ToString() + ", Z=" + z.ToString() ;
                 }
+                setDCmode(tf);
             }
             return r;
         }
@@ -195,31 +219,13 @@ namespace RobobuilderLib
             string r = "";
             //set zeros to Standard Huno
             byte[] MotionZeroPos = new byte[] {
-                /* ID
-                 0 ,1 ,2 ,3 ,4 ,5 ,6 ,7 ,8 ,9 ,10,11,12,13,14,15 */
-             //   125,201,163,67,108,125,48,89,184,142,89,39,124,162,211,127};
-            /* ID
+                 /* ID
                  0 ,1  ,2  ,3 ,4  ,5  ,6 ,7 ,8  ,9  ,10,11,12 ,13 ,14, 15, 16,17,18*/
             	125,202,162,66,108,124,48,88,184,142,90,40,125,161,210,127,4, 0, 0};
 
             if (serialPort1.IsOpen)
             {
-                serialPort1.Write(header, 0, 8);
-                serialPort1.Write(new byte[] { 
-                        0x0E,        //type (1)
-                        0x00,                      //platform (1)
-                        0x00, 0x00, 0x00, (byte)MotionZeroPos.Length,    //command size (4)
-                     }, 0, 6);
-
-                serialPort1.Write(MotionZeroPos, 0, MotionZeroPos.Length);
-
-                byte[] cs = new byte[1];
-
-                for (int i = 0; i < MotionZeroPos.Length; i++)
-                {
-                    cs[0] ^= MotionZeroPos[i];
-                }
-                serialPort1.Write(cs, 0, 1);
+                command_nB(0, 0x0E, MotionZeroPos);
                 displayResponse(true);
             }
             return r;
@@ -237,7 +243,6 @@ namespace RobobuilderLib
                     command_1B(0x10, 0x01);
                     displayResponse(false);
                 }
-
             }
             else
             {

@@ -25,6 +25,8 @@ namespace RobobuilderLib
         int[] sids = new int[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18 };
 
         wckMotion dcontrol;
+        PCremote remote;
+
         public Form5 viewport;
 
         public Form4()
@@ -35,6 +37,7 @@ namespace RobobuilderLib
 
         public void connect(PCremote r)
         {
+            remote = r;
             if (r.serialPort1.IsOpen)
             {
                 dcontrol = new wckMotion(r);
@@ -49,6 +52,7 @@ namespace RobobuilderLib
         {
             dcontrol.close();
             dcontrol = null;
+            remote = null;
             this.Hide();
         }
 
@@ -122,7 +126,7 @@ namespace RobobuilderLib
             }
         }
 
-        private void button1_Click(object sender, EventArgs e)
+        private void closeBtn_Click(object sender, EventArgs e)
         {
             this.disconnect();
         }
@@ -178,6 +182,8 @@ namespace RobobuilderLib
 
         private void record_Click(object sender, EventArgs e)
         {
+            servoID_readservo();
+
             ServoPoseData n = new ServoPoseData();
             n.Time = 500;
             n.Steps = 10;
@@ -207,7 +213,7 @@ namespace RobobuilderLib
             dataGridView1.Refresh();
         }
 
-        private void play_Click_1(object sender, EventArgs e)
+        private void playAll_Click(object sender, EventArgs e)
         {
             Console.WriteLine("Play - motiondata line - " +
                 dataGridView1.CurrentRow.Index);
@@ -247,7 +253,7 @@ namespace RobobuilderLib
                 
                 n++;
 
-                if (checkBox1.Checked)
+                if (debugFlag.Checked)
                 {
                     MessageBox.Show("Next " + n);
                 }
@@ -255,24 +261,22 @@ namespace RobobuilderLib
             }
         }
 
-        private void button2_Click(object sender, EventArgs e)
+        private void saveFile_Click(object sender, EventArgs e)
         {
-
-            if (filename == "")
+            SaveFileDialog s = new SaveFileDialog();
+            if (s.ShowDialog() == DialogResult.OK)
             {
-                SaveFileDialog s = new SaveFileDialog();
-                if (s.ShowDialog() == DialogResult.OK)
-                {
-                    filename = s.FileName;
-                    fnstring.Text = filename;
-                }
-                else
-                    return;
+                filename = s.FileName;
+                fnstring.Text = filename;
             }
+            else
+                return;
 
             try
             {
                 TextWriter tw = new StreamWriter(filename);
+
+                tw.WriteLine("#T,N,0,1,2,3,4,5,6,7,8,9,10,11,12,1,3,14,15,16,17,18,X,Y,Z");
 
                 foreach (ServoPoseData r in motiondata)
                 {
@@ -296,7 +300,10 @@ namespace RobobuilderLib
                     tw.Write(r.S15 + ",");
                     tw.Write(r.S16 + ",");
                     tw.Write(r.S17 + ",");
-                    tw.WriteLine(r.S18 );
+                    tw.Write(r.S18 + ",");
+                    tw.Write(r.X + ",");
+                    tw.Write(r.Y + ",");
+                    tw.WriteLine(r.Z);
                 }
 
                 tw.Close();
@@ -314,23 +321,20 @@ namespace RobobuilderLib
             }
         }
 
-        private void readll_Click(object sender, EventArgs e)
+        private void loadFile_Click(object sender, EventArgs e)
         {
-            //servoID_readservo();
-
-            if (filename == "")
+            OpenFileDialog s = new OpenFileDialog();
+            if (s.ShowDialog() == DialogResult.OK)
             {
-                OpenFileDialog s = new OpenFileDialog();
-                if (s.ShowDialog() == DialogResult.OK)
-                {
-                    filename = s.FileName;
-                    fnstring.Text = filename;
-                }
-                else
-                    return;
+                filename = s.FileName;
+                fnstring.Text = filename;
             }
+            else
+                return;
 
             int n = 0;
+            motiondata.Clear();
+
             try
             {
                 TextReader tr = new StreamReader(filename);
@@ -382,12 +386,12 @@ namespace RobobuilderLib
             catch (Exception e1)
             {
                 MessageBox.Show("Error - can't load file " + e1.Message);
+                filename = "";
             }
-
-
+            //dataGridView1.Rows[0].Selected = true;
         }
 
-        private void button3_Click(object sender, EventArgs e)
+        private void updateRow_Click(object sender, EventArgs e)
         {
             //update current row
             if (dataGridView1.CurrentRow == null)
@@ -395,7 +399,8 @@ namespace RobobuilderLib
 
             int j = dataGridView1.CurrentRow.Index;
 
-            Console.WriteLine("Play - motiondata line - " +j);
+            Console.WriteLine("Update - motiondata line - " +j);
+            servoID_readservo();
 
             ServoPoseData n = new ServoPoseData();
             n.Time = 500;
@@ -427,10 +432,16 @@ namespace RobobuilderLib
             dataGridView1.Refresh();
         }
 
-        private void button4_Click(object sender, EventArgs e)
+        private void playRow_Click(object sender, EventArgs e)
         {
             // play current line 
-            int j = dataGridView1.CurrentRow.Index;
+
+            int j;
+
+            if (dataGridView1.CurrentRow == null) return;
+            
+            j = dataGridView1.CurrentRow.Index;
+
             Console.WriteLine("Play - motiondata line - " + j);
 
             ServoPoseData r = motiondata[j];
@@ -460,7 +471,7 @@ namespace RobobuilderLib
 
         }
 
-        private void button5_Click(object sender, EventArgs e)
+        private void setBasic_Click(object sender, EventArgs e)
         {
             // set basic pose !
             dcontrol.PlayPose(1000, 10, new byte[] {
@@ -470,13 +481,13 @@ namespace RobobuilderLib
             servoID_readservo();
         }
 
-        private void button6_Click(object sender, EventArgs e)
+        private void queryValues_Click(object sender, EventArgs e)
         {
             //read and load current servo positions
             servoID_readservo();
         }
 
-        private void button7_Click(object sender, EventArgs e)
+        private void delRow_Click(object sender, EventArgs e)
         {
             // delete current row
             if (dataGridView1.CurrentRow == null)
@@ -496,27 +507,38 @@ namespace RobobuilderLib
         private void autopose_Click(object sender, EventArgs e)
         {
             // every x seconds write to array current possitons
+            Int16 x, y, z;
 
-            if (autopose.Text == "Running")
+            if (autopose.Text == "Stop")
             {
                 autopose.Text = "Auto";
                 return;
             }
 
-            autopose.Text = "Running";
+            autopose.Text = "Stop";
 
-            while (autopose.Text == "Running")
+            while (autopose.Text == "Stop")
             {
                 System.Threading.Thread.Sleep(2000);  //2 s
-                servoID_readservo();
                 record_Click(null, null);
+
+                Console.WriteLine(remote.readXYZ(out x, out y, out z));
+                xV.Text = "X=" + x.ToString();
+                yV.Text = "Y=" + y.ToString();
+                zV.Text = "Z=" + z.ToString();
+
                 Application.DoEvents();
             }
         }
 
         private void rAcc_Click(object sender, EventArgs e)
         {
+            Int16 x, y, z;
             // read acceleromter
+            Console.WriteLine(remote.readXYZ(out x, out y, out z));
+            xV.Text = "X=" + x.ToString();
+            yV.Text = "Y=" + y.ToString();
+            zV.Text = "Z=" + z.ToString();
         }
     }
 
@@ -543,6 +565,9 @@ namespace RobobuilderLib
         public int S16 { get; set; }
         public int S17 { get; set; }
         public int S18 { get; set; }
+        public Int16 X { get; set; }
+        public Int16 Y { get; set; }
+        public Int16 Z { get; set; }
     }
 
 }
