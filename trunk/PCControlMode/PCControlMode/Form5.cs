@@ -61,8 +61,10 @@ namespace RobobuilderLib
 
             init();
 
-            //initSetup("config-t.txt");
-            initSetup("config.txt");
+            initSetup("config-20dof.txt");
+
+            //initSetup("config.txt");
+            //selectServo(1, true);
         }
 
         public bool InitializeGraphics()
@@ -115,7 +117,6 @@ namespace RobobuilderLib
             { driveInput.X -= 1; }
             if (keys[Key.R])
             { driveInput.X += 1; }
-
             if (keys[Key.Up])
             { rotateInput.X -= 1; }
             if (keys[Key.Down])
@@ -146,8 +147,7 @@ namespace RobobuilderLib
 
             Vx.Text = cameraRot.X.ToString();
             Vy.Text = cameraRot.Y.ToString();
-            Vz.Text = cameraRot.Z.ToString();
-        
+            Vz.Text = cameraRot.Z.ToString();     
         }
 
         public void render()
@@ -182,7 +182,7 @@ namespace RobobuilderLib
                 if (s.joint)
                     drawline(s.loc, s.rot, s.mod_no == 0 ? Color.Red : Color.Yellow, Matrix.Identity);
                 else
-                    drawModel(s.mod_no, s.loc, s.rot);
+                    drawModel(s.mod_no, s.loc, s.rot, s.select);
             }
             //set camera
             setupView();
@@ -206,7 +206,7 @@ namespace RobobuilderLib
 
 
 
-        void drawModel(int n, Vector3 loc, Vector3 rot)
+        void drawModel(int n, Vector3 loc, Vector3 rot, bool sel)
         {
             Mesh m;
             if (cylinder == null) cylinder = Mesh.Cylinder(renderDevice, 0.25f, 0.25f, 1, 16, 4);
@@ -247,7 +247,14 @@ namespace RobobuilderLib
                         renderDevice.SetTexture(0, models[n].txtr[i]);
                     }
 
-                    renderDevice.Material = models[n].mat[i];
+                    Material t = models[n].mat[i];
+
+                    if (sel)
+                    {
+                        t.Diffuse = Color.Yellow;
+                    }
+
+                    renderDevice.Material = t;
                     m.DrawSubset(i);
                 }
             }
@@ -284,7 +291,7 @@ namespace RobobuilderLib
             {
                 string[] t = mb.Split(',');
 
-                cameraRot = new Vector3(float.Parse(t[4]), float.Parse(t[5]), float.Parse(t[6]));
+                cameraRot = new Vector3(float.Parse(t[3]), float.Parse(t[4]), float.Parse(t[5]));
                 cameraPos = new Vector3(float.Parse(t[0]), float.Parse(t[1]), float.Parse(t[2]));
             }
 
@@ -374,6 +381,11 @@ namespace RobobuilderLib
             findServo("S"+n).pos = v;
         }
 
+        public void selectServo(int n, bool f)
+        {
+            findServo("S" + n).select = f;
+        }
+
         void loadmodels()
         {
             string mb;
@@ -386,15 +398,16 @@ namespace RobobuilderLib
                 {
                     /*
                     #Model, scale vec, rot vec, translate
-                    M1=servo,servo6,0.55, 0.55, 0.55, 0, 0, 0
+                    Eg:  M1=servo,servo6,0.55, 0.55, 0.55, 0, 0, 0
                     */
                     string[] n = mb.Split(',');
 
                     models[id].name = n[0];
                     models[id].pose = Matrix.RotationYawPitchRoll(
-                        float.Parse(n[5].Trim()) * (float)(Math.PI / 180),
-                        -float.Parse(n[6].Trim()) * (float)(Math.PI / 180),
-                        float.Parse(n[7].Trim()) * (float)(Math.PI / 180));
+                        UTIL.DegToRads(float.Parse(n[5].Trim())),
+                        UTIL.DegToRads(-float.Parse(n[6].Trim())),
+                        UTIL.DegToRads(float.Parse(n[7].Trim())));
+
                     models[id].scale = new Vector3(
                         float.Parse(n[2].Trim()),
                         float.Parse(n[3].Trim()),
@@ -443,7 +456,7 @@ namespace RobobuilderLib
         void drawBoxOutline(float x, float y, float z, float h, float w, float d, Color c, Matrix wp)
         {
             Vector3 loc = new Vector3(x, y, z);
-            x = -w/2; y = -h/2; z = -d/2;
+            x = (-w / 2) + 0.25f; y = (-h / 2); z = (-d / 2);
 
             wp *= Matrix.Translation(loc);
 
@@ -576,5 +589,6 @@ namespace RobobuilderLib
         public int mod_no;
         public bool joint = false;
         public int pos;
+        public bool select = false;
     }
 }

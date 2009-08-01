@@ -13,6 +13,9 @@ namespace RobobuilderLib
         Form2 presets = new Form2();
         Form3 videoc = new Form3();
         Form4 medit = new Form4();
+        Form5 view = null;
+
+        PCremote pcR;
 
         public Form1()
         {
@@ -105,22 +108,27 @@ namespace RobobuilderLib
                 listBox1.Enabled = true;
 
                 label1.Text = "Disconnected";
+                pcR = null;
 
             }
             else
             {
                 serialPort1.Open();
 
+                if (pcR == null) pcR = new PCremote(serialPort1);
+
                 // start up on connect
-                string v = readVer();
+                string v = pcR.readVer();
                 if (v == "")
                 {
                     serialPort1.Close();
                     label1.Text = "Failed to connect";
+                    textBox1.AppendText(pcR.message);
+                    pcR = null;
                     return;
                 }
 
-                label1.Text = "Firmware=" + v + ", S/N=" + readSN();
+                label1.Text = "Firmware=" + v + ", S/N=" + pcR.readSN();
 
                 connect.Text = "Close";
                 listBox1.Enabled = false;
@@ -145,96 +153,6 @@ namespace RobobuilderLib
             button10.Enabled = f;
         }
 
-        /**********************************************
-         * 
-         * send request/ read response 
-         * serial protocol
-         * 
-         * ********************************************/
-
-        bool command_1B(byte type, byte cmd)
-        {
-            serialPort1.Write(header, 0, 8);
-            serialPort1.Write(new byte[] { type,           //type (1)
-                                0x00,                      //platform (1)
-                                0x00, 0x00, 0x00, 0x01,    //command size (4)
-                                cmd,                       //command contents (1)
-                                (byte)(cmd)                //checksum
-                            },0,8);
-            return true;
-        }
-
-        bool displayResponse(bool flag)
-        {
-            try
-            {
-                int b = 0;
-                int l = 1;
-
-                while (b < 32 && b<(15+l))
-                {
-                    respnse[b] = (byte)serialPort1.ReadByte();
-
-                    if (b == 0 && respnse[b] != header[b])
-                    {
-                        Console.WriteLine("skip [" + b + "]=" + respnse[b]);
-                        continue;
-                    }
-
-                    if (b == 13)
-                    {
-                        l = (respnse[b - 3] << 24) + (respnse[b - 2] << 16) + (respnse[b - 1] << 8) + respnse[b];
-                        Console.WriteLine("L=" + l);
-                    }
-                    b++;
-                }
-
-                if (flag)
-                {
-                    textBox1.AppendText("Response:\n");
-                    for (int i = 0; i < 7 + l; i++)
-                    {
-                        textBox1.AppendText(respnse[8 + i].ToString("X2") + " ");
-                    }
-                    textBox1.AppendText("\r\n");
-                }
-                return true;
-            }
-            catch (Exception e1)
-            {
-                textBox1.AppendText("Timed Out = " + e1.Message + "\r\n");
-                return false;
-            }
-        }
-
-        private string readVer()
-        {
-            //read firmware version number
-            string r = "";
-            if (serialPort1.IsOpen)
-            {
-                command_1B(0x12, 0x01);
-                if (displayResponse(false))
-                    r= respnse[14] + "." + respnse[15];
-            }
-            return r;
-        }
-
-        private string readSN()
-        {
-            // read serial number
-            string r = "";
-            if (serialPort1.IsOpen)
-            {
-                command_1B(0x0C, 0x01);
-                if (displayResponse(false))
-                {
-                    for (int n0 = 0; n0 < 13; n0++)
-                        r += Convert.ToString((char)respnse[14 + n0]);
-                }
-            }
-            return r;
-        }
 
         void PlayPose(int duration, int no_steps, byte[] spod )
         {
@@ -252,122 +170,54 @@ namespace RobobuilderLib
 
         private void button1_Click(object sender, EventArgs e)
         {
-            textBox1.AppendText("Ver=" + readVer() +"\r\n");
+            textBox1.AppendText("Ver=" + pcR.readVer() +"\r\n");
         }
 
         private void button2_Click(object sender, EventArgs e)
         {
-            textBox1.AppendText("S/N="+readSN()+"\r\n");
+            textBox1.AppendText("S/N="+pcR.readSN()+"\r\n");
         }
 
         private void button5_Click(object sender, EventArgs e)
         {
             // read distance
-            if (serialPort1.IsOpen)
-            {
-                command_1B(0x16, 0x01);
-                if (displayResponse(true))
-                    textBox1.AppendText("Distance=" + (respnse[14] << 8) + respnse[15] + "cm\r\n");
-            }
+            textBox1.AppendText("Distance=" + pcR.readDistance() + "cm\r\n");
         }
 
         private void button6_Click(object sender, EventArgs e)
         {
-            //reset memory
-            if (serialPort1.IsOpen)
-            {
-                command_1B(0x1F, 0x01); // reset motion memory
-                displayResponse(true);
-
-                command_1B(0x1F, 0x02); // reset action memory
-                displayResponse(true);
-            }
+            textBox1.AppendText("Reset mem - " + pcR.resetMem());
         }
 
         private void button1_Click_1(object sender, EventArgs e)
         {
             //read XYZ
-            if (serialPort1.IsOpen)
-            {
-                command_1B(0x1A, 1); // reset motion memory
-                if (displayResponse(false))
-                {
-                    textBox1.AppendText(
-                        "X=" + (Int16)(((respnse[15] << 8) + (respnse[14]))) +
-                        ", Y=" + (Int16)(((respnse[17] << 8) + (respnse[16]))) +
-                        ", Z=" + (Int16)(((respnse[19] << 8) + (respnse[18]))) +
-                        "\r\n");
-                }
-            }  
+            Int16 x,y,z;
+
+            textBox1.AppendText(pcR.readXYZ(out x, out y, out z) + "\r\n");
         }
         
         private void button7_Click(object sender, EventArgs e)
         {
             // avail mem
-            if (serialPort1.IsOpen)
-            {
-                command_1B(0x0F, 0x01);
-                if (displayResponse(false))
-                    textBox1.AppendText("Avail mem=" + ((respnse[14] << 24) + (respnse[15]<<16)
-                        + (respnse[16] << 8) + respnse[17]) 
-                        + " Bytes\r\n");
-            }
+            textBox1.AppendText(pcR.availMem() + "\r\n");
+
         }
 
         private void button9_Click(object sender, EventArgs e)
         {
             //read zeros
-            if (serialPort1.IsOpen)
-            {
-                command_1B(0x0B, 0x01);
-                displayResponse(true);
-            }
+            textBox1.AppendText(pcR.readZeros() + "\r\n");
         }
 
         private void button2_Click_1(object sender, EventArgs e)
         {
-            // read IR
-            if (serialPort1.IsOpen)
-            {
-                //command_1B(25, 0x01);
-                //while (serialPort1.BytesToRead == 0) ;
-                //displayResponse(true);
-            }
+            // read IR - not working
         }
-
-
 
         private void button10_Click(object sender, EventArgs e)
         {
-            //set zeros to Standard Huno
-            byte[] MotionZeroPos = new byte[] {
-                /* ID
-                 0 ,1 ,2 ,3 ,4 ,5 ,6 ,7 ,8 ,9 ,10,11,12,13,14,15 */
-             //   125,201,163,67,108,125,48,89,184,142,89,39,124,162,211,127};
-            /* ID
-                 0 ,1  ,2  ,3 ,4  ,5  ,6 ,7 ,8  ,9  ,10,11,12 ,13 ,14, 15, 16,17,18*/
-            	125,202,162,66,108,124,48,88,184,142,90,40,125,161,210,127,4, 0, 0};
-
-            if (serialPort1.IsOpen)
-            {
-                serialPort1.Write(header, 0, 8);
-                serialPort1.Write(new byte[] { 
-                        0x0E,        //type (1)
-                        0x00,                      //platform (1)
-                        0x00, 0x00, 0x00, (byte)MotionZeroPos.Length,    //command size (4)
-                     }, 0, 6);
-
-                serialPort1.Write(MotionZeroPos, 0, MotionZeroPos.Length);
-
-                byte[] cs = new byte[1];
-
-                for (int i = 0; i < MotionZeroPos.Length; i++)
-                {
-                    cs[0] ^= MotionZeroPos[i];
-                }
-                serialPort1.Write(cs, 0, 1);
-                displayResponse(true);
-            }
+            textBox1.AppendText(pcR.zeroHuno() + "\r\n");
         }
 
         /**********************************************
@@ -422,20 +272,20 @@ namespace RobobuilderLib
             }
         }
 
-        private void pictureBox1_mouse(object sender, MouseEventArgs e)
-        {
-            Console.WriteLine("Mouse - " + e.X + "," + e.Y);
-        }
 
         private void viewModelToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            Form5 view = new Form5();
+            if (view == null) view = new Form5();
             view.Show();
+            medit.viewport = view;
+
             while (view.Created)
             {
                 view.render();
                 Application.DoEvents();
             }
+            view = null;
+            medit.viewport = null;
         }
 
 

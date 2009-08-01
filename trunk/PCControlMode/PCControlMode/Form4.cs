@@ -25,6 +25,7 @@ namespace RobobuilderLib
         int[] sids = new int[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18 };
 
         wckMotion dcontrol;
+        public Form5 viewport;
 
         public Form4()
         {
@@ -141,6 +142,9 @@ namespace RobobuilderLib
             int id = Convert.ToInt32(((CheckBox)sender).Name.Substring(7));
             bool v = ((CheckBox)sender).Checked;
             Console.WriteLine("Id=" + sids[id] + ", V=" + v);
+
+            if (viewport != null && viewport.Created)
+                viewport.selectServo(id,v);
 
             if (v)
             {
@@ -487,6 +491,32 @@ namespace RobobuilderLib
             dataGridView1.DataSource = null;
             dataGridView1.DataSource = motiondata;
             dataGridView1.Refresh();
+        }
+
+        private void autopose_Click(object sender, EventArgs e)
+        {
+            // every x seconds write to array current possitons
+
+            if (autopose.Text == "Running")
+            {
+                autopose.Text = "Auto";
+                return;
+            }
+
+            autopose.Text = "Running";
+
+            while (autopose.Text == "Running")
+            {
+                System.Threading.Thread.Sleep(2000);  //2 s
+                servoID_readservo();
+                record_Click(null, null);
+                Application.DoEvents();
+            }
+        }
+
+        private void rAcc_Click(object sender, EventArgs e)
+        {
+            // read acceleromter
         }
     }
 

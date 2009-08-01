@@ -333,13 +333,63 @@ namespace RobobuilderLib
 
             if (i < 0)
             {
-                fnames[cnt] = "S:" + c;
-                update(n);
+                update(n + ",S:" + c);
             }
             else
             {
                 fnames[i] = "S:" + c;
             }
         }
+
+        private void pictureBox1_Click(object sender, MouseEventArgs e)
+        {
+            string[] spots = new string[] 
+            {
+            "@,73,81,87,94",
+            "A,43,29,54,42",
+            "B,111,28,121,45",
+            "F,76,42,87,63",
+            "B,75,110,88,129",
+            "L,38,79,51,93",
+            "R,111,78,127,93",
+            "*,45,226,58,236",
+            "#,105,225,118,235",
+            "1,48,148,59,160",
+            "2,75,149,89,160" 
+            };
+
+            string h = "";
+            foreach (string t in spots)
+            {
+                string[] r = t.Split(',');
+                if ((e.X > Convert.ToInt32(r[1])) && (e.X < Convert.ToInt32(r[3])) && (e.Y > Convert.ToInt32(r[2])) && (e.Y < Convert.ToInt32(r[4])))
+                {
+                    h = r[0];
+                }
+            }
+            Console.WriteLine("Mouse - " + e.X + "," + e.Y + " : " + h);
+
+            if (h == "@")
+            {
+                NewBasicPose(); // Red Button
+            }
+            else
+            {
+                int i = check(h);  // button defined
+                if (i >= 0)
+                {
+                    if (fnames[i].StartsWith("S:"))
+                    {
+                        //run script
+                        run(fnames[i].Substring(2));
+                    }
+                    else
+                    {
+                        play(fnames[i]);
+                    }
+                }
+            }
+        }
+        
     }
 }
