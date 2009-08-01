@@ -8,7 +8,7 @@ namespace RobobuilderLib
 {
     public partial class Form2 : Form
     {
-        public SerialPort sp1;
+        //public SerialPort sp1;
         public PCremote pcR;
 
         const int MAXBUTTONS = 10;
@@ -94,7 +94,7 @@ namespace RobobuilderLib
 
         void PlayPose(int duration, int no_steps, byte[] spod)
         {
-            if ((sp1 != null)  && (!sp1.IsOpen)) return;
+            if ((pcR.serialPort1 != null) && (!pcR.serialPort1.IsOpen)) return;
             wckMotion m = new wckMotion(pcR);
             m.PlayPose(duration, no_steps, spod, true);
             m.close();

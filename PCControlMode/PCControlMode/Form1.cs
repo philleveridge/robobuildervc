@@ -28,8 +28,6 @@ namespace RobobuilderLib
 
             label1.Text = "Disconnected";
             loadconfig();
-
-            presets.sp1 = serialPort1;
         }
 
         void loadconfig()
@@ -222,6 +220,7 @@ namespace RobobuilderLib
 
         private void presetsToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            presets.pcR = pcR;
             presets.Show();
         }
 
