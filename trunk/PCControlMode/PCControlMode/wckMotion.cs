@@ -17,18 +17,17 @@ namespace RobobuilderLib
 
         int[] sids = new int[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18 };
         SerialPort serialPort1;
+        PCremote   pcR;
 
         public byte[] respnse = new byte[32];
         public string Message;
         public byte[] pos;
 
-        public bool DCmode = false;
-
-
-        public wckMotion(SerialPort p)
+        public wckMotion(PCremote r)
         {
-            serialPort1 = p;
-            setDCmode(true);
+            serialPort1 = r.serialPort1;
+            pcR = r;
+            pcR.setDCmode(true);
         }
 
         ~wckMotion()
@@ -38,42 +37,7 @@ namespace RobobuilderLib
 
         public void close()
         {
-            setDCmode(false);
-        }
-
-
-        private void setDCmode(bool f)
-        {
-            if (DCmode == f) return; //only output chnages
-            DCmode = f;
-            if (f)
-            {
-                // DC mode
-
-                byte type = 0x10;
-                byte cmd = 0x01;
-
-                serialPort1.Write(new byte[] { 
-                                0xFF, 0xFF, 0xAA, 0x55, 0xAA, 0x55, 0x37, 0xBA,
-                                type,                       //type (1)
-                                0x00,                      //platform (1)
-                                0x00, 0x00, 0x00, 0x01,    //command size (4)
-                                cmd,                       //command contents (1)
-                                cmd               //checksum
-                            }, 0, 16);
-
-                for (int i = 0; i < 16; i++)
-                {
-                    respnse[i] = (byte)serialPort1.ReadByte();
-                }
-
-                // check response valid
-            }
-            else
-            {
-                // end DC mode
-                if (serialPort1.IsOpen) serialPort1.Write(new byte[] { 0xFF, 0xE0, 0xFB, 0x1, 0x00, 0x1A }, 0, 6);
-            }
+           pcR.setDCmode(false);
         }
 
         public bool wckPassive(int id)

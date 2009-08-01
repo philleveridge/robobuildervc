@@ -6,27 +6,19 @@ namespace RobobuilderLib
 {
     public partial class Form1 : Form
     {
-        byte[] header ;
-        byte[] respnse = new byte[32];
-        int[] sids = new int[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18 };
-
         Form2 presets = new Form2();
         Form3 videoc = new Form3();
         Form4 medit = new Form4();
         Form5 view = null;
-
         PCremote pcR;
 
         public Form1()
         {
-
             InitializeComponent();
 
             serialPort1.PortName = "COM3";
             serialPort1.BaudRate = 115200;
             serialPort1.ReadTimeout = 3000;
-
-            header = new byte[] { 0xFF, 0xFF, 0xAA, 0x55, 0xAA, 0x55, 0x37, 0xBA };
 
             listBox1.Items.Clear();
             foreach (string s in System.IO.Ports.SerialPort.GetPortNames())
@@ -38,7 +30,6 @@ namespace RobobuilderLib
             loadconfig();
 
             presets.sp1 = serialPort1;
-
         }
 
         void loadconfig()
@@ -153,15 +144,6 @@ namespace RobobuilderLib
             button10.Enabled = f;
         }
 
-
-        void PlayPose(int duration, int no_steps, byte[] spod )
-        {
-            if (!serialPort1.IsOpen) return;
-            wckMotion m = new wckMotion(serialPort1);
-            m.PlayPose(duration, no_steps, spod, true);
-            m.close();
-        }
-
         /**********************************************
          * 
          * Action buttons  - Remote / serial prorocol
@@ -193,7 +175,6 @@ namespace RobobuilderLib
         {
             //read XYZ
             Int16 x,y,z;
-
             textBox1.AppendText(pcR.readXYZ(out x, out y, out z) + "\r\n");
         }
         
@@ -201,7 +182,6 @@ namespace RobobuilderLib
         {
             // avail mem
             textBox1.AppendText(pcR.availMem() + "\r\n");
-
         }
 
         private void button9_Click(object sender, EventArgs e)
@@ -225,8 +205,6 @@ namespace RobobuilderLib
          * Event routines
          * 
          * change of serial port
-         * change of servo id  (DC mode only)
-         * change of scrollbar (DC mode only)
          * 
          * ********************************************/
 
@@ -253,7 +231,7 @@ namespace RobobuilderLib
 
         private void motionEditToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            medit.connect(serialPort1);
+            medit.connect(pcR);
         }
 
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)
@@ -272,7 +250,6 @@ namespace RobobuilderLib
             }
         }
 
-
         private void viewModelToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (view == null) view = new Form5();
@@ -287,8 +264,5 @@ namespace RobobuilderLib
             view = null;
             medit.viewport = null;
         }
-
-
-
     }
 }

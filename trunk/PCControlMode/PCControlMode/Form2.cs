@@ -9,6 +9,7 @@ namespace RobobuilderLib
     public partial class Form2 : Form
     {
         public SerialPort sp1;
+        public PCremote pcR;
 
         const int MAXBUTTONS = 10;
         const int MAXDEPTH = 5;
@@ -89,7 +90,7 @@ namespace RobobuilderLib
         void PlayPose(int duration, int no_steps, byte[] spod)
         {
             if ((sp1 != null)  && (!sp1.IsOpen)) return;
-            wckMotion m = new wckMotion(sp1);
+            wckMotion m = new wckMotion(pcR);
             m.PlayPose(duration, no_steps, spod, true);
             m.close();
         }
@@ -105,7 +106,7 @@ namespace RobobuilderLib
         {
             // play
             int n = 0;
-            wckMotion m = new wckMotion(sp1);
+            wckMotion m = new wckMotion(pcR);
             bool ff = true;
             bool stepflg = checkBox1.Checked;
 
@@ -216,7 +217,7 @@ namespace RobobuilderLib
                         {
                             int id = Convert.ToInt32(evalExpr(words[1]));
                             int pos = Convert.ToInt32(evalExpr(words[2]));
-                            wckMotion m = new wckMotion(sp1);
+                            wckMotion m = new wckMotion(pcR);
                             m.wckMovePos(id, pos, 0);
                             m.close();                      
                         }
@@ -226,7 +227,7 @@ namespace RobobuilderLib
                         {
                             int id = Convert.ToInt32(evalExpr(words[1]));
                             int pos = Convert.ToInt32(evalExpr(words[2]));
-                            wckMotion m = new wckMotion(sp1);
+                            wckMotion m = new wckMotion(pcR);
                             if (m.wckReadPos(id))
                             {
                                 m.wckMovePos(id, (int)m.respnse[1] + pos, 0);
