@@ -18,6 +18,7 @@ namespace RobobuilderLib
         private string[] fnames;
         int cnt;
         double k = 1.0; //speed factor
+        public bool presets_flg;
 
         public Form2()
         {
@@ -29,6 +30,8 @@ namespace RobobuilderLib
             cnt = 0;
 
             update("Basic");
+
+            presets_flg = false;
         }
 
         public string list_presets()
@@ -80,6 +83,8 @@ namespace RobobuilderLib
             this.Controls.Add(button_array[cnt]);
 
             if (cnt<MAXBUTTONS-1) cnt++;
+
+            presets_flg=true;
         }
 
         private void button1_Click(object sender, EventArgs e)

@@ -64,6 +64,7 @@ namespace RobobuilderLib
             {
                 Console.WriteLine("?Can't open default.ini");
             }
+            presets.presets_flg = false; // now exit will ask if any further changes
         }
 
         void saveconfig()
@@ -236,6 +237,11 @@ namespace RobobuilderLib
 
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            if (presets.presets_flg == false)
+            {
+                this.Close();
+            }
+
             switch (MessageBox.Show("Update default.ini?", "exit", MessageBoxButtons.YesNoCancel))
             {
                 case DialogResult.Yes:
