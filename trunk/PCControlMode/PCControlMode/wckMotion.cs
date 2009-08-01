@@ -16,7 +16,7 @@ namespace RobobuilderLib
          * ********************************************/
 
         int[] sids = new int[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18 };
-        SerialPort serialPort1;
+        private SerialPort serialPort1;
         PCremote   pcR;
 
         public byte[] respnse = new byte[32];
@@ -189,7 +189,7 @@ namespace RobobuilderLib
             for (int s = 1; s <= no_steps; s++)
             {
                 //
-                for (int n = 0; n < spod.Length; n++)
+                for (int n = 0; n < 19; n++) // !!!!!!! only first 19 values are releveant - need to get this dynamially
                 {
                     temp[n] = (byte)(pos[n] + (double)s * intervals[n]);
                 }
