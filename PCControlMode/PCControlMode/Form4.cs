@@ -33,11 +33,11 @@ namespace RobobuilderLib
             setup();
         }
 
-        public void connect(SerialPort s)
+        public void connect(PCremote r)
         {
-            if (s.IsOpen)
+            if (r.serialPort1.IsOpen)
             {
-                dcontrol = new wckMotion(s);
+                dcontrol = new wckMotion(r);
                 servoID_readservo();
                 this.Show();
             }

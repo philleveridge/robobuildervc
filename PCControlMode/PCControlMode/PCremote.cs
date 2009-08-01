@@ -6,9 +6,9 @@ using System.IO.Ports;
 
 namespace RobobuilderLib
 {
-    class PCremote
+    public class PCremote
     {
-        SerialPort serialPort1;
+        public SerialPort serialPort1;
         byte[] header;
         byte[] respnse = new byte[32];
         bool DCmode;
