@@ -331,4 +331,31 @@ namespace RobobuilderLib
     }
 
 
+    static class UTIL
+    {
+        static public float clampFloat(float num, float min, float max)
+        {
+            if (num < min) { num = min; }
+            if (num > max) { num = max; }
+            return num;
+        }
+
+        static public void setMatrixPos(ref Matrix mat, Vector3 pos)
+        {
+            mat.M41 = pos.X;
+            mat.M42 = pos.Y;
+            mat.M43 = pos.Z;
+        }
+
+        static public Vector3 getMatrixZaxis(ref Matrix mat)
+        {
+            return new Vector3(mat.M31, mat.M32, mat.M33);
+        }
+
+        static public float DegToRads(float x)
+        {
+            return (float)(Math.PI / 180) * x;
+        }
+
+    }
 }
