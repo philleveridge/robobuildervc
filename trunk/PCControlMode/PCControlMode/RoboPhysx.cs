@@ -225,9 +225,7 @@ namespace RobobuilderLib
                     }
                     if (s.getShapeType() == NxShapeType.NX_SHAPE_CAPSULE)
                     {
-                        //physics3D.drawBoxOutline(s.getGlobalPosition().X,s.getGlobalPosition().Y,s.getGlobalPosition().Z,
-                        physics3D.drawModel(1 , s.getGlobalPosition(), new Vector3(0,0,0), false, true);
-
+                        physics3D.drawModel(1, new Vector3(0,0,0), s.getGlobalPose(), false, true);
                     }
                 }
             }

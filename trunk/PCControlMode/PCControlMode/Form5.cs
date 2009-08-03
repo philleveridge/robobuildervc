@@ -330,7 +330,6 @@ namespace RobobuilderLib
         public Vector3 conn3;
     }
 
-
     static class UTIL
     {
         static public float clampFloat(float num, float min, float max)
