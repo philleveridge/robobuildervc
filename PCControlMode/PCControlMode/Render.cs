@@ -194,7 +194,7 @@ namespace RobobuilderLib
             Device.RenderState.Lighting = last_lighting;
         }
 
-        public void drawModel(int n, Vector3 loc, Vector3 rot, bool sel, bool hide)
+        public void drawModel(int n, Vector3 loc, Matrix pose, bool sel, bool hide)
         {
             Mesh m;
             if (cylinder == null) cylinder = Mesh.Cylinder(Device, 0.25f, 0.25f, 1, 16, 4);
@@ -203,15 +203,9 @@ namespace RobobuilderLib
 
             if (models[n].modelsmesh != null)
             {
-                Matrix locrot = Matrix.RotationYawPitchRoll(0f, 0f, 0f);
+                Matrix locrot = pose;
 
                 m = models[n].modelsmesh;
-
-                if (n == 1)
-                {
-                    locrot = Matrix.RotationYawPitchRoll(0, 0, (float)(Math.PI / 2));
-                    locrot *= Matrix.RotationYawPitchRoll(UTIL.DegToRads(rot.X), UTIL.DegToRads(rot.Y), UTIL.DegToRads(rot.Z));
-                }
 
                 Matrix wp;
 
@@ -246,6 +240,20 @@ namespace RobobuilderLib
                     m.DrawSubset(i);
                 }
             }
+        }
+
+        public void drawModel(int n, Vector3 loc, Vector3 rot, bool sel, bool hide)
+        {
+            Matrix locrot = Matrix.RotationYawPitchRoll(0f, 0f, 0f);
+
+            if (n == 1)
+            {
+                locrot = Matrix.RotationYawPitchRoll(0, 0, (float)(Math.PI / 2));
+                locrot *= Matrix.RotationYawPitchRoll(UTIL.DegToRads(rot.X), UTIL.DegToRads(rot.Y), UTIL.DegToRads(rot.Z));
+            }
+
+            drawModel(n, loc, locrot, sel, hide);
+
         }
 
 
