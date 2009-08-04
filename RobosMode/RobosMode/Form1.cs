@@ -273,6 +273,7 @@ namespace RobobuilderLib
 
         private void toolStripMenuItem1_Click(object sender, EventArgs e)
         {
+            bc.pcr = pcR; //
             bc.Show();
         }
 

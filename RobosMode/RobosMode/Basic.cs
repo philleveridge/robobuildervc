@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO.Ports;
+using System.Text.RegularExpressions;
 
 // enable download of basic programs direct to Robos
 // will need new version of Robos to support
@@ -77,8 +78,8 @@ namespace RobosMode
 
         /**********************************************************/
 
-        string[] error_msgs = new string[] {
-	        "",
+        public string[] error_msgs = new string[] {
+	        "OK",
 	        "Syntax error",
 	        "Invalid Command",
 	        "Illegal var",
@@ -105,15 +106,14 @@ namespace RobosMode
             "GOSUB", "RETURN", "POKE"
         };
 
-
         enum SKEY {sPF1=0, sMIC, sGX, sGY, sGZ, sPSD, sVOLT, sIR, sKBD, sRND, sSERVO, sTICK, sPORT, sROM};
 							
         struct basic_line {
-            int lineno;
-	        byte token;
-	        byte var;
-	        int value;
-	        string text; // rest of line - unproceesed
+            public int lineno;
+            public byte token;
+            public byte var;
+            public int value;
+            public string text; // rest of line - unproceesed
         };
 
         public Basic()
@@ -126,6 +126,32 @@ namespace RobosMode
 
         -------------------------------------*/
 
+        string GetWord(ref string w)
+        {
+            int i;
+            string n = "";
+            if (w.Length == 0) return "";
+            for (i = 0; i < w.Length; i++)
+            {
+                if (!((w[i] >= 'A' && w[i] <= 'Z') || (w[i] >= 'a' && w[i] <= 'z') || (w[i] >= '0' && w[i] <= '9')))
+                {
+                    break;
+                }
+                n += w[i];
+            }
+            w = w.Substring(i);
+            n = n.ToUpper();
+            return n;
+        }
+
+        string GetNext(ref string w)
+        {
+            if (w.Length == 0) return "";
+            string n = w.Substring(0,1);
+            if (w.Length > 0) w = w.Substring(1);
+            return n;
+        }
+
         bool IsNumber(string s)
         {
             for (int i = 0; i < s.Length; i++)
@@ -135,49 +161,247 @@ namespace RobosMode
             return true;
         }
 
-        int IsToken(string w)
+        int GetNumber(string s)
         {
-            for (int i = 0; i < tokens.Length; i++)
-            {
-                if (w == tokens[i]) return i;
-            }
-            retun - 1;
+            if (IsNumber(s))
+                return Convert.ToInt32(s);
+            else
+                return 0;
         }
 
+        int GetVar(string s)
+        {
+            s = s.ToUpper();
+            if (s.Length == 1 && s[0] >= 'A' && s[0] <= 'Z')
+                return (int)(s[0] - 'A');
+            else
+                return -1;
+        }
+
+        int GetSpecial(ref string w)
+        {
+            if (w.Length == 0) return -1;
+
+            string t = GetWord(ref w);
+
+            for (int i = 0; i < tokens.Length; i++)
+            {
+                if (t.Equals(specials[i], StringComparison.CurrentCultureIgnoreCase))
+                {
+                    return i;
+                }
+            }
+            return -1;
+        }
+
+        int IsToken(string w)
+        {
+            if (w.Length == 0) return -1;
+
+            for (int i = 0; i < tokens.Length; i++)
+            {
+                if (w.Equals(tokens[i], StringComparison.CurrentCultureIgnoreCase)) return i;
+            }
+            return -1;
+        }
 
         public bool Compile(string prog)
         {
             errno = 0;
             lineno = 0;
+            codeptr = 0;
+
+            basic_line ln;
+            ln.token = 0;
+            ln.lineno = lineno;
+            string[] forbuf = new string[5];
+            int fb = 0;
 
             string[] lines = prog.Split('\n');
             foreach (string s in lines)
             {
+                String z = s;
                 lineno++;
                 Console.Write(s);
-                string[] words = s.Split(' ');
-            }
 
-            return false;
+                if (z.IndexOf('\'') >= 0) z = z.Substring(0, z.IndexOf('\''));
+                z = z.Trim();
+                if (z.Length <= 0) continue;
+
+                int c = 0;
+
+                string tok = GetWord(ref z);
+
+                if (IsNumber(tok))
+                {
+                    ln.lineno = Convert.ToInt32(tok);
+                    if (GetNext(ref z) != " ") { errno = 1; return false; }
+                    tok = GetWord(ref z);
+                }
+
+                int t = IsToken(tok);
+                if (t<0)
+                {
+                    errno = 1;
+                    return false;
+                }
+                ln.token = (byte)t;
+                ln.var = (byte)'\0';
+                ln.text = "";
+                ln.value = 0;
+
+                if ((z != "") && (GetNext(ref z) != " ")) { errno = 1; return false; }
+
+                /*************/
+
+                switch ((KEY)t)
+                {
+                    case KEY.LET:
+                    case KEY.GET:
+                    case KEY.FOR:
+                        t= GetVar(GetWord(ref z));
+                        if (t < 0) errno = 3; else ln.var = (byte)t;
+                        if (GetNext(ref z) != "=") { errno = 1; }
+                        if ((KEY)t == KEY.FOR)
+                        {
+                            int p=z.IndexOf(" TO ");
+                            if (p>0)
+                            {
+                                ln.text = z.Substring(0, p);
+                                forbuf[fb++] = z.Substring(p + 4);
+                            }
+                            else
+                            {
+                                errno = 1;
+                            }
+                        }
+                        else
+                            ln.text = z;
+                        break;
+                    case KEY.PRINT:
+                    case KEY.MOVE:
+                    case KEY.SCENE:
+                        ln.text = z;
+                        break;
+                    case KEY.SERVO:
+                        t = GetNumber(GetWord(ref z));
+                        if (t < 0) errno = 3; else ln.var = (byte)t;
+                        if (GetNext(ref z) != "=") { errno = 1; }
+                        ln.text = z;
+                        break;
+                    case KEY.POKE:
+                        t = GetNumber(GetWord(ref z));
+                        if (t < 0) errno = 3; else ln.var = (byte)t;
+                        if (GetNext(ref z) != ",") { errno = 1; }
+                        ln.text = z;
+                        break;
+                    case KEY.PUT:
+                        t = GetSpecial(ref z);
+                        if (t < 0) errno = 3; else ln.var = (byte)t;
+                        if ((SKEY)t == SKEY.sPORT)
+                        {
+                            if (GetNext(ref z) != ":") { errno = 3; }
+                            string pn = GetNext(ref z);
+                            if (pn[0] < 'A' || pn[0] > 'G') { errno = 3; }
+                            if (GetNext(ref z) != ":") { errno = 3; }
+                            string pb = GetNext(ref z);
+                            if (pb[0] < '0' || pb[0] > '8') { errno = 3; }
+                            ln.var = (byte)(30 + (int)(pn[0] - 'A') * 10 + (int)(pb[0] - '0'));
+                        }
+                        if (GetNext(ref z) != "=") { errno = 1; }
+                        ln.text = z;
+                        break;
+                    case KEY.WAIT:
+                    case KEY.GOTO:
+                    case KEY.XACT:
+                    case KEY.GOSUB:
+                        ln.value = GetNumber(GetWord(ref z));
+                        break;
+                    case KEY.END:
+                    case KEY.RETURN:
+                        ln.text = "";
+                        break;
+                    case KEY.NEXT:
+                        t = GetVar(GetWord(ref z));
+                        if (t < 0) errno = 3; else ln.var = (byte)t;
+                        if (fb > 0)
+                        {
+                            ln.text = forbuf[--fb];
+                        }
+                        else
+                        {
+                            errno = 5;
+                        }
+                        break;
+                    case KEY.IF:
+                        // IF A THEN B ELSE C =>  GOTO (A)?B:C
+                        z = z.ToUpper();
+                        z = Regex.Replace(z, "(.*) THEN (.*) ELSE (.*)", "($1)?$2:$3");
+                        z = Regex.Replace(z, "(.*) THEN (.*)", "($1)?$2:0");
+                        //Console.WriteLine("IF=" + z);
+                        ln.text = z;
+                        break;
+                    default:
+                        errno = 2;
+                        break;
+                }
+
+                if (errno != 0) return false;
+
+                /*************/
+
+                if (codeptr == 0)
+                {
+                    code[codeptr++] = (byte)0xAA; // start of code
+                }
+
+                code[codeptr++] = (byte)(ln.lineno % 256);
+                code[codeptr++] = (byte)(ln.lineno / 256);
+                code[codeptr++] = ln.token;
+                code[codeptr++] = ln.var;
+                code[codeptr++] = (byte)(ln.value % 256);
+                code[codeptr++] = (byte)(ln.value / 256);
+                int l = ln.text.Length;
+                code[codeptr++] = (byte)(l % 256);
+                code[codeptr++] = (byte)(l / 256);
+                for (int k = 0; k < l; k++)
+                {
+                    code[codeptr++] = (byte)ln.text[k];
+                }
+                code[codeptr] = (byte)0xCC; // start of code
+
+                /*************/
+
+            }
+            
+            return true;
         }
 
-        public bool Download(SerialPort s1)
+        public string Download()
         {
-            if (s1 == null || !s1.IsOpen) return false;
-
             // transfer code --> robot
-            return false;
+
+            string s = codeptr.ToString("X4");
+
+            for (int i = 0; i < codeptr; i++)
+            {
+                s += code[i].ToString("X2");
+            }
+
+            Console.WriteLine(s);
+
+            return s;
         }
 
         public string Dump()
         {
             string m = "";
-            for (int i = 0; i < 32; i+=8)
+            for (int i = 0; i < codeptr + 1; i+=24)
             {
                 m += (i.ToString("X4") + " - ");
-                for (int j = 0; j < 8; j++)
+                for (int j = 0; j < 24; j++)
                 {
-                    m += (code[i].ToString("X2") + "  ");
+                    m += (code[i+j].ToString("X2") + "  ");
                 }
                 m += "\r\n" ;
             }
