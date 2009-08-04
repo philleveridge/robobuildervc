@@ -363,7 +363,6 @@ namespace RobosMode
                 code[codeptr++] = (byte)(ln.value / 256);
                 int l = ln.text.Length;
                 code[codeptr++] = (byte)(l % 256);
-                code[codeptr++] = (byte)(l / 256);
                 for (int k = 0; k < l; k++)
                 {
                     code[codeptr++] = (byte)ln.text[k];
@@ -380,6 +379,7 @@ namespace RobosMode
         public string Download()
         {
             // transfer code --> robot
+            codeptr++; // (include terminator 0xCC )
 
             string s = codeptr.ToString("X4");
 
