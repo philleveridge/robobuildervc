@@ -127,8 +127,14 @@ namespace RobobuilderLib
             if (mode != 2) return false;
             r = write2serial("eC6",true);
             Console.WriteLine("Debug: - " + r);
-            r = write2serial(s, true);
-            Console.WriteLine("Debug: - " + r);
+            for (int i = 0; i < s.Length; i++)
+            {
+                serialPort1.Write(s[i].ToString());
+                int c = serialPort1.ReadByte(); // echo
+                if (c > 0) Console.Write((char)c);
+            }
+            
+           Console.WriteLine("Debug: - " +serialPort1.ReadTo("Bytes"));
            return true;
         }
     }
