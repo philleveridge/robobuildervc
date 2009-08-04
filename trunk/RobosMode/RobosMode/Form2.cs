@@ -40,7 +40,7 @@ namespace RobobuilderLib
         public void connect(PCremote r)
         {
             remote = r;
-            if (r.serialPort1.IsOpen)
+            if (r!= null && r.serialPort1.IsOpen)
             {
                 wckm = new wckMotion(r);
                 this.Show();
