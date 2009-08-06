@@ -12,7 +12,8 @@ namespace RobobuilderLib
         public SerialPort serialPort1;
         public string message;
 
-        int mode;
+        public int mode;
+        public RobobuilderLib.binxfer btf;
 
         public PCremote(SerialPort s)
         {
@@ -26,6 +27,7 @@ namespace RobobuilderLib
             if (mode == 1)
             {
                 Console.WriteLine("PC connection - " + write2serial("p", true));
+                mode = 2;
             }
         }
 
@@ -45,7 +47,42 @@ namespace RobobuilderLib
         public string resetMem()        { return ""; }
         public string readZeros()       { return ""; }
         public string zeroHuno()        { return ""; }
-        public void   setDCmode(bool f) {DCmode = f; }
+
+        public void   setDCmode(bool f) 
+        {
+            if (DCmode == f) return;
+
+            if (f)
+            {
+                btf = new binxfer(serialPort1);
+                Console.WriteLine("Enter Bin mode");
+
+                if (mode == 2)
+                {
+                    serialPort1.Write("#"); // enter binary mode
+                    btf.send_msg_basic('v');
+                    if (btf.recv_packet() && btf.buff[0] == 17) // check version
+                    {
+                        Console.WriteLine("Good packet ver = " + btf.buff[0].ToString());
+                        mode = 6;
+                    }
+                    else
+                    {
+                        Console.WriteLine("Error in bin mode xfer");
+                        return;
+                    }
+                }
+            }
+            else
+            {
+
+                if (btf != null) btf.send_msg_basic('p'); // exit bimary mode (no response required)
+                Console.WriteLine("Exit Bin mode");
+                btf = null;
+                mode = 2;
+            }
+            DCmode = f;
+        }
 
         public string readXYZ(out Int16 x, out Int16 y, out Int16 z)
         {
@@ -56,11 +93,14 @@ namespace RobobuilderLib
         {
             if (serialPort1.IsOpen)
             {
-                string v = write2serial("?", true);
-                if (v.StartsWith("Idle")) mode = 1;
-                else if (v.StartsWith("?Exper")) mode = 2;
-                else if (v.StartsWith("Seria")) mode = 3;
-                else mode = 6;
+                if (mode != 6)
+                {
+                    string v = write2serial("?", true);
+                    if (v.StartsWith("Idle")) mode = 1;
+                    else if (v.StartsWith("?Exper")) mode = 2;
+                    else if (v.StartsWith("Seria")) mode = 3;
+                    else mode = 6;
+                }
             }
             else
             {
@@ -147,6 +187,7 @@ namespace RobobuilderLib
         public byte[] respnse = new byte[32];
         public string Message;
         public byte[] pos;
+        int[] sids = new int[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18 };
 
         public wckMotion(PCremote r)
         {
@@ -203,8 +244,13 @@ namespace RobobuilderLib
 
         public void SyncPosSend(int LastID, int SpeedLevel, byte[] TargetArray, int Index) 
         {
-            serialPort1.WriteLine("X" + SyncPosSend(20, TargetArray));
-        }
+            string sps = SyncPosSend(19, TargetArray);
+            pcR.btf.send_msg_raw('x', sps); // read status servo 'id'
+            if (!pcR.btf.recv_packet())
+            {
+                Console.WriteLine("Synch pos send failed");
+            }
+       }
 
         string SyncPosSend(int NUM_OF_WCKS, byte[] buffer)
         {
@@ -215,7 +261,7 @@ namespace RobobuilderLib
 
             Console.Write(t + ","); //debug
 
-            t = 16;
+            t = (byte) (NUM_OF_WCKS & 0x1F);
             outBuffer += t.ToString("X2");
             t = 0;
 
@@ -239,10 +285,14 @@ namespace RobobuilderLib
         {
             try
             {
-                serialPort1.WriteLine("x" + Passive((uint)id));
-                respnse[0] = (byte)serialPort1.ReadByte();
-                respnse[1] = (byte)serialPort1.ReadByte();
-                return true;
+                pcR.btf.send_msg_raw('X', Passive((uint)id)); // read status servo 'id'
+                if (pcR.btf.recv_packet())
+                {
+                    respnse[0] = pcR.btf.buff[0];
+                    respnse[1] = pcR.btf.buff[1];
+                    return true;
+                }
+                return false;
             }
             catch (Exception e1)
             {
@@ -255,10 +305,14 @@ namespace RobobuilderLib
         {
             try
             {
-                serialPort1.WriteLine("x" + ReadPos((uint)id));
-                respnse[0] = (byte)serialPort1.ReadByte();
-                respnse[1] = (byte)serialPort1.ReadByte();
-                return true;
+                pcR.btf.send_msg_raw('X', ReadPos((uint)id)); // read status servo 'id'
+                if (pcR.btf.recv_packet())
+                {
+                    respnse[0] = pcR.btf.buff[0];
+                    respnse[1] = pcR.btf.buff[1];
+                    return true;
+                }
+                return false;
             }
             catch (Exception e1)
             {
@@ -270,10 +324,14 @@ namespace RobobuilderLib
         {
             try
             {
-                serialPort1.WriteLine("x" + MovePos((uint)id, (uint)pos, (uint)torq));
-                respnse[0] = (byte)serialPort1.ReadByte();
-                respnse[1] = (byte)serialPort1.ReadByte();
-                return true;
+                pcR.btf.send_msg_raw('X', MovePos((uint)id, (uint)pos, (uint)torq)); // read status servo 'id'
+                if (pcR.btf.recv_packet())
+                {
+                    respnse[0] = pcR.btf.buff[0];
+                    respnse[1] = pcR.btf.buff[1];
+                    return true;
+                }
+                return false;
             }
             catch (Exception e1)
             {
@@ -282,11 +340,66 @@ namespace RobobuilderLib
             }
         }
 
+        public void servoID_readservo() 
+        {
+            pcR.btf.send_msg_basic('q'); // query all servo values
+            if (pcR.btf.recv_packet())
+            {
+                pos = new byte[sids.Length];
 
-        public void servoID_readservo() { }
+                for (int id = 0; id < sids.Length; id++)
+                {
+                    if (respnse[1] < 255)
+                    {
+                        pos[id] = pcR.btf.buff[id*2];
+                    }
+                } 
+            }
+            else
+            {
+                Message = "servoID_readservo failed";
+            } 
+        }
 
-        public void PlayPose(int duration, int no_steps, byte[] spod, bool first) { }
+        private void delay_ms(int t1)
+        {
+            System.Threading.Thread.Sleep(t1);
+        }
 
+        public void PlayPose(int duration, int no_steps, byte[] spod, bool first) 
+        {
+            byte[] temp = new byte[19]; // numbr of servos
+
+            if (first) servoID_readservo(); // read start positons
+
+            double[] intervals = new double[spod.Length];
+
+            for (int n = 0; n < sids.Length; n++)
+            {
+                intervals[n] = (double)(spod[n] - pos[n]) / no_steps;
+            }
+
+            for (int s = 1; s <= no_steps; s++)
+            {
+                //
+                for (int n = 0; n < 19; n++) // !!!!!!! only first 19 values are releveant - need to get this dynamially
+                {
+                    temp[n] = (byte)(pos[n] + (double)s * intervals[n]);
+                }
+
+                SyncPosSend(pos.Length - 1, 4, temp, 0);
+
+                int td = duration / no_steps;
+                if (td<25) td=25;
+
+                delay_ms(td);
+            }
+
+            for (int n = 0; n < sids.Length; n++)
+            {
+                pos[n] = spod[n];
+            }
+        }
 
     }
 }

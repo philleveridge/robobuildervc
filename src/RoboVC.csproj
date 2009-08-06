@@ -129,7 +129,6 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="binxfer.cs" />
-    <Content Include="Basic.cs" />
     <Compile Include="config.cs">
       <SubType>Form</SubType>
     </Compile>
