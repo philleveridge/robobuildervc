@@ -42,7 +42,6 @@ namespace RobobuilderLib
                 {
                     line = line.Trim();
                     string[] nvp = line.Split('=');
-                    string[] v;
                     switch (nvp[0])
                     {
                         case "BUTTON":
@@ -169,9 +168,38 @@ namespace RobobuilderLib
 
         private void button6_Click(object sender, EventArgs e)
         {
-            textBox1.AppendText("Reset mem - " + pcR.resetMem());
-        }
+            wckMotion test = new wckMotion(pcR);
 
+            if (test.wckReadPos(0))
+            {
+                textBox1.AppendText("Test =" + test.respnse[0].ToString() + test.respnse[1].ToString() + "\r\n");
+            }
+            else
+            {
+                textBox1.AppendText("Test Failed\r\n");
+            }
+
+            pcR.btf.send_msg_basic('q');
+            if (pcR.btf.recv_packet())
+            {
+                textBox1.AppendText("Query Test\r\n" +
+                     "0=" + pcR.btf.buff[0].ToString() + " " + pcR.btf.buff[1].ToString() + "\r\n" +
+                     "1=" + pcR.btf.buff[2].ToString() + " " + pcR.btf.buff[3].ToString() + "\r\n" +
+                     "2=" + pcR.btf.buff[4].ToString() + " " + pcR.btf.buff[5].ToString() + "\r\n" +
+                     "3=" + pcR.btf.buff[6].ToString() + " " + pcR.btf.buff[7].ToString() + "\r\n" +
+                     "4=" + pcR.btf.buff[8].ToString() + " " + pcR.btf.buff[9].ToString() + "\r\n" +
+                     "5=" + pcR.btf.buff[10].ToString() + " " + pcR.btf.buff[11].ToString() + "\r\n"              
+                    );
+            }
+            else
+            {
+                textBox1.AppendText("Test Failed\r\n");
+            } 
+            
+            test.close();
+            test = null;
+        }
+ 
         private void button1_Click_1(object sender, EventArgs e)
         {
             //read XYZ
