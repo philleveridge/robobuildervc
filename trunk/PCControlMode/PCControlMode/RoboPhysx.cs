@@ -182,36 +182,47 @@ namespace RobobuilderLib
         void RenderJoints()
         {
             // Render all the actors in the scene 
-            foreach (NxJoint j in scene.getJoints())
+            NxJoint[] jts = scene.getJoints();
+            //Console.WriteLine("N=" + jts.Length);              
+
+            foreach (NxJoint j in jts)
             {
                 Color c = Color.Blue;
-                if (j.getJointType() == NxJointType.NX_JOINT_FIXED) c = Color.Blue;
-                if (j.getJointType() == NxJointType.NX_JOINT_REVOLUTE) c = Color.Red;
+                if (j.getJointType() == NxJointType.NX_JOINT_FIXED) 
+                    c = Color.Blue;
+
+                if (j.getJointType() == NxJointType.NX_JOINT_REVOLUTE) 
+                    c = Color.Red;
 
                 NxActor a;
                 NxActor b;
                 j.getActors(out a, out b);
 
                 physics3D.drawline(a.getGlobalPosition(), b.getGlobalPosition(), c, Matrix.Identity);
+
+                if (j.getJointType() == NxJointType.NX_JOINT_REVOLUTE)
+                {
+                    NxShape[] s = a.getShapes();
+                    physics3D.drawCylinder(new Vector3(0, 0, 0), s[0].getGlobalPose(), false, true);
+                }
+
             }
         }
 
         void RenderActors()
         {
             // Render all the actors in the scene 
-            int nbActors = scene.getNbActors();
-            Console.WriteLine("Actors = " + nbActors);
-
             NxActor[] actors = scene.getActors();
             foreach (NxActor actor in actors)
             {
-                //if (actor.UserData != null) Console.WriteLine("Userdata=" + actor.UserData);
-
                 foreach (NxShape s in actor.getShapes())
                 {
                     if (s.getShapeType() == NxShapeType.NX_SHAPE_BOX)
                     {
-                        //drawbox(s, actor.UserData.ToInt32());
+                        int n = actor.UserData.ToInt32();
+
+                        NxBoxShapeDesc t1 = (NxBoxShapeDesc)s.getShapeDesc();
+                        physics3D.drawBoxOutline(0, 0, 0, t1.dimensions.X, t1.dimensions.Y, t1.dimensions.Z, Color.Red, s.getGlobalPose());
                     }
                     if (s.getShapeType() == NxShapeType.NX_SHAPE_PLANE)
                     {
@@ -220,49 +231,184 @@ namespace RobobuilderLib
                         physics3D.drawline(new Vector3(0f, 0f, -100f), new Vector3(0f, 0f, 100f), Color.White, Matrix.Identity);
                         physics3D.drawplane();
                     }
-                    if (s.getShapeType() == NxShapeType.NX_SHAPE_SPHERE)
-                    {
-                    }
-                    if (s.getShapeType() == NxShapeType.NX_SHAPE_CAPSULE)
-                    {
-                        physics3D.drawModel(1, new Vector3(0,0,0), s.getGlobalPose(), false, true);
-                    }
                 }
             }
         }
 
+        public void addJoint(JointModel j)
+        {
+            Console.WriteLine("add j = " + j.index);
+            switch (j.jtype)
+            {
+                case 1:
+                    addRevJoint(j);
+                    break;
+                case 0:
+                    addFixJoint(j);
+                    break;
+            }
+        }
+
+        void addRevJoint(JointModel j)
+        {
+            Console.WriteLine("R Joint - " + j.id + "type " + j.jtype );
+
+            int s = j.from.index;
+            int f = j.to.index;
+
+            NxActor a = findActor(s);
+            NxActor b = findActor(f);
+
+
+            if (a == null || b == null)
+            {
+                Console.WriteLine("find servos failed");
+                return;
+            }
+
+            NxRevoluteJointDesc rjd = new NxRevoluteJointDesc();
+            rjd.actor[0] = a;
+            rjd.actor[1] = b;
+
+            Matrix m1 = a.getGlobalPose();
+
+            rjd.setGlobalAnchor(NovodexUtil.getMatrixPos(ref m1));
+            rjd.setGlobalAxis(new Vector3(1,0,0));
+
+            rjd.userData = new IntPtr(j.index);
+            NxJoint t = scene.createJoint(rjd);
+
+            if (t == null)
+            {
+                Console.WriteLine("failed");
+            }
+            else
+                joints.Add(t);
+        }
+
+        void addFixJoint(JointModel j)
+        {
+            Console.WriteLine("F Joint - " + j.id + "type " + j.jtype);
+
+            int s = j.from.index;
+            int f = j.to.index;
+
+            NxActor a = findActor(s);
+            NxActor b = findActor(f);
+
+            if (a == null || b == null)
+            {
+                Console.WriteLine("find servos failed");
+                return;
+            }
+
+            NxFixedJointDesc fjd = new NxFixedJointDesc();
+            fjd.actor[0] = a;
+            fjd.actor[1] = b;
+
+            fjd.userData = new IntPtr(j.index);
+
+            NxJoint t = scene.createJoint(fjd);
+            if (t == null)
+            {
+                Console.WriteLine("create joint failed");
+            }
+            else joints.Add(t);
+        }
+
+
         public void addServo(ServoModel s)
         {
+            if (s.mod_no == 1)
+            {
+                Console.WriteLine("Servo = " + s.id);
+                addBoxShape(s.index, s.loc, new Vector3(0.8f, 1.6f, 1.2f), s.rot, 1000);
+            }
+            if (s.mod_no == 2 || s.mod_no == 3)
+            {
+                Console.WriteLine("Hand = " + s.id);
+                addBoxShape(s.index, s.loc, new Vector3(0.5f, 0.5f, 0.5f), s.rot, 1000);
+            }
+            if (s.mod_no == 4)
+            {
+                Console.WriteLine("Foot = " + s.id);
+                addBoxShape(s.index, s.loc, new Vector3(2.4f, 0.5f, 2f), s.rot, 1000);
+            }
+            if (s.mod_no == 5)
+            {
+                Console.WriteLine("Body = " + s.id);
+                addBoxShape(s.index, s.loc, new Vector3(1.2f, 1f, 0.8f), s.rot, 1000);
+            }
+        }
+
+        public void turnServo(NxRevoluteJoint joint, int pos)
+        {
+            if (pos < 0) pos = 0;
+            if (pos > 255) pos = 255;
+
+            float angle = 270f * (float)(pos) / 255;
+            NxSpringDesc ns = new NxSpringDesc(50000, 5000, angle * (float)Math.PI / 180);
+
+            if (joint != null) joint.setSpring(ns);
+        }
+
+        NxActor findActor(int n)
+        {
+            NxActor[] actors = scene.getActors();
+            foreach (NxActor actor in actors)
+            {
+                if (actor.UserData.ToInt32() == n) return actor; 
+            }
+            return null;
+        }
+
+
+        public void addBoxShape(int n, Vector3 loc, Vector3 dim, Vector3 rot, float density)
+        {         
             NxActor actor;
             NxActorDesc actorDesc = new NxActorDesc();
             NxBodyDesc bodyDesc = new NxBodyDesc();
 
-            float density = 1.0f;
-            Vector3 boxes = new Vector3(0.6f, 0.3f, 0.45f);
-            Vector3 rot = new Vector3(0, boxes.Y / 2, boxes.Z / 2);
-
-            NxCapsuleShapeDesc capDesc = new NxCapsuleShapeDesc();
-            capDesc.radius = 0.4f;
-            capDesc.height = 1.0f;
+            NxBodyDesc bodyD = new NxBodyDesc();
+            NxBoxShapeDesc boxD = new NxBoxShapeDesc(dim);
+            boxD.density = density;
 
             float y, p, r;
-            y = s.rot.X; p = s.rot.Y; r = s.rot.Z;
+            y = rot.X; p = rot.Y; r = rot.Z;
 
             Matrix localpose = Matrix.RotationYawPitchRoll(0, 0, UTIL.DegToRads(90));
             localpose *= Matrix.RotationYawPitchRoll(UTIL.DegToRads(y), UTIL.DegToRads(p), UTIL.DegToRads(r));
 
-            capDesc.localPose = localpose;
+            boxD.localPose = localpose; 
 
-            actorDesc.addShapeDesc(capDesc);
+            actorDesc.addShapeDesc(boxD);
+
             actorDesc.BodyDesc = bodyDesc;
             actorDesc.density = density;
-            actorDesc.globalPose = Matrix.Translation(s.loc); 
+            actorDesc.globalPose = Matrix.Translation(loc); 
 
             actor = scene.createActor(actorDesc);
-            //actor.Name = s.id;
+
+            actor.UserData = new IntPtr(n);
+
             actors.Add(actor);
         }
 
+        public void setHook(int index, bool f)
+        {
+            NxActor t = findActor(index);
+            if (t != null)
+            {
+                if (f)
+                {
+                    t.raiseBodyFlag(NxBodyFlag.NX_BF_KINEMATIC);
+                }
+                else
+                {
+                    t.clearBodyFlag(NxBodyFlag.NX_BF_KINEMATIC);
+                }
+            }
+        }
     }
 
 }

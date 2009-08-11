@@ -25,9 +25,17 @@ namespace RobobuilderLib
 
         Render g3D;
 
+        int sel_servo = 0;
+        int mindex = 100;
+        int jindex = 100;
+
         Simulator.IniManager IniData;
 
+        KeyboardState keys;
+
+
         List<ServoModel> servos;
+        List<JointModel> skeleton;
 
         public Form5()
         {
@@ -39,7 +47,7 @@ namespace RobobuilderLib
 
             initSetup("config-20dof.txt");
 
-            //initSetup("config.txt");
+            //initSetup("config-t.txt");
             //selectServo(1, true);
         }
 
@@ -53,7 +61,7 @@ namespace RobobuilderLib
 
         private void ReadKeyboard()
         {
-            KeyboardState keys = keyb.GetCurrentKeyboardState();
+            keys = keyb.GetCurrentKeyboardState();
 
             float driveScale = 0.2f;
             float rotateScale = 2.0f;
@@ -87,6 +95,28 @@ namespace RobobuilderLib
 
             if (keys[Key.Space])
                 simulation_paused = !simulation_paused;
+
+            if (keys[Key.LeftBracket])
+            {
+                selectServo(sel_servo, false);
+                sel_servo -= 1; if (sel_servo < 0) sel_servo = 17;
+                selectServo(sel_servo, true);
+
+            }
+
+            if (keys[Key.RightBracket])
+            {
+                selectServo(sel_servo, false);
+                sel_servo += 1; if (sel_servo > 17) sel_servo = 0;
+                selectServo(sel_servo, true);
+            }
+
+            if (keys[Key.Add])
+            {
+                //sel_servo
+                //rp.turnServo(1,);
+            }  
+
 
             // update camera view
 
@@ -143,10 +173,15 @@ namespace RobobuilderLib
             //object and joints
             foreach (ServoModel s in servos)
             {
-                if (s.joint)
-                    g3D.drawline(s.loc, s.rot, s.mod_no == 0 ? Color.Red : Color.Yellow, Matrix.Identity);
-                else
-                    g3D.drawModel(s.mod_no, s.loc, s.rot, s.select, checkBox1.Checked);
+                g3D.drawModel(s.mod_no, s.loc, s.rot, s.select, checkBox1.Checked);
+            }
+
+            foreach (JointModel j in skeleton)
+            {
+                if (j.from != null)
+                {
+                    g3D.drawline(j.from.loc, j.to.loc, j.jtype == 0 ? Color.Red : Color.Yellow, Matrix.Identity);
+                }
             }
             //set camera
             g3D.setupView();
@@ -176,6 +211,7 @@ namespace RobobuilderLib
             }
 
             servos = new List<ServoModel>();
+            skeleton = new List<JointModel>();
 
             for (int id = 0; id < 32; id++)
             {
@@ -188,22 +224,24 @@ namespace RobobuilderLib
             if ((t1 = IniData.getParameterEvalArray("FootL")).Length>2)
             {
                 addModel("FootL", new Vector3(t1[0], t1[1], t1[2]), new Vector3(0, 0, 0), 4);
+                addJoint("FootLJ", "FootL", "S" + t1[3].ToString(), 0);
             }
             if ((t1 = IniData.getParameterEvalArray("FootR")).Length>2)
             {
                 addModel("FootR", new Vector3(t1[0], t1[1], t1[2]), new Vector3(0, 0, 0), 4);
+                addJoint("FootRJ", "FootR", "S" + t1[3].ToString(), 0);
             }
 
             if ((t1 = IniData.getParameterEvalArray("HandL")).Length >2)
             {
                 addModel("HandL", new Vector3(t1[0], t1[1], t1[2]), new Vector3(0, 0, 0), 2);
-                addJoint("HandLJ", new Vector3(t1[0], t1[1], t1[2]), findServo("S" + t1[3].ToString()).loc, (int)t1[4]);
+                addJoint("HandLJ", "S" + t1[3].ToString(), "HandL", (int)t1[4]);
             }
 
             if ((t1 = IniData.getParameterEvalArray("HandR")).Length > 2)
             {
                 addModel("HandR", new Vector3(t1[0], t1[1], t1[2]), new Vector3(0, 0, 0), 3);
-                addJoint("HandRJ", new Vector3(t1[0], t1[1], t1[2]), findServo("S" + t1[3].ToString()).loc, (int)t1[4]);
+                addJoint("HandRJ", "S" + t1[3].ToString(), "HandR", (int)t1[4]);
             }
             if ((t1 = IniData.getParameterEvalArray("Body")).Length > 2)
             {
@@ -221,7 +259,7 @@ namespace RobobuilderLib
             {
                 if ((t1 = IniData.getParameterEvalArray("Joint" + id)).Length>2)
                 {
-                    addJoint("Joint" + id, findServo("S" + t1[0].ToString()).loc, findServo("S" + t1[1].ToString()).loc, (int)t1[2]);
+                    addJoint("Joint" + id, "S" + t1[0], "S" + t1[1], (int)t1[2]);
                 }
             }
         }
@@ -233,18 +271,24 @@ namespace RobobuilderLib
             s.mod_no = t;
             s.loc = loc;
             s.rot = rot;
+            s.index = mindex++;
+
             servos.Add(s);
         }
 
-        void addJoint(string n, Vector3 from, Vector3 to, int c)
+        void addJoint(string n, string from, string to, int c)
         {
-            ServoModel s = new ServoModel();
-            s.mod_no = c; // type 0/1
-            s.id = n;
-            s.loc = from;
-            s.rot = to;
-            s.joint = true;
-            servos.Add(s);
+            ServoModel f = findServo(from);
+            ServoModel t = findServo(to);
+
+            JointModel j = new JointModel();
+            j.id = n;
+            j.jtype = c;
+            j.from = f;
+            j.to = t;
+            j.index = jindex++;
+
+            skeleton.Add(j);
         }
 
         ServoModel findServo(string n)
@@ -256,6 +300,15 @@ namespace RobobuilderLib
             return null;
         }
 
+        ServoModel findServo(int n)
+        {
+            foreach (ServoModel r in servos)
+            {
+                if (r.index == n) return r;
+            }
+            return null;
+        }
+
         public void  setServoPos(int n, int v)
         {
             findServo("S"+n).pos = v;
@@ -263,7 +316,8 @@ namespace RobobuilderLib
 
         public void selectServo(int n, bool f)
         {
-            findServo("S" + n).select = f;
+            ServoModel s = findServo("S" + n);
+            if (s != null) s.select = f;
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -287,18 +341,32 @@ namespace RobobuilderLib
 
             foreach (ServoModel s in servos)
             {
-                if (s.joint==false && s.mod_no == 1)
-                { rp.addServo(s); Console.WriteLine("servo = " + s.id); }
+                rp.addServo(s);
             }
 
+            foreach (JointModel j in skeleton) 
+            {
+                rp.addJoint(j);
+            }
+
+            if (mindex > 110)
+            {
+                rp.setHook(findServo("S10").index, true);
+                rp.setHook(findServo("S13").index, true);
+            }
+            else
+                rp.setHook(findServo("S0").index, true);
+
+
             simulation_running = true;
-            simulation_paused = false;
+            simulation_paused = true;
 
             while (simulation_running)	    //Main loop
             {
                 if (!simulation_paused) rp.tickPhysics();
 
                 rp.render(); ReadKeyboard();
+
 
                 Application.DoEvents();
             }
@@ -321,13 +389,20 @@ namespace RobobuilderLib
         public Vector3 rot;
         public string id;
         public int mod_no;
-        public bool joint = false;
         public int pos;
         public bool select = false;
 
-        public Vector3 conn1;
-        public Vector3 conn2;
-        public Vector3 conn3;
+        public JointModel[] conns;
+        public int index;
+    }
+
+    public class JointModel
+    {
+        public string id;
+        public ServoModel from;
+        public ServoModel to;
+        public int jtype;
+        public int index;
     }
 
     static class UTIL

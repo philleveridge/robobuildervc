@@ -194,33 +194,35 @@ namespace RobobuilderLib
             Device.RenderState.Lighting = last_lighting;
         }
 
-        public void drawModel(int n, Vector3 loc, Matrix pose, bool sel, bool hide)
+        public void drawCylinder(Vector3 loc, Matrix pose, bool sel, bool hide)
+        {
+            if (cylinder == null) cylinder = Mesh.Cylinder(Device, 0.25f, 0.25f, 1, 16, 4);
+            Device.Transform.World = pose * Matrix.Translation(loc.X, loc.Y, loc.Z);
+
+            Device.SetTexture(0, models[1].txtr[0]);
+            Material t = models[1].mat[0];
+
+            if (sel)
+            {
+                t.Diffuse = Color.Yellow;
+            }
+
+            Device.Material = t;
+            cylinder.DrawSubset(0);
+        }
+
+        public void drawMesh(int n, Vector3 loc, Matrix pose, bool sel, bool hide)
         {
             Mesh m;
-            if (cylinder == null) cylinder = Mesh.Cylinder(Device, 0.25f, 0.25f, 1, 16, 4);
-
-            if (hide == true && (n == 5 || n == 6)) return;
 
             if (models[n].modelsmesh != null)
             {
                 Matrix locrot = pose;
 
-                m = models[n].modelsmesh;
+                m = models[n].modelsmesh;              
 
-                Matrix wp;
-
-                if (hide == true && n == 1)
-                {
-                    m = cylinder;
-                    drawBoxOutline(loc.X, loc.Y, loc.Z, 1f, 1.5f, 1f, Color.White, locrot);
-                    Device.Transform.World = locrot * Matrix.Translation(loc.X, loc.Y, loc.Z);
-                }
-                else
-                {
-                    wp = Matrix.Scaling(models[n].scale) * models[n].pose * locrot;
-                    Device.Transform.World = wp * Matrix.Translation(loc);
-                }
-
+                Matrix wp = Matrix.Scaling(models[n].scale) * models[n].pose * locrot;
+                Device.Transform.World = wp * Matrix.Translation(loc);
 
                 for (int i = 0; i < models[n].mat.Length; ++i)
                 {
@@ -246,13 +248,30 @@ namespace RobobuilderLib
         {
             Matrix locrot = Matrix.RotationYawPitchRoll(0f, 0f, 0f);
 
-            if (n == 1)
+            if (hide)
             {
-                locrot = Matrix.RotationYawPitchRoll(0, 0, (float)(Math.PI / 2));
-                locrot *= Matrix.RotationYawPitchRoll(UTIL.DegToRads(rot.X), UTIL.DegToRads(rot.Y), UTIL.DegToRads(rot.Z));
+                if (n == 1)
+                {
+                    locrot = Matrix.RotationYawPitchRoll(0, 0, (float)(Math.PI / 2));
+                    locrot *= Matrix.RotationYawPitchRoll(UTIL.DegToRads(rot.X), UTIL.DegToRads(rot.Y), UTIL.DegToRads(rot.Z));
+                    drawCylinder(loc, locrot, sel, hide);
+                    drawBoxOutline(loc.X, loc.Y, loc.Z, 1f, 1.5f, 1f, (sel) ? Color.Red : Color.White, locrot);
+                }
+                else
+                {
+                    if (n == 5 || n == 6) return;
+                    drawMesh(n, loc, locrot, sel, hide);
+                }               
             }
-
-            drawModel(n, loc, locrot, sel, hide);
+            else
+            {
+                if (n == 1)
+                {
+                    locrot = Matrix.RotationYawPitchRoll(0, 0, (float)(Math.PI / 2));
+                    locrot *= Matrix.RotationYawPitchRoll(UTIL.DegToRads(rot.X), UTIL.DegToRads(rot.Y), UTIL.DegToRads(rot.Z));
+                }
+                drawMesh(n, loc, locrot, sel, hide);
+            }
 
         }
 
