@@ -36,7 +36,7 @@ namespace RobobuilderLib
             timeStepArray = new float[32];
             for (int i = 0; i < timeStepArray.Length; i++)
             { 
-                timeStepArray[i] = 1 / 60.0f; 
+                timeStepArray[i] = 1 / 20.0f; 
             }
         }
 
@@ -204,6 +204,10 @@ namespace RobobuilderLib
                 {
                     NxShape[] s = a.getShapes();
                     physics3D.drawCylinder(new Vector3(0, 0, 0), s[0].getGlobalPose(), false, true);
+                    //NxRevoluteJoint t = (NxRevoluteJoint)j;
+                    //NxSpringDesc x = new NxSpringDesc();
+                    //t.getSpring(ref x);
+                    //if (x != null) Console.WriteLine(a.UserData.ToInt32() + "] Angle=" + x.spring + " " + x.targetValue + " " + x.damper);
                 }
 
             }
@@ -251,11 +255,22 @@ namespace RobobuilderLib
 
         void addRevJoint(JointModel j)
         {
+            if (j == null)
+            {
+                Console.WriteLine("No such joint");
+                return;
+            }
             Console.WriteLine("R Joint - " + j.id + "type " + j.jtype );
 
+            if (j.from == null || j.to == null)
+            {
+                Console.WriteLine("No such servo");
+                return;
+            } 
+            
             int s = j.from.index;
-            int f = j.to.index;
-
+            int f = j.to.index;        
+            
             NxActor a = findActor(s);
             NxActor b = findActor(f);
 
@@ -271,12 +286,18 @@ namespace RobobuilderLib
             rjd.actor[1] = b;
 
             Matrix m1 = a.getGlobalPose();
+            Matrix m2 = a.getShape(0).getLocalPose();
+
+            rjd.FlagMotorEnabled = true;
+            rjd.FlagVisualization = true; 
 
             rjd.setGlobalAnchor(NovodexUtil.getMatrixPos(ref m1));
-            rjd.setGlobalAxis(new Vector3(1,0,0));
+            rjd.setGlobalAxis(NovodexUtil.getMatrixZaxis(ref m2));
 
             rjd.userData = new IntPtr(j.index);
-            NxJoint t = scene.createJoint(rjd);
+            NxRevoluteJoint t = (NxRevoluteJoint)scene.createJoint(rjd);
+
+            turnServo(t, j.from.pos);
 
             if (t == null)
             {
@@ -322,23 +343,36 @@ namespace RobobuilderLib
             if (s.mod_no == 1)
             {
                 Console.WriteLine("Servo = " + s.id);
-                addBoxShape(s.index, s.loc, new Vector3(0.8f, 1.6f, 1.2f), s.rot, 1000);
+                addBoxShape(s.index, s.loc, new Vector3(0.8f, 1.6f, 1.2f), s.rot, 10);
             }
             if (s.mod_no == 2 || s.mod_no == 3)
             {
                 Console.WriteLine("Hand = " + s.id);
-                addBoxShape(s.index, s.loc, new Vector3(0.5f, 0.5f, 0.5f), s.rot, 1000);
+                addBoxShape(s.index, s.loc, new Vector3(0.5f, 0.5f, 0.5f), s.rot, 10);
             }
             if (s.mod_no == 4)
             {
                 Console.WriteLine("Foot = " + s.id);
-                addBoxShape(s.index, s.loc, new Vector3(2.4f, 0.5f, 2f), s.rot, 1000);
+                addBoxShape(s.index, s.loc, new Vector3(2.4f, 0.5f, 2f), s.rot, 10);
             }
             if (s.mod_no == 5)
             {
                 Console.WriteLine("Body = " + s.id);
-                addBoxShape(s.index, s.loc, new Vector3(1.2f, 1f, 0.8f), s.rot, 1000);
+                addBoxShape(s.index, s.loc, new Vector3(1.2f, 1f, 0.8f), s.rot, 10);
             }
+        }
+
+        public void turnServo(int servo_index, int pos)
+        {
+            NxRevoluteJoint joint = null;
+            foreach (NxJoint j in joints)
+            {
+                if (j.getJointType() == NxJointType.NX_JOINT_REVOLUTE && j.getJointDesc().actor[0].UserData.ToInt32() == servo_index)
+                    joint = (NxRevoluteJoint)j;
+            }
+
+            if (joint != null) 
+                turnServo(joint, pos);
         }
 
         public void turnServo(NxRevoluteJoint joint, int pos)
@@ -346,7 +380,9 @@ namespace RobobuilderLib
             if (pos < 0) pos = 0;
             if (pos > 255) pos = 255;
 
-            float angle = 270f * (float)(pos) / 255;
+            float angle = 270f * (float)(pos-127) / 255;
+
+            Console.WriteLine(joint.UserData.ToInt32() + "] Angle=" + angle);
             NxSpringDesc ns = new NxSpringDesc(50000, 5000, angle * (float)Math.PI / 180);
 
             if (joint != null) joint.setSpring(ns);

@@ -33,9 +33,13 @@ namespace RobobuilderLib
 
         KeyboardState keys;
 
+        string hook = "";
 
         List<ServoModel> servos;
         List<JointModel> skeleton;
+
+        ServoModel temp;
+        bool temp_focus;
 
         public Form5()
         {
@@ -45,10 +49,18 @@ namespace RobobuilderLib
 
             InitializeKeyboard();
 
-            initSetup("config-20dof.txt");
+            //initSetup("config-20dof.txt");
 
-            //initSetup("config-t.txt");
+            initSetup("c-test.txt");
             //selectServo(1, true);
+
+
+            foreach (ServoModel s in servos)
+            {
+                servo_listBox1.Items.Add(s.id);
+            }
+            servo_listBox1.SelectedIndex = 0;
+            temp_focus = false;
         }
 
         public void InitializeKeyboard()
@@ -94,7 +106,11 @@ namespace RobobuilderLib
                 simulation_running = false;
 
             if (keys[Key.Space])
+            {
                 simulation_paused = !simulation_paused;
+                pause_msg.Visible = simulation_paused;
+
+            }
 
             if (keys[Key.LeftBracket])
             {
@@ -210,6 +226,9 @@ namespace RobobuilderLib
 
             }
 
+            hook = IniData.getParameter("HOOK");
+
+
             servos = new List<ServoModel>();
             skeleton = new List<JointModel>();
 
@@ -262,6 +281,16 @@ namespace RobobuilderLib
                     addJoint("Joint" + id, "S" + t1[0], "S" + t1[1], (int)t1[2]);
                 }
             }
+
+            if ((mb = IniData.getParameter("ZERO")) != "")
+            {
+                int n=0;
+                foreach (string s in mb.Split(','))
+                {
+                    setServoPos(n++, Convert.ToInt32(s));
+                }
+            }
+
         }
 
         void addModel(string n, Vector3 loc, Vector3 rot, int t)
@@ -289,6 +318,16 @@ namespace RobobuilderLib
             j.index = jindex++;
 
             skeleton.Add(j);
+        }
+
+        JointModel findJoint(int servo_index)
+        {
+            foreach (JointModel j in skeleton)
+            {
+                if (j.from.index == servo_index)
+                    return j;
+            }
+            return null;
         }
 
         ServoModel findServo(string n)
@@ -349,17 +388,10 @@ namespace RobobuilderLib
                 rp.addJoint(j);
             }
 
-            if (mindex > 110)
-            {
-                rp.setHook(findServo("S10").index, true);
-                rp.setHook(findServo("S13").index, true);
-            }
-            else
-                rp.setHook(findServo("S0").index, true);
-
+            if (hook != "") { foreach (string s in hook.Split(',')) rp.setHook(findServo(s).index, true);};
 
             simulation_running = true;
-            simulation_paused = true;
+            simulation_paused = true; pause_msg.Visible = true;
 
             while (simulation_running)	    //Main loop
             {
@@ -367,9 +399,22 @@ namespace RobobuilderLib
 
                 rp.render(); ReadKeyboard();
 
+                if (keys[Key.D] && keys[Key.LeftShift] && hook != "")
+                { 
+                    foreach (string s in hook.Split(',')) 
+                        rp.setHook(findServo(s).index, false);
+                    rp.wakeUpScene();
+                };
+
+                if (temp_focus) 
+                {
+                    rp.turnServo(temp.index, temp.pos);
+                    temp_focus = false;
+                }
 
                 Application.DoEvents();
             }
+            pause_msg.Visible = false;
             rp.killPhysics();	            //be nice and properly release the physics
         }
 
@@ -380,6 +425,30 @@ namespace RobobuilderLib
             Physx_loop();
 
             sim_btn.Enabled = true;
+        }
+
+        private void servo_set_btn_Click(object sender, EventArgs e)
+        {
+            ServoModel s = findServo(servo_listBox1.SelectedItem.ToString());
+            int n= Convert.ToInt32(servo_pos.Text);
+            if (n < 0) n = 0;
+            if (n > 255) n = 255;
+            if (s != null) s.pos = n;
+            servo_pos.Text = n.ToString();
+            temp_focus = true;
+        }
+
+        private void servo_listBox1_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (temp != null) temp.select = false;
+            ServoModel s = findServo(servo_listBox1.SelectedItem.ToString());
+            if (s != null)
+            {
+                servo_pos.Text = s.pos.ToString();
+                s.select = true;
+                temp = s;
+                temp_focus = true;
+            }
         }
     }
 
