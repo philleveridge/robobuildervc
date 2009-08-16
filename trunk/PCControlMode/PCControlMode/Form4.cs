@@ -38,7 +38,7 @@ namespace RobobuilderLib
         public void connect(PCremote r)
         {
             remote = r;
-            if (r.serialPort1.IsOpen)
+            if (r!= null && r.serialPort1 !=null && r.serialPort1.IsOpen)
             {
                 dcontrol = new wckMotion(r);
                 servoID_readservo();
@@ -123,6 +123,11 @@ namespace RobobuilderLib
             {
                 servoPos[id].Value = dcontrol.pos[id];
                 servoID[id].Text = sids[id].ToString() + " - " + servoPos[id].Value.ToString();
+
+                if (viewport != null)
+                {
+                    viewport.setServoPos(sids[id], servoPos[id].Value);
+                }
             }
         }
 

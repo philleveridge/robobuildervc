@@ -219,9 +219,10 @@ namespace RobobuilderLib
 
                 if (j.getJointType() == NxJointType.NX_JOINT_REVOLUTE)
                 {
-                    NxShape[] s = a.getShapes();
-
-                    physics3D.drawCylinder(new Vector3(0, 0, 0), s[0].getGlobalPose(), (bool)bfalgs[a.UserData.ToInt32()], true);
+                    Matrix t = Matrix.Translation(j.getGlobalAnchor());
+                    Matrix r = Matrix.RotationYawPitchRoll(j.getGlobalAxis().X,j.getGlobalAxis().Y,j.getGlobalAxis().Z);
+                    r *= t;
+                    physics3D.drawCylinder(new Vector3(0, 0, 0), new Vector3(0.25f,0.25f,1), r, (bool)bfalgs[a.UserData.ToInt32()], true);
                 }
             }
         }
@@ -323,7 +324,11 @@ namespace RobobuilderLib
         void addFixJoint(JointModel j)
         {
             Console.WriteLine("F Joint - " + j.id + "type " + j.jtype);
-
+            if (j.from == null || j.to == null)
+            {
+                Console.WriteLine("No missing from/to joint");
+                return;
+            } 
             int s = j.from.index;
             int f = j.to.index;
 
@@ -436,6 +441,7 @@ namespace RobobuilderLib
             if (mtype == 1)
             {
                 //locpose = Matrix.RotationYawPitchRoll(0, 0, UTIL.DegToRads(90));
+                locpose = Matrix.Translation(0, 0.25f, 0);
                 locpose *= Matrix.RotationYawPitchRoll(UTIL.DegToRads(y), UTIL.DegToRads(p), UTIL.DegToRads(r));
             }
             //Matrix localpose = Matrix.RotationYawPitchRoll(UTIL.DegToRads(y), UTIL.DegToRads(p), UTIL.DegToRads(r));
