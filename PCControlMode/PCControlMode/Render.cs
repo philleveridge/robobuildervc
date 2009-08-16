@@ -104,8 +104,8 @@ namespace RobobuilderLib
         public void drawBoxOutline(float x, float y, float z, float h, float w, float d, Color c, Matrix wp)
         {
             Vector3 loc = new Vector3(x, y, z);
-            x = (-w / 2) + 0.25f; y = (-h / 2); z = (-d / 2);
-            //x = (-w / 2) ; y = (-h / 2); z = (-d / 2);
+            //x = (-w / 2) + 0.25f; y = (-h / 2); z = (-d / 2);
+            x = (-w / 2) ; y = (-h / 2); z = (-d / 2);
 
             wp *= Matrix.Translation(loc);
 
@@ -196,11 +196,11 @@ namespace RobobuilderLib
             Device.RenderState.Lighting = last_lighting;
         }
 
-        public void drawCylinder(Vector3 loc, Matrix pose, bool sel, bool hide)
+        public void drawCylinder(Vector3 loc, Vector3 size, Matrix pose, bool sel, bool hide)
         {
             if (cylinder == null)
             {
-                cylinder = Mesh.Cylinder(Device, 0.25f, 0.25f, 1, 16, 4);
+                cylinder = Mesh.Cylinder(Device, size.X, size.X, size.Z, 16, 4);
             }
 
             Device.Transform.World = pose * Matrix.Translation(loc.X, loc.Y, loc.Z);
@@ -260,7 +260,11 @@ namespace RobobuilderLib
                 {
                     locrot = Matrix.RotationYawPitchRoll(0, 0, (float)(Math.PI / 2));
                     locrot *= Matrix.RotationYawPitchRoll(UTIL.DegToRads(rot.X), UTIL.DegToRads(rot.Y), UTIL.DegToRads(rot.Z));
-                    drawCylinder(loc, locrot, sel, hide);
+                    drawCylinder(loc, new Vector3(0.25f,0.25f, size.X), locrot, sel, hide);
+
+                    locrot = Matrix.RotationYawPitchRoll(0, 0, (float)(Math.PI / 2));
+                    locrot *= Matrix.Translation(0,0.25f,0);
+                    locrot *= Matrix.RotationYawPitchRoll(UTIL.DegToRads(rot.X), UTIL.DegToRads(rot.Y), UTIL.DegToRads(rot.Z));
                     drawBoxOutline(loc.X, loc.Y, loc.Z, size.X, size.Y, size.Z, (sel) ? Color.Red : Color.White, locrot);
                 }
                 else

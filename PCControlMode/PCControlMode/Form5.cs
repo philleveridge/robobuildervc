@@ -138,13 +138,6 @@ namespace RobobuilderLib
                 selectServo(sel_servo, true);
             }
 
-            if (keys[Key.Add])
-            {
-                //sel_servo
-                //rp.turnServo(1,);
-            }  
-
-
             // update camera view
 
             driveInput *= driveScale;
@@ -205,7 +198,7 @@ namespace RobobuilderLib
 
             foreach (JointModel j in skeleton)
             {
-                if (j.from != null)
+                if (j.from != null && j.to != null)
                 {
                     g3D.drawline(j.from.loc, j.to.loc, j.jtype == 0 ? Color.Red : Color.Yellow, Matrix.Identity);
                 }
@@ -298,7 +291,7 @@ namespace RobobuilderLib
                 int n=0;
                 foreach (string s in mb.Split(','))
                 {
-                    setServoPos(n++, Convert.ToInt32(s));
+                    setZeroPos(n++, Convert.ToInt32(s));
                 }
             }
 
@@ -362,7 +355,20 @@ namespace RobobuilderLib
         public void  setServoPos(int n, int v)
         {
             ServoModel t = findServo("S"+n);
-            if (t != null) t.pos = v;
+            if (t != null)
+            {
+                t.pos = v-t.zpos;
+            }
+        }
+
+        public void setZeroPos(int n, int v)
+        {
+            ServoModel t = findServo("S" + n);
+            if (t != null)
+            {
+                t.zpos = v;
+                t.pos = 127;
+            }
         }
 
         public void selectServo(int n, bool f)
@@ -411,7 +417,11 @@ namespace RobobuilderLib
             {
                 if (!simulation_paused) rp.tickPhysics();
 
-                rp.render(); ReadKeyboard();
+                rp.render(); 
+                
+                ReadKeyboard();
+
+                Tx.Focus();
 
                 if (keys[Key.BackSpace]) rp.debug_render_on = !rp.debug_render_on;
 
@@ -448,28 +458,31 @@ namespace RobobuilderLib
             sim_btn.Enabled = true;
         }
 
-        private void servo_set_btn_Click(object sender, EventArgs e)
-        {
-            ServoModel s = findServo(servo_listBox1.SelectedItem.ToString());
-            int n= Convert.ToInt32(servo_pos.Text);
-            if (n < 0) n = 0;
-            if (n > 255) n = 255;
-            if (s != null) s.pos = n;
-            servo_pos.Text = n.ToString();
-            temp_focus = true;
-        }
-
         private void servo_listBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
             if (temp != null) temp.select = false;
             ServoModel s = findServo(servo_listBox1.SelectedItem.ToString());
             if (s != null)
             {
-                servo_pos.Text = s.pos.ToString();
+                sero_pos_sb.Value = s.pos;
                 s.select = true;
                 temp = s;
                 temp_focus = true;
+                sero_v_txt.Text = sero_pos_sb.Value.ToString();
             }
+        }
+
+        private void sero_pos_sb_Scroll(object sender, ScrollEventArgs e)
+        {
+            ServoModel s = findServo(servo_listBox1.SelectedItem.ToString());
+            int n = sero_pos_sb.Value;
+            if (n < 0) n = 0;
+            if (n > 255) n = 255;
+            if (s != null) s.pos = n;
+            sero_pos_sb.Value = n;
+            temp_focus = true;
+
+            sero_v_txt.Text = sero_pos_sb.Value.ToString();
         }
     }
 
@@ -482,6 +495,7 @@ namespace RobobuilderLib
         public string id;
         public int mod_no;
         public int pos;
+        public int zpos;
         public bool select = false;
 
         public JointModel[] conns;
