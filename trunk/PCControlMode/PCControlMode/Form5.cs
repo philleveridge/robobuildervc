@@ -18,6 +18,16 @@ namespace RobobuilderLib
         Vector3 cameraRot;
         Vector3 cameraPos;
 
+        Vector3[] ModelSize = new Vector3[] {
+            new Vector3(0.25f, 0.25f, 1),           //Cylinder
+            new Vector3(1, 1.5f, 1),                //Servo box
+            new Vector3(0.5f, 0.5f, 0.5f),          //hand box
+            new Vector3(0.5f, 0.5f, 0.5f),          //hand box
+            new Vector3(2.4f, 0.5f, 2f),            //foor box
+            new Vector3(1.2f, 1f, 0.8f),            //body box
+            new Vector3(1, 1, 1)                    //knee box
+        };
+
         Microsoft.DirectX.DirectInput.Device keyb;
 
         bool simulation_running;
@@ -41,6 +51,7 @@ namespace RobobuilderLib
         ServoModel temp;
         bool temp_focus;
 
+
         public Form5()
         {
             InitializeComponent();
@@ -49,9 +60,9 @@ namespace RobobuilderLib
 
             InitializeKeyboard();
 
-            //initSetup("config-20dof.txt");
+            initSetup("config-20dof.txt");
 
-            initSetup("c-test.txt");
+            //initSetup("c-test.txt");
             //selectServo(1, true);
 
 
@@ -189,7 +200,7 @@ namespace RobobuilderLib
             //object and joints
             foreach (ServoModel s in servos)
             {
-                g3D.drawModel(s.mod_no, s.loc, s.rot, s.select, checkBox1.Checked);
+                g3D.drawModel(s.mod_no, s.loc, s.rot, s.size, s.select, checkBox1.Checked);
             }
 
             foreach (JointModel j in skeleton)
@@ -301,7 +312,7 @@ namespace RobobuilderLib
             s.loc = loc;
             s.rot = rot;
             s.index = mindex++;
-
+            s.size = ModelSize[t];
             servos.Add(s);
         }
 
@@ -350,7 +361,8 @@ namespace RobobuilderLib
 
         public void  setServoPos(int n, int v)
         {
-            findServo("S"+n).pos = v;
+            ServoModel t = findServo("S"+n);
+            if (t != null) t.pos = v;
         }
 
         public void selectServo(int n, bool f)
@@ -371,6 +383,8 @@ namespace RobobuilderLib
 
         void Physx_loop()
         {
+            ServoModel cur = null;
+
             RoboPhysx rp = new RoboPhysx(g3D);
 
             if (!rp.startPhysics())
@@ -399,6 +413,9 @@ namespace RobobuilderLib
 
                 rp.render(); ReadKeyboard();
 
+                if (keys[Key.BackSpace]) rp.debug_render_on = !rp.debug_render_on;
+
+
                 if (keys[Key.D] && keys[Key.LeftShift] && hook != "")
                 { 
                     foreach (string s in hook.Split(',')) 
@@ -408,8 +425,12 @@ namespace RobobuilderLib
 
                 if (temp_focus) 
                 {
+                    if (cur != null) 
+                        rp.selServo(cur.index, false);
+                    rp.selServo(temp.index, true);
                     rp.turnServo(temp.index, temp.pos);
                     temp_focus = false;
+                    cur = temp;
                 }
 
                 Application.DoEvents();
@@ -456,6 +477,8 @@ namespace RobobuilderLib
     {
         public Vector3 loc;
         public Vector3 rot;
+        public Vector3 size;
+
         public string id;
         public int mod_no;
         public int pos;

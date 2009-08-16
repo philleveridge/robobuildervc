@@ -79,6 +79,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Autonomy.cs" />
+    <Compile Include="MyDebugRenderer.cs" />
     <Compile Include="PCremote.cs" />
     <Compile Include="Form2.cs">
       <SubType>Form</SubType>
