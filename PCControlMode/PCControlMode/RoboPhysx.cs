@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 using System.Drawing;
@@ -27,11 +28,22 @@ namespace RobobuilderLib
         int timeStepIndex = 0;
         float[] timeStepArray = null;
 
+        Hashtable bfalgs = new Hashtable();
+
         NxScene scene;
+
+        Simulator.MyDebugRenderer dbr = null;
+
+        public bool debug_render_on;
 
         public RoboPhysx(Render r)
         {
-            physics3D = r;
+            dbr = new Simulator.MyDebugRenderer(r.Device);
+            debug_render_on = false;
+
+            physics3D = r; 
+
+
             //Initialize the array to a reasonable target frame rate of 60 FPS.
             timeStepArray = new float[32];
             for (int i = 0; i < timeStepArray.Length; i++)
@@ -167,14 +179,19 @@ namespace RobobuilderLib
         public void render()
         {
             if (physics3D.Device == null)  return;
-
             physics3D.Device.Clear(ClearFlags.Target | ClearFlags.ZBuffer, Color.Black, 1.0f, 0);
             physics3D.Device.BeginScene();
 
-            RenderActors();
-            RenderJoints();
-
             physics3D.setupView();
+            if (dbr != null && debug_render_on == true)
+            {
+                dbr.renderData(physicsScene.getDebugRenderable());
+            }
+            else
+            {
+                RenderActors();
+                RenderJoints();
+            }
             physics3D.Device.EndScene();
             physics3D.Device.Present();
         }
@@ -189,10 +206,10 @@ namespace RobobuilderLib
             {
                 Color c = Color.Blue;
                 if (j.getJointType() == NxJointType.NX_JOINT_FIXED) 
-                    c = Color.Blue;
+                    c = Color.Red;
 
                 if (j.getJointType() == NxJointType.NX_JOINT_REVOLUTE) 
-                    c = Color.Red;
+                    c = Color.Yellow;
 
                 NxActor a;
                 NxActor b;
@@ -203,13 +220,9 @@ namespace RobobuilderLib
                 if (j.getJointType() == NxJointType.NX_JOINT_REVOLUTE)
                 {
                     NxShape[] s = a.getShapes();
-                    physics3D.drawCylinder(new Vector3(0, 0, 0), s[0].getGlobalPose(), false, true);
-                    //NxRevoluteJoint t = (NxRevoluteJoint)j;
-                    //NxSpringDesc x = new NxSpringDesc();
-                    //t.getSpring(ref x);
-                    //if (x != null) Console.WriteLine(a.UserData.ToInt32() + "] Angle=" + x.spring + " " + x.targetValue + " " + x.damper);
-                }
 
+                    physics3D.drawCylinder(new Vector3(0, 0, 0), s[0].getGlobalPose(), (bool)bfalgs[a.UserData.ToInt32()], true);
+                }
             }
         }
 
@@ -226,7 +239,7 @@ namespace RobobuilderLib
                         int n = actor.UserData.ToInt32();
 
                         NxBoxShapeDesc t1 = (NxBoxShapeDesc)s.getShapeDesc();
-                        physics3D.drawBoxOutline(0, 0, 0, t1.dimensions.X, t1.dimensions.Y, t1.dimensions.Z, Color.Red, s.getGlobalPose());
+                        physics3D.drawBoxOutline(0, 0, 0, t1.dimensions.Y * 2, t1.dimensions.X * 2, t1.dimensions.Z * 2, ((bool)bfalgs[n]) ? Color.Red : Color.White, s.getGlobalPose());
                     }
                     if (s.getShapeType() == NxShapeType.NX_SHAPE_PLANE)
                     {
@@ -337,28 +350,34 @@ namespace RobobuilderLib
             else joints.Add(t);
         }
 
+        public void selServo(int index, bool f)
+        {
+            bfalgs[index] = f;
+        }
 
         public void addServo(ServoModel s)
         {
+            bfalgs.Add(s.index, s.select);
+
             if (s.mod_no == 1)
             {
                 Console.WriteLine("Servo = " + s.id);
-                addBoxShape(s.index, s.loc, new Vector3(0.8f, 1.6f, 1.2f), s.rot, 10);
+                addBoxShape(s.mod_no, s.index, s.loc, s.size, s.rot, 10);
             }
             if (s.mod_no == 2 || s.mod_no == 3)
             {
                 Console.WriteLine("Hand = " + s.id);
-                addBoxShape(s.index, s.loc, new Vector3(0.5f, 0.5f, 0.5f), s.rot, 10);
+                addBoxShape(s.mod_no, s.index, s.loc, s.size, s.rot, 10);
             }
             if (s.mod_no == 4)
             {
                 Console.WriteLine("Foot = " + s.id);
-                addBoxShape(s.index, s.loc, new Vector3(2.4f, 0.5f, 2f), s.rot, 10);
+                addBoxShape(s.mod_no, s.index, s.loc, s.size, s.rot, 10);
             }
             if (s.mod_no == 5)
             {
                 Console.WriteLine("Body = " + s.id);
-                addBoxShape(s.index, s.loc, new Vector3(1.2f, 1f, 0.8f), s.rot, 10);
+                addBoxShape(s.mod_no, s.index, s.loc, s.size, s.rot, 10);
             }
         }
 
@@ -399,23 +418,29 @@ namespace RobobuilderLib
         }
 
 
-        public void addBoxShape(int n, Vector3 loc, Vector3 dim, Vector3 rot, float density)
+        public void addBoxShape(int mtype, int n, Vector3 loc, Vector3 dim, Vector3 rot, float density)
         {         
             NxActor actor;
             NxActorDesc actorDesc = new NxActorDesc();
             NxBodyDesc bodyDesc = new NxBodyDesc();
 
             NxBodyDesc bodyD = new NxBodyDesc();
-            NxBoxShapeDesc boxD = new NxBoxShapeDesc(dim);
+            NxBoxShapeDesc boxD = new NxBoxShapeDesc(dim.X / 2, dim.Y / 2, dim.Z / 2);
             boxD.density = density;
 
             float y, p, r;
             y = rot.X; p = rot.Y; r = rot.Z;
 
-            Matrix localpose = Matrix.RotationYawPitchRoll(0, 0, UTIL.DegToRads(90));
-            localpose *= Matrix.RotationYawPitchRoll(UTIL.DegToRads(y), UTIL.DegToRads(p), UTIL.DegToRads(r));
+            Matrix locpose = Matrix.RotationYawPitchRoll(0f, 0f, 0f);
 
-            boxD.localPose = localpose; 
+            if (mtype == 1)
+            {
+                //locpose = Matrix.RotationYawPitchRoll(0, 0, UTIL.DegToRads(90));
+                locpose *= Matrix.RotationYawPitchRoll(UTIL.DegToRads(y), UTIL.DegToRads(p), UTIL.DegToRads(r));
+            }
+            //Matrix localpose = Matrix.RotationYawPitchRoll(UTIL.DegToRads(y), UTIL.DegToRads(p), UTIL.DegToRads(r));
+            
+            boxD.localPose = locpose; 
 
             actorDesc.addShapeDesc(boxD);
 

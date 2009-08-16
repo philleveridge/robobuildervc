@@ -100,28 +100,30 @@ namespace RobobuilderLib
             Device.Transform.Projection = Matrix.PerspectiveFovLH(verticalFOV * (float)(Math.PI / 180), aspectRatio, nearClipDistance, farClipDistance);
         }
 
+
         public void drawBoxOutline(float x, float y, float z, float h, float w, float d, Color c, Matrix wp)
         {
             Vector3 loc = new Vector3(x, y, z);
             x = (-w / 2) + 0.25f; y = (-h / 2); z = (-d / 2);
+            //x = (-w / 2) ; y = (-h / 2); z = (-d / 2);
 
             wp *= Matrix.Translation(loc);
 
-            drawline(new Vector3(x, y, z), new Vector3(x + w, y, z), c, wp);
-            drawline(new Vector3(x, y, z), new Vector3(x, y + h, z), c, wp);
-            drawline(new Vector3(x, y, z), new Vector3(x, y, z + d), c, wp);
+            drawline(new Vector3(x, y, z), new Vector3(x + w , y, z), c, wp);
+            drawline(new Vector3(x, y, z), new Vector3(x, y + h , z), c, wp);
+            drawline(new Vector3(x, y, z), new Vector3(x, y, z + d ), c, wp);
 
-            drawline(new Vector3(x + w, y + h, z), new Vector3(x + w, y + h, z + d), c, wp);
-            drawline(new Vector3(x + w, y + h, z), new Vector3(x + w, y, z), c, wp);
-            drawline(new Vector3(x + w, y + h, z), new Vector3(x, y + h, z), c, wp);
+            drawline(new Vector3(x + w , y + h , z), new Vector3(x + w , y + h , z + d ), c, wp);
+            drawline(new Vector3(x + w , y + h , z), new Vector3(x + w , y, z), c, wp);
+            drawline(new Vector3(x + w , y + h , z), new Vector3(x, y + h , z), c, wp);
 
-            drawline(new Vector3(x + w, y, z + d), new Vector3(x + w, y, z), c, wp);
-            drawline(new Vector3(x + w, y, z + d), new Vector3(x, y, z + d), c, wp);
-            drawline(new Vector3(x + w, y, z + d), new Vector3(x + w, y + h, z + d), c, wp);
+            drawline(new Vector3(x + w , y, z + d ), new Vector3(x + w , y, z), c, wp);
+            drawline(new Vector3(x + w , y, z + d ), new Vector3(x, y, z + d ), c, wp);
+            drawline(new Vector3(x + w , y, z + d ), new Vector3(x + w , y + h , z + d ), c, wp);
 
-            drawline(new Vector3(x, y + h, z + d), new Vector3(x + w, y + h, z + d), c, wp);
-            drawline(new Vector3(x, y + h, z + d), new Vector3(x, y, z + d), c, wp);
-            drawline(new Vector3(x, y + h, z + d), new Vector3(x, y + h, z), c, wp);
+            drawline(new Vector3(x, y + h , z + d ), new Vector3(x + w , y + h , z + d ), c, wp);
+            drawline(new Vector3(x, y + h , z + d ), new Vector3(x, y, z + d ), c, wp);
+            drawline(new Vector3(x, y + h , z + d ), new Vector3(x, y + h , z), c, wp);
         }
 
         public void drawline(Vector3 src, Vector3 dest, Color colour, Matrix wp) //, Matrix viewProjection)
@@ -196,7 +198,11 @@ namespace RobobuilderLib
 
         public void drawCylinder(Vector3 loc, Matrix pose, bool sel, bool hide)
         {
-            if (cylinder == null) cylinder = Mesh.Cylinder(Device, 0.25f, 0.25f, 1, 16, 4);
+            if (cylinder == null)
+            {
+                cylinder = Mesh.Cylinder(Device, 0.25f, 0.25f, 1, 16, 4);
+            }
+
             Device.Transform.World = pose * Matrix.Translation(loc.X, loc.Y, loc.Z);
 
             Device.SetTexture(0, models[1].txtr[0]);
@@ -244,7 +250,7 @@ namespace RobobuilderLib
             }
         }
 
-        public void drawModel(int n, Vector3 loc, Vector3 rot, bool sel, bool hide)
+        public void drawModel(int n, Vector3 loc, Vector3 rot, Vector3 size, bool sel, bool hide)
         {
             Matrix locrot = Matrix.RotationYawPitchRoll(0f, 0f, 0f);
 
@@ -255,7 +261,7 @@ namespace RobobuilderLib
                     locrot = Matrix.RotationYawPitchRoll(0, 0, (float)(Math.PI / 2));
                     locrot *= Matrix.RotationYawPitchRoll(UTIL.DegToRads(rot.X), UTIL.DegToRads(rot.Y), UTIL.DegToRads(rot.Z));
                     drawCylinder(loc, locrot, sel, hide);
-                    drawBoxOutline(loc.X, loc.Y, loc.Z, 1f, 1.5f, 1f, (sel) ? Color.Red : Color.White, locrot);
+                    drawBoxOutline(loc.X, loc.Y, loc.Z, size.X, size.Y, size.Z, (sel) ? Color.Red : Color.White, locrot);
                 }
                 else
                 {
