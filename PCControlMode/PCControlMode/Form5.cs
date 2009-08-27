@@ -359,6 +359,8 @@ namespace RobobuilderLib
             {
                 t.pos = v-t.zpos;
             }
+            temp = t;
+            temp_focus = true;
         }
 
         public void setZeroPos(int n, int v)
@@ -374,7 +376,12 @@ namespace RobobuilderLib
         public void selectServo(int n, bool f)
         {
             ServoModel s = findServo("S" + n);
-            if (s != null) s.select = f;
+            if (s != null)
+            {
+                s.select = f;
+                temp = s;
+                temp_focus = true;
+            }
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -421,7 +428,6 @@ namespace RobobuilderLib
                 
                 ReadKeyboard();
 
-                Tx.Focus();
 
                 if (keys[Key.BackSpace]) rp.debug_render_on = !rp.debug_render_on;
 
@@ -441,6 +447,7 @@ namespace RobobuilderLib
                     rp.turnServo(temp.index, temp.pos);
                     temp_focus = false;
                     cur = temp;
+                    Tx.Focus();
                 }
 
                 Application.DoEvents();
@@ -464,7 +471,7 @@ namespace RobobuilderLib
             ServoModel s = findServo(servo_listBox1.SelectedItem.ToString());
             if (s != null)
             {
-                sero_pos_sb.Value = s.pos;
+                if (s.pos >=0 && s.pos<=255)   sero_pos_sb.Value = s.pos;
                 s.select = true;
                 temp = s;
                 temp_focus = true;

@@ -5,6 +5,7 @@ using System.IO;
 
 namespace RobobuilderLib
 {
+
     public partial class Form1 : Form
     {
         Form2 presets = new Form2();
@@ -12,6 +13,7 @@ namespace RobobuilderLib
         Form4 medit = new Form4();
         Form5 view = null;
         PCremote pcR;
+
 
         public Form1()
         {
@@ -47,11 +49,13 @@ namespace RobobuilderLib
                         case "BUTTON":
                             presets.update(nvp[1]); //
                             break;
-                        case "DISPLAY":
+                        case "BASIC":
+                            string bp = nvp[1]; // filename of basic pose
                             break;
                         case "DEBUG":
                             break;
                         case "COM":
+                            serialPort1.PortName = nvp[1];
                             break;
                         case "VIDEO":
                             break;
