@@ -13,6 +13,7 @@ namespace RobobuilderLib
 
     public partial class Form4 : Form
     {
+        
         private System.Windows.Forms.HScrollBar[] servoPos;
         private System.Windows.Forms.TextBox[] servoID;
         private System.Windows.Forms.CheckBox[] readID;
@@ -38,19 +39,27 @@ namespace RobobuilderLib
         public void connect(PCremote r)
         {
             remote = r;
-            if (r!= null && r.serialPort1 !=null && r.serialPort1.IsOpen)
+
+
+            if (r != null && r.serialPort1 != null && r.serialPort1.IsOpen)
             {
                 dcontrol = new wckMotion(r);
                 servoID_readservo();
-                this.Show();
             }
             else
-                MessageBox.Show("Must connect first");
+            {
+                if (viewport == null)
+                {
+                    MessageBox.Show("Must connect first");
+                    return;
+                }
+            }
+            this.Show();
         }
 
         public void disconnect()
         {
-            dcontrol.close();
+            if (dcontrol != null)dcontrol.close();
             dcontrol = null;
             remote = null;
             this.Hide();
@@ -143,7 +152,8 @@ namespace RobobuilderLib
             Console.WriteLine("Id=" + sids[id] + ", V=" + v);
 
             servoID[id].Text = sids[id].ToString() + " - " + v;
-            dcontrol.wckMovePos(sids[id], v, 2);
+            if (dcontrol != null) dcontrol.wckMovePos(sids[id], v, 2);
+            if (viewport != null) viewport.setServoPos(sids[id], v);
         }
 
         private void checkBox1_CheckedChanged(object sender, EventArgs e)
@@ -154,6 +164,8 @@ namespace RobobuilderLib
 
             if (viewport != null && viewport.Created)
                 viewport.selectServo(id,v);
+
+            if (dcontrol == null) return;
 
             if (v)
             {
@@ -473,17 +485,15 @@ namespace RobobuilderLib
             t[17] = (byte)r.S17;
             t[18] = (byte)r.S18;
 
-            dcontrol.PlayPose(r.Time, r.Steps, t, true);
+            if (dcontrol != null) dcontrol.PlayPose(r.Time, r.Steps, t, true);
+            //if (sim_mode && viewport != null) viewport.se
 
         }
 
         private void setBasic_Click(object sender, EventArgs e)
         {
             // set basic pose !
-            dcontrol.PlayPose(1000, 10, new byte[] {
-                /*0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18 */
-                171,179,198,83,105,78,72,49,172,141,47,47,49,200,205,205,122,125,127 }, true);
-
+            dcontrol.BasicPose(1000, 10);
             servoID_readservo();
         }
 
@@ -546,6 +556,33 @@ namespace RobobuilderLib
             yV.Text = "Y=" + y.ToString();
             zV.Text = "Z=" + z.ToString();
         }
+
+        private void all_pass_chk_CheckedChanged(object sender, EventArgs e)
+        {
+            for (int id = 0; id < sids.Length; id++)
+            {
+                if (dcontrol == null) return;
+
+                if (all_pass_chk.Checked)
+                {
+                    //set passive mode
+                    dcontrol.wckPassive(sids[id]);
+                    Console.WriteLine("Passive");
+                }
+                else
+                {
+                    //unset passive mode
+                    if (dcontrol.wckReadPos(sids[id]))
+                    {
+                        Console.WriteLine("Active");
+                        int n = (int)dcontrol.respnse[1];
+                        dcontrol.wckMovePos(sids[id], n, 0);
+                    }
+                }
+            }
+
+        }
+
     }
 
     class ServoPoseData
