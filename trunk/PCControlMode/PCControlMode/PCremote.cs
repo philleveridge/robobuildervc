@@ -73,9 +73,10 @@ namespace RobobuilderLib
                 {
                     respnse[b] = (byte)serialPort1.ReadByte();
 
-                    if (b == 0 && respnse[b] != header[b])
+                    if (b < header.Length && respnse[b] != header[b])
                     {
                         Console.WriteLine("skip [" + b + "]=" + respnse[b]);
+                        b = 0;
                         continue;
                     }
 

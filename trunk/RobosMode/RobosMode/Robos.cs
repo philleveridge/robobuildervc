@@ -177,12 +177,26 @@ namespace RobobuilderLib
            Console.WriteLine("Debug: - " +serialPort1.ReadTo("Bytes"));
            return true;
         }
+
+        public string run_basic()
+        {
+            string r = "";
+            if (mode != 2) return "Err - invalid mode";
+            write2serial("eC1", false);
+            r = serialPort1.ReadExisting();
+            Console.WriteLine("Debug: - " + r);
+            return r;
+        }
     }
 
     public class wckMotion
     {
         private SerialPort serialPort1;
         PCremote pcR;
+
+        byte[] basic_pos = new byte[] {
+                /*0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18 */
+                143,179,198,83,106,106,69,48,167,141,47,47,49,199,204,204,122,125,127 };
 
         public byte[] respnse = new byte[32];
         public string Message;
@@ -364,6 +378,11 @@ namespace RobobuilderLib
         private void delay_ms(int t1)
         {
             System.Threading.Thread.Sleep(t1);
+        }
+
+        public void BasicPose(int duration, int no_steps)
+        {
+            PlayPose(duration, no_steps, basic_pos, true);
         }
 
         public void PlayPose(int duration, int no_steps, byte[] spod, bool first) 

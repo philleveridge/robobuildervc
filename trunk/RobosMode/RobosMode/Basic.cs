@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO.Ports;
 using System.Text.RegularExpressions;
@@ -70,6 +71,8 @@ namespace RobosMode
 {
     class Basic
     {
+        Hashtable labels = new Hashtable();
+
         byte[] code;
         int codeptr;
 
@@ -88,7 +91,7 @@ namespace RobosMode
 	        };
 	
         string[] specials = new string[] { "PF", "MIC", "X", "Y", "Z", "PSD", "VOLT", "IR", "KBD", "RND", "SERVO", "TICK", 
-		        "PORT", "ROM" };
+		        "PORT", "ROM", "TYPE" };
         
         enum KEY {
 	        LET=0, FOR, IF, THEN, 
@@ -205,6 +208,34 @@ namespace RobosMode
             return -1;
         }
 
+        string process_arg(string a)
+        {
+            string r = "";
+            bool sflag = false;
+            for (int i = 0; i < a.Length; i++)
+            {
+                string c=a.Substring(i,1);
+                if (c == "\"") sflag = !sflag;
+
+                if (sflag && c == "\\")
+                {
+                    char ch = a[i + 1];
+                    int n=0;
+                    if (ch >= '0' && ch <= '9') n = ch - '0';
+                    if (ch >= 'A' && ch <= 'Z') n = ch - 'A';
+                    ch = a[i + 2];
+                    if (ch >= '0' && ch <= '9') n = n * 16 + ch - '0';
+                    if (ch >= 'A' && ch <= 'Z') n = n * 16 + ch - 'A';
+                    r += Convert.ToChar(n);
+                    i += 2;
+                }
+                else
+                    r += c;
+            }
+            if (sflag) r += "\""; // add terminating quote if missing
+            return r;
+        }
+
         public bool Compile(string prog)
         {
             errno = 0;
@@ -216,26 +247,36 @@ namespace RobosMode
             ln.lineno = lineno;
             string[] forbuf = new string[5];
             int fb = 0;
+            labels.Clear();
 
             string[] lines = prog.Split('\n');
             foreach (string s in lines)
             {
                 String z = s;
                 lineno++;
+                ln.lineno = lineno;
                 Console.Write(s);
 
                 if (z.IndexOf('\'') >= 0) z = z.Substring(0, z.IndexOf('\''));
                 z = z.Trim();
                 if (z.Length <= 0) continue;
 
-                int c = 0;
-
                 string tok = GetWord(ref z);
 
-                if (IsNumber(tok))
+                if (z != "" && z[0]==':')
+                {
+                    //label
+                    labels.Add(tok, lineno);
+                    z = z.Substring(1);
+                    if (GetNext(ref z) != " ") { errno = 1; return false; }
+                    z = z.Trim();
+                    tok = GetWord(ref z);
+                }
+                else if (IsNumber(tok))
                 {
                     ln.lineno = Convert.ToInt32(tok);
                     if (GetNext(ref z) != " ") { errno = 1; return false; }
+                    z = z.Trim();
                     tok = GetWord(ref z);
                 }
 
@@ -252,6 +293,8 @@ namespace RobosMode
 
                 if ((z != "") && (GetNext(ref z) != " ")) { errno = 1; return false; }
 
+                z = z.Trim();
+
                 /*************/
 
                 switch ((KEY)t)
@@ -259,12 +302,12 @@ namespace RobosMode
                     case KEY.LET:
                     case KEY.GET:
                     case KEY.FOR:
-                        t= GetVar(GetWord(ref z));
-                        if (t < 0) errno = 3; else ln.var = (byte)t;
+                        int t1= GetVar(GetWord(ref z));
+                        if (t1 < 0) errno = 3; else ln.var = (byte)t1;
                         if (GetNext(ref z) != "=") { errno = 1; }
                         if ((KEY)t == KEY.FOR)
                         {
-                            int p=z.IndexOf(" TO ");
+                            int p=z.ToUpper().IndexOf(" TO ");
                             if (p>0)
                             {
                                 ln.text = z.Substring(0, p);
@@ -279,6 +322,9 @@ namespace RobosMode
                             ln.text = z;
                         break;
                     case KEY.PRINT:
+                        if (z[0] == '#') {ln.var=1; z=z.Substring(1); }
+                        ln.text = process_arg(z);
+                        break;
                     case KEY.MOVE:
                     case KEY.SCENE:
                         ln.text = z;
@@ -315,7 +361,16 @@ namespace RobosMode
                     case KEY.GOTO:
                     case KEY.XACT:
                     case KEY.GOSUB:
-                        ln.value = GetNumber(GetWord(ref z));
+                        tok = GetWord(ref z);
+
+                        if (labels.Contains(tok))
+                        {
+                            ln.value = (int)labels[tok];
+                        }
+                        else
+                        {
+                            ln.value = GetNumber(tok);
+                        }
                         break;
                     case KEY.END:
                     case KEY.RETURN:

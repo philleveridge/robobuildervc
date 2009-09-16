@@ -36,6 +36,7 @@
             this.load_btn = new System.Windows.Forms.Button();
             this.save_btn = new System.Windows.Forms.Button();
             this.fname = new System.Windows.Forms.Label();
+            this.run_btn = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // input
@@ -47,8 +48,9 @@
             this.input.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
             this.input.Size = new System.Drawing.Size(523, 191);
             this.input.TabIndex = 0;
-            this.input.Text = "5 PRINT \"Test Passive\"\r\n10 SERVO 12=@\r\n20 Print \"Servo 12 = \"; $SERVO:12\r\n30 wait" +
-                " 500\r\n40 goto 20\r\n";
+            this.input.Text = "\'      test program\r\n\'\r\n       PRINT \"Test Passive\"\r\nLoop:  SERVO 12=@ \'set servo" +
+                " passive\r\n       Print \"Servo 12 = \"; $SERVO:12\r\n       wait 500   \'0.5secs\r\n   " +
+                "    goto Loop\r\n";
             // 
             // close_btn
             // 
@@ -108,6 +110,7 @@
             this.save_btn.TabIndex = 6;
             this.save_btn.Text = "Save";
             this.save_btn.UseVisualStyleBackColor = true;
+            this.save_btn.Click += new System.EventHandler(this.save_btn_Click);
             // 
             // fname
             // 
@@ -116,11 +119,22 @@
             this.fname.Size = new System.Drawing.Size(523, 21);
             this.fname.TabIndex = 7;
             // 
+            // run_btn
+            // 
+            this.run_btn.Location = new System.Drawing.Point(174, 306);
+            this.run_btn.Name = "run_btn";
+            this.run_btn.Size = new System.Drawing.Size(74, 27);
+            this.run_btn.TabIndex = 8;
+            this.run_btn.Text = "Run";
+            this.run_btn.UseVisualStyleBackColor = true;
+            this.run_btn.Click += new System.EventHandler(this.run_btn_Click);
+            // 
             // Form6
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(549, 342);
+            this.Controls.Add(this.run_btn);
             this.Controls.Add(this.fname);
             this.Controls.Add(this.save_btn);
             this.Controls.Add(this.load_btn);
@@ -146,5 +160,6 @@
         private System.Windows.Forms.Button load_btn;
         private System.Windows.Forms.Button save_btn;
         private System.Windows.Forms.Label fname;
+        private System.Windows.Forms.Button run_btn;
     }
 }
