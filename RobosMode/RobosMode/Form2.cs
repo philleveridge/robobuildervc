@@ -117,9 +117,7 @@ namespace RobobuilderLib
 
         private void NewBasicPose()
         {
-            wckm.PlayPose(1000, 10, new byte[] {
-                /*0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18 */
-                171,179,198,83,105,78,72,49,172,141,47,47,49,200,205,205,122,125,127 },true);
+            wckm.BasicPose(1000, 10);
         }
 
         private void play(string filename)

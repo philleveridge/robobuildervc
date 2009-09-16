@@ -87,7 +87,7 @@ namespace RobobuilderLib
                 // 
                 servoPos[i].Location = new System.Drawing.Point(28 + 200 * (i / cw), 33 + 20 * (i % cw));
                 servoPos[i].Minimum = 0;
-                servoPos[i].Maximum = 254;
+                servoPos[i].Maximum = 255;
                 servoPos[i].Value = 127;
                 servoPos[i].Name = "servoPos-" + i.ToString();
                 servoPos[i].Size = new System.Drawing.Size(67, 20);
@@ -475,10 +475,7 @@ namespace RobobuilderLib
         private void setBasic_Click(object sender, EventArgs e)
         {
             // set basic pose !
-            dcontrol.PlayPose(1000, 10, new byte[] {
-                /*0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18 */
-                171,179,198,83,105,78,72,49,172,141,47,47,49,200,205,205,122,125,127 }, true);
-
+            if (dcontrol != null) dcontrol.BasicPose(1000, 10);
             servoID_readservo();
         }
 

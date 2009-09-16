@@ -33,6 +33,7 @@ namespace RobobuilderLib
         bool simulation_running;
         bool simulation_paused;
 
+        RoboPhysx rp = null;
         Render g3D;
 
         int sel_servo = 0;
@@ -65,12 +66,6 @@ namespace RobobuilderLib
             //initSetup("c-test.txt");
             //selectServo(1, true);
 
-
-            foreach (ServoModel s in servos)
-            {
-                servo_listBox1.Items.Add(s.id);
-            }
-            servo_listBox1.SelectedIndex = 0;
             temp_focus = false;
         }
 
@@ -357,10 +352,20 @@ namespace RobobuilderLib
             ServoModel t = findServo("S"+n);
             if (t != null)
             {
-                t.pos = v-t.zpos;
+                t.pos = v-t.zpos+127;
+
+                if (rp != null) rp.turnServo(t.index, t.pos);
             }
-            temp = t;
-            temp_focus = true;
+        }
+
+        public int getServoPos(int n)
+        {
+            ServoModel t = findServo("S" + n);
+            if (t != null)
+            {
+                return t.pos-127 + t.zpos;
+            }
+            return 0;
         }
 
         public void setZeroPos(int n, int v)
@@ -379,10 +384,49 @@ namespace RobobuilderLib
             if (s != null)
             {
                 s.select = f;
-                temp = s;
-                temp_focus = true;
+                if (rp != null) rp.selServo(s.index, f);
             }
         }
+
+        public void PlayPose(int duration, int no_steps, byte[] spod, bool first)
+        {
+            if (simulation_running && !simulation_paused)
+            {
+                byte[] temp = new byte[19]; // numbr of servos
+                int[] pos = new int[19]; // pos of servos
+                int td = duration / no_steps;
+                if (td < 25) td = 25;
+
+                for (int n = 0; n < 19; n++)
+                {
+                    pos[n] = getServoPos(n);
+                }
+
+                double[] intervals = new double[spod.Length];
+
+                for (int n = 0; n < 19; n++)
+                {
+                    intervals[n] = (double)(spod[n] - pos[n]) / no_steps;
+                }
+
+                for (int s = 1; s <= no_steps; s++)
+                {
+                    for (int n = 0; n < 19; n++) // !!!!!!! only first 19 values are releveant - need to get this dynamially
+                    {
+                        temp[n] = (byte)(pos[n] + (double)s * intervals[n]);
+
+                        setServoPos(n, temp[n]);
+                    }
+                    System.Threading.Thread.Sleep(td);
+                }
+
+                for (int n = 0; n < 19; n++)
+                {
+                    pos[n] = spod[n];
+                }
+            }
+        }
+
 
         private void button1_Click(object sender, EventArgs e)
         {
@@ -398,7 +442,7 @@ namespace RobobuilderLib
         {
             ServoModel cur = null;
 
-            RoboPhysx rp = new RoboPhysx(g3D);
+            rp = new RoboPhysx(g3D);
 
             if (!rp.startPhysics())
                 return;
@@ -418,7 +462,7 @@ namespace RobobuilderLib
             if (hook != "") { foreach (string s in hook.Split(',')) rp.setHook(findServo(s).index, true);};
 
             simulation_running = true;
-            simulation_paused = true; pause_msg.Visible = true;
+            simulation_paused = false; pause_msg.Visible = false;
 
             while (simulation_running)	    //Main loop
             {
@@ -454,6 +498,7 @@ namespace RobobuilderLib
             }
             pause_msg.Visible = false;
             rp.killPhysics();	            //be nice and properly release the physics
+            rp = null;
         }
 
         private void sim_btn_Click(object sender, EventArgs e)
@@ -463,33 +508,6 @@ namespace RobobuilderLib
             Physx_loop();
 
             sim_btn.Enabled = true;
-        }
-
-        private void servo_listBox1_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            if (temp != null) temp.select = false;
-            ServoModel s = findServo(servo_listBox1.SelectedItem.ToString());
-            if (s != null)
-            {
-                if (s.pos >=0 && s.pos<=255)   sero_pos_sb.Value = s.pos;
-                s.select = true;
-                temp = s;
-                temp_focus = true;
-                sero_v_txt.Text = sero_pos_sb.Value.ToString();
-            }
-        }
-
-        private void sero_pos_sb_Scroll(object sender, ScrollEventArgs e)
-        {
-            ServoModel s = findServo(servo_listBox1.SelectedItem.ToString());
-            int n = sero_pos_sb.Value;
-            if (n < 0) n = 0;
-            if (n > 255) n = 255;
-            if (s != null) s.pos = n;
-            sero_pos_sb.Value = n;
-            temp_focus = true;
-
-            sero_v_txt.Text = sero_pos_sb.Value.ToString();
         }
     }
 

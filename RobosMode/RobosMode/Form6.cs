@@ -45,9 +45,44 @@ namespace RobosMode
         {
             string c= compiler.Download();
 
-            if (pcr== null || pcr.download_basic(c) == false)
+            if (pcr == null || pcr.download_basic(c) == false)
             {
                 MessageBox.Show("Download failed");
+            }
+            else
+            {
+                MessageBox.Show("Download ok");
+                output.Text="Complete - Ready to run";
+            }
+        }
+
+
+        private void run_btn_Click(object sender, EventArgs e)
+        {
+            if (run_btn.Text != "Run")
+            {
+                pcr.serialPort1.Write("\u0027");
+            }
+            else
+            {
+                if (pcr != null)
+                {
+                    run_btn.Text = "Break";
+                    output.Text = pcr.run_basic();
+
+                    do
+                    {
+                        string t = pcr.serialPort1.ReadExisting();
+                        output.AppendText(t);
+                        if (output.Text.Contains("End of program")) break;
+                        if (output.Text.Contains("User Break")) break;
+                        Application.DoEvents();
+                        System.Threading.Thread.Sleep(1000);
+                    }
+                    while (pcr.serialPort1.BytesToRead > 0);
+
+                    run_btn.Text = "Run";
+                }
             }
         }
 
@@ -71,5 +106,23 @@ namespace RobosMode
                 fname.Text = "";
             }
         }
+
+        private void save_btn_Click(object sender, EventArgs e)
+        {
+            SaveFileDialog s = new SaveFileDialog();
+            if (s.ShowDialog() != DialogResult.OK)
+                return;
+            try
+            {
+                File.WriteAllText(s.FileName, input.Text);
+                fname.Text = s.FileName;
+            }
+            catch (Exception e1)
+            {
+                MessageBox.Show("can't save file - " + e1.Message);
+                fname.Text = "";
+            }
+        }
+
     }
 }

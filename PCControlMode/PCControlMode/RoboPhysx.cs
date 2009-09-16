@@ -219,10 +219,8 @@ namespace RobobuilderLib
 
                 if (j.getJointType() == NxJointType.NX_JOINT_REVOLUTE)
                 {
-                    Matrix t = Matrix.Translation(j.getGlobalAnchor());
-                    Matrix r = Matrix.RotationYawPitchRoll(j.getGlobalAxis().X,j.getGlobalAxis().Y,j.getGlobalAxis().Z);
-                    r *= t;
-                    physics3D.drawCylinder(new Vector3(0, 0, 0), new Vector3(0.25f,0.25f,1), r, (bool)bfalgs[a.UserData.ToInt32()], true);
+                    Matrix r = a.getShape(0).getLocalOrientation(); 
+                    physics3D.drawCylinder(j.getGlobalAnchor(), new Vector3(0.25f, 0.25f, 1), r, (bool)bfalgs[a.UserData.ToInt32()], true);
                 }
             }
         }
@@ -244,9 +242,14 @@ namespace RobobuilderLib
                     }
                     if (s.getShapeType() == NxShapeType.NX_SHAPE_PLANE)
                     {
+                        //for (float stp = -100; stp < 100; stp += 5)
+                        //{
+                        //    physics3D.drawline(new Vector3(-100f, 0f, stp), new Vector3(100f, 0f, stp), Color.Red, Matrix.Identity);
+                        //    physics3D.drawline(new Vector3(stp, 0f, -100f), new Vector3(stp, 0f, 100f), Color.White, Matrix.Identity);
+                        //}
                         physics3D.drawline(new Vector3(-100f, 0f, 0f), new Vector3(100f, 0f, 0f), Color.Red, Matrix.Identity);
-                        physics3D.drawline(new Vector3(0f, -100f, 0f), new Vector3(0f, 100f, 0f), Color.Blue, Matrix.Identity);
                         physics3D.drawline(new Vector3(0f, 0f, -100f), new Vector3(0f, 0f, 100f), Color.White, Matrix.Identity);
+                        physics3D.drawline(new Vector3(0f, -100f, 0f), new Vector3(0f, 100f, 0f), Color.Blue, Matrix.Identity);
                         physics3D.drawplane();
                     }
                 }

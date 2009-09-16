@@ -44,7 +44,6 @@ namespace RobobuilderLib
             if (r != null && r.serialPort1 != null && r.serialPort1.IsOpen)
             {
                 dcontrol = new wckMotion(r);
-                servoID_readservo();
             }
             else
             {
@@ -54,6 +53,7 @@ namespace RobobuilderLib
                     return;
                 }
             }
+            servoID_readservo();
             this.Show();
         }
 
@@ -126,6 +126,19 @@ namespace RobobuilderLib
 
         private void servoID_readservo()
         {
+            if (dcontrol == null)
+            {
+                if (viewport != null)
+                {
+                    for (int id = 0; id < sids.Length; id++)
+                    {
+                        servoPos[id].Value = viewport.getServoPos(id);
+                        servoID[id].Text = sids[id].ToString() + " - " + servoPos[id].Value.ToString();
+                    }
+                }
+                return;
+            }
+
             dcontrol.servoID_readservo();
 
             for (int id = 0; id < sids.Length; id++)
@@ -265,7 +278,9 @@ namespace RobobuilderLib
                 t[17] = (byte)r.S17;
                 t[18] = (byte)r.S18;
 
-                dcontrol.PlayPose(r.Time, r.Steps, t, ff);
+                if (dcontrol != null) dcontrol.PlayPose(r.Time, r.Steps, t, ff);
+                if (viewport != null) viewport.PlayPose(r.Time, r.Steps, t, ff);
+
                 if (ff) ff = false;
                 
                 n++;
@@ -486,14 +501,14 @@ namespace RobobuilderLib
             t[18] = (byte)r.S18;
 
             if (dcontrol != null) dcontrol.PlayPose(r.Time, r.Steps, t, true);
-            //if (sim_mode && viewport != null) viewport.se
+            if (viewport != null) viewport.PlayPose(r.Time, r.Steps, t, true);
 
         }
 
         private void setBasic_Click(object sender, EventArgs e)
         {
             // set basic pose !
-            dcontrol.BasicPose(1000, 10);
+            if (dcontrol != null) dcontrol.BasicPose(1000, 10);
             servoID_readservo();
         }
 
