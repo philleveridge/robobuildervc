@@ -354,8 +354,10 @@ namespace RobobuilderLib
             }
         }
 
-        public void servoID_readservo() 
+        public bool servoID_readservo() 
         {
+            if (pcR == null || pcR.btf == null) 
+                return false;
             pcR.btf.send_msg_basic('q'); // query all servo values
             if (pcR.btf.recv_packet())
             {
@@ -367,11 +369,13 @@ namespace RobobuilderLib
                     {
                         pos[id] = pcR.btf.buff[id*2];
                     }
-                } 
+                }
+                return true;
             }
             else
             {
                 Message = "servoID_readservo failed";
+                return false;
             } 
         }
 
