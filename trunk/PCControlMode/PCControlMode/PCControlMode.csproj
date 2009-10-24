@@ -79,60 +79,68 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Autonomy.cs" />
+    <Compile Include="Basic.cs" />
+    <Compile Include="Basic_frm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Basic_frm.designer.cs">
+      <DependentUpon>Basic_frm.cs</DependentUpon>
+    </Compile>
     <Compile Include="MyDebugRenderer.cs" />
-    <Compile Include="PCremote.cs" />
-    <Compile Include="Form2.cs">
+    <Compile Include="Preset_frm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Form2.Designer.cs">
-      <DependentUpon>Form2.cs</DependentUpon>
+    <Compile Include="Preset_frm.Designer.cs">
+      <DependentUpon>Preset_frm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Form3.cs">
+    <Compile Include="Video_frm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Form3.Designer.cs">
-      <DependentUpon>Form3.cs</DependentUpon>
+    <Compile Include="Video_frm.Designer.cs">
+      <DependentUpon>Video_frm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Form4.cs">
+    <Compile Include="MotionEdit_frm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Form4.Designer.cs">
-      <DependentUpon>Form4.cs</DependentUpon>
+    <Compile Include="MotionEdit_frm.Designer.cs">
+      <DependentUpon>MotionEdit_frm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Form5.cs">
+    <Compile Include="Display3D_frm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Form5.Designer.cs">
-      <DependentUpon>Form5.cs</DependentUpon>
+    <Compile Include="Display3D_frm.Designer.cs">
+      <DependentUpon>Display3D_frm.cs</DependentUpon>
     </Compile>
     <Compile Include="IniManager.cs" />
     <Compile Include="Motion.cs" />
     <Compile Include="Render.cs" />
     <Compile Include="RoboPhysx.cs" />
     <Compile Include="Scene.cs" />
-    <Compile Include="wckMotion.cs" />
-    <Compile Include="Form1.cs">
+    <Compile Include="Main.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Form1.Designer.cs">
-      <DependentUpon>Form1.cs</DependentUpon>
+    <Compile Include="Main.Designer.cs">
+      <DependentUpon>Main.cs</DependentUpon>
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <EmbeddedResource Include="Form1.resx">
-      <DependentUpon>Form1.cs</DependentUpon>
+    <EmbeddedResource Include="Main.resx">
+      <DependentUpon>Main.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Form2.resx">
-      <DependentUpon>Form2.cs</DependentUpon>
+    <EmbeddedResource Include="Preset_frm.resx">
+      <DependentUpon>Preset_frm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Form3.resx">
-      <DependentUpon>Form3.cs</DependentUpon>
+    <EmbeddedResource Include="Video_frm.resx">
+      <DependentUpon>Video_frm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Form4.resx">
-      <DependentUpon>Form4.cs</DependentUpon>
+    <EmbeddedResource Include="MotionEdit_frm.resx">
+      <DependentUpon>MotionEdit_frm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Form5.resx">
-      <DependentUpon>Form5.cs</DependentUpon>
+    <EmbeddedResource Include="Display3D_frm.resx">
+      <DependentUpon>Display3D_frm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Basic_frm.resx">
+      <DependentUpon>Basic_frm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
@@ -178,6 +186,12 @@
       <ProductName>Windows Installer 3.1</ProductName>
       <Install>true</Install>
     </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\RobobuilderLib\RBC.csproj">
+      <Project>{2073C55A-E147-4A4B-893C-18ED07FD2B61}</Project>
+      <Name>RBC</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
