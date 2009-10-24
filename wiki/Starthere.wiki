@@ -1,4 +1,4 @@
-#summary One-sentence summary of this page.
+#summary RobobuilderLib overview.
 
 = Introduction =
 
@@ -6,6 +6,6 @@ A .NET based client terminal for robobuilderlib.
 
 = Details =
 
-Screenshot:
+Design of Object library
 
-http://robobuildervc.googlecode.com/svn/trunk/screenshot.jpg
+http://robobuildervc.googlecode.com/svn/trunk/PCControlMode/pic.jpg
