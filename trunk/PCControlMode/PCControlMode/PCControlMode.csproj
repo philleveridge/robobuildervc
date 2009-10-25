@@ -93,6 +93,12 @@
     <Compile Include="Preset_frm.Designer.cs">
       <DependentUpon>Preset_frm.cs</DependentUpon>
     </Compile>
+    <Compile Include="ServoStatus.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="ServoStatus.Designer.cs">
+      <DependentUpon>ServoStatus.cs</DependentUpon>
+    </Compile>
     <Compile Include="Video_frm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -129,6 +135,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Preset_frm.resx">
       <DependentUpon>Preset_frm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ServoStatus.resx">
+      <DependentUpon>ServoStatus.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Video_frm.resx">
       <DependentUpon>Video_frm.cs</DependentUpon>

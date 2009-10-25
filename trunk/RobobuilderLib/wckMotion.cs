@@ -163,12 +163,19 @@ namespace RobobuilderLib
 
             for (int id = 0; id < sids.Length; id++)
             {
-                if (wckReadPos(id))                 //readPOS (servoID)
+                int n = sids[id];
+
+                if (n>=0 && wckReadPos(n))                 //readPOS (servoID)
                 {
                     if (respnse[1] < 255)
                     {
                         pos[id] = respnse[1];
                     }
+                }
+                else
+                {
+                    Console.WriteLine("Id {0:0} not connected", id);
+                    //sids[id] = -1; // not connected
                 }
             }
         }
