@@ -213,12 +213,12 @@ namespace RobobuilderLib
             // read IR - not working
             button2.Enabled = false;
             pcR.readIR(10000, new callBack(addMessage));
-            button2.Enabled = false;
+            button2.Enabled = true;
         }
 
         private void button4_Click(object sender, EventArgs e)
         {
-            // read Button - not working
+            // read Button - 
             button4.Enabled = false;
             pcR.readButton(10000, new callBack(addMessage));
             button4.Enabled = true;
@@ -226,15 +226,18 @@ namespace RobobuilderLib
 
         private void button8_Click(object sender, EventArgs e)
         {
-            // read Soundlevel - not working
+            // read Soundlevel - 
             button8.Enabled = false;
             pcR.readsoundLevel(10000, 1, new callBack(addMessage));
-            button8.Enabled = false;
+            button8.Enabled = true;
         }
 
-        public void addMessage()
+        public void addMessage(int n)
         {
-            textBox1.AppendText(pcR.message + "\r\n");
+            if (n!=0)
+                textBox1.AppendText("value received = " + n + "\r\n");
+            else
+                textBox1.AppendText(pcR.message + "\r\n");
         }
 
         private void button10_Click(object sender, EventArgs e)
