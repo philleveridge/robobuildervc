@@ -5,6 +5,8 @@ using System.IO.Ports;
 
 namespace RobobuilderLib
 {
+    public delegate void callBack();
+
     public class PCremote
     {
         public SerialPort serialPort1;
@@ -229,6 +231,80 @@ namespace RobobuilderLib
                 displayResponse(true);
             }
             return r;
+        }
+
+        public enum RemoCon {
+            FAILED=0,
+            A=0x01,B,LeftTurn,Forward,RightTurn,Left,Stop,Right,Punch_Left,Back,Punch_Right,
+            N1,N2,N3,N4,N5,N6,N7,N8,N9,B0,
+        
+            S_A=0x16,S_B,S_LeftTurn,S_Forward,S_RightTurn,S_Left,S_Stop,S_Right,S_Punch_Left,S_Back,S_Punch_Right,
+            S_N1,S_N2,S_N3,S_N4,S_N5,S_N6,S_N7,S_N8,S_N9,S_B0,
+
+            H_A=0x2B,H_B,H_LeftTurn,H_Forward,H_RightTurn,H_Left,H_Stop,H_Right,H_Punch_Left,H_Back,H_Punch_Right,
+            H_N1,H_N2,H_N3,H_N4,H_N5,H_N6,H_N7,H_N8,H_N9,H_B0
+       };
+
+        public RemoCon readIR(int timeout_ms, callBack x)
+        {
+            int n=0;
+
+            int tmp = serialPort1.ReadTimeout;
+            DateTime end = DateTime.Now + TimeSpan.FromMilliseconds((double)timeout_ms);
+
+            if (serialPort1.IsOpen)
+            {
+                serialPort1.ReadTimeout = timeout_ms;
+
+                command_1B(25, 0x01);
+
+                while (DateTime.Now < end)
+                {
+                    if (displayResponse(true))
+                    {
+                        n = respnse[15] * 256 + respnse[16];
+                    }
+                    Console.WriteLine(message);
+                    x(); //callback
+                }
+            }
+
+            serialPort1.ReadTimeout = tmp;
+
+            return (RemoCon)n;
+        }
+
+
+        public int readButton(int timeout, callBack x)
+        {
+            int n = 0;
+            int tmp = serialPort1.ReadTimeout;
+
+            DateTime end = DateTime.Now + TimeSpan.FromMilliseconds((double)timeout);
+
+            if (serialPort1.IsOpen)
+            {
+                command_1B(24, 0x01);
+
+                while (DateTime.Now < end)
+                {
+                    if (displayResponse(true))
+                    {
+                        n = respnse[15] * 256 + respnse[16];
+                    }
+                    x();
+                    Console.WriteLine(DateTime.Now.ToString() + " = " + message + " n=" + n);
+               }
+             }
+             serialPort1.ReadTimeout = tmp;
+             return n;
+        }
+
+        public int readsoundLevel(int timeout, int level, callBack x)
+        {
+            message = "Not implemented";
+            x();
+            return 0;
         }
 
         public void setDCmode(bool f)

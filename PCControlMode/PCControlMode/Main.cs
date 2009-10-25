@@ -157,6 +157,8 @@ namespace RobobuilderLib
             button6.Enabled = f;
             button7.Enabled = f;
             button9.Enabled = f;
+            button4.Enabled = f;
+            button8.Enabled = f;
             button10.Enabled = f;
         }
 
@@ -203,12 +205,36 @@ namespace RobobuilderLib
         private void button9_Click(object sender, EventArgs e)
         {
             //read zeros
-            textBox1.AppendText(pcR.readZeros() + "\r\n");
+            textBox1.AppendText(pcR.readZeros() +"\r\n");
         }
 
         private void button2_Click_1(object sender, EventArgs e)
         {
             // read IR - not working
+            button2.Enabled = false;
+            pcR.readIR(10000, new callBack(addMessage));
+            button2.Enabled = false;
+        }
+
+        private void button4_Click(object sender, EventArgs e)
+        {
+            // read Button - not working
+            button4.Enabled = false;
+            pcR.readButton(10000, new callBack(addMessage));
+            button4.Enabled = true;
+        }
+
+        private void button8_Click(object sender, EventArgs e)
+        {
+            // read Soundlevel - not working
+            button8.Enabled = false;
+            pcR.readsoundLevel(10000, 1, new callBack(addMessage));
+            button8.Enabled = false;
+        }
+
+        public void addMessage()
+        {
+            textBox1.AppendText(pcR.message + "\r\n");
         }
 
         private void button10_Click(object sender, EventArgs e)
@@ -330,6 +356,7 @@ namespace RobobuilderLib
             test.close();
             test = null;
         }
+
 
 
     }
