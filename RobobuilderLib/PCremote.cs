@@ -148,7 +148,7 @@ namespace RobobuilderLib
             {
                 command_1B(0x16, 0x01);
                 if (displayResponse(true))
-                    r = ((respnse[14] << 8) + respnse[15]).ToString();
+                    r = (respnse[14] + (respnse[15]<<8)).ToString();
             }
             return r;
         }
@@ -216,6 +216,53 @@ namespace RobobuilderLib
             return r;
         }
 
+        public string runMotion(int m)
+        {
+            //read zeros
+            if (m < 1 || m > 42)
+            {
+                return "Invalid Motion";
+            }
+
+            string r = "";
+            if (serialPort1.IsOpen)
+            {
+                command_1B(20, (byte)m);
+                displayResponse(true);
+            }
+            return r;
+        }
+
+        public string runSound(int m)
+        {
+            //play a specific sound
+            string r = "";
+
+            if (m < 1 || m > 25)
+            {
+                return "Invalid Sound";
+            }
+
+            if (serialPort1.IsOpen)
+            {
+                command_1B(21, (byte)m);
+                displayResponse(true);
+            }
+            return r;
+        }
+
+        public string executionStatus(int m)
+        {
+            //get execution status for specific motion
+            string r = "";
+            if (serialPort1.IsOpen)
+            {
+                command_1B(30, (byte)m);
+                displayResponse(true);
+            }
+            return r;
+        }
+
         public string zeroHuno()
         {
             string r = "";
@@ -262,7 +309,7 @@ namespace RobobuilderLib
                 {
                     if (displayResponse(true))
                     {
-                        n = respnse[15] * 256 + respnse[14];
+                        n = respnse[14] + (respnse[15] <<8) ;
                     }
                     Console.WriteLine(message);
                     x(n); //callback
@@ -290,7 +337,7 @@ namespace RobobuilderLib
                 {
                     if (displayResponse(true))
                     {
-                        n = respnse[15] * 256 + respnse[14];
+                        n = respnse[14] + (respnse[15] << 8);
                     }
                     x(n);
                     Console.WriteLine(DateTime.Now.ToString() + " = " + message + " n=" + n);
@@ -316,7 +363,7 @@ namespace RobobuilderLib
                 {
                     if (displayResponse(true))
                     {
-                        n = respnse[15] * 256 + respnse[14]; // sound level returned
+                        n = respnse[14] + (respnse[15] << 8); // sound level
                     }
                     x(n);
                     Console.WriteLine(DateTime.Now.ToString() + " = " + message + " n=" + n);
