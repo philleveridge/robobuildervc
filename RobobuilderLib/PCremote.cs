@@ -5,7 +5,7 @@ using System.IO.Ports;
 
 namespace RobobuilderLib
 {
-    public delegate void callBack();
+    public delegate void callBack(int n);
 
     public class PCremote
     {
@@ -262,10 +262,10 @@ namespace RobobuilderLib
                 {
                     if (displayResponse(true))
                     {
-                        n = respnse[15] * 256 + respnse[16];
+                        n = respnse[15] * 256 + respnse[14];
                     }
                     Console.WriteLine(message);
-                    x(); //callback
+                    x(n); //callback
                 }
             }
 
@@ -290,9 +290,9 @@ namespace RobobuilderLib
                 {
                     if (displayResponse(true))
                     {
-                        n = respnse[15] * 256 + respnse[16];
+                        n = respnse[15] * 256 + respnse[14];
                     }
-                    x();
+                    x(n);
                     Console.WriteLine(DateTime.Now.ToString() + " = " + message + " n=" + n);
                }
              }
@@ -302,9 +302,28 @@ namespace RobobuilderLib
 
         public int readsoundLevel(int timeout, int level, callBack x)
         {
-            message = "Not implemented";
-            x();
-            return 0;
+            int n = 0;
+            int tmp = serialPort1.ReadTimeout;
+
+            DateTime end = DateTime.Now + TimeSpan.FromMilliseconds((double)timeout);
+
+
+            if (serialPort1.IsOpen)
+            {
+                command_nB(1, 23, new byte[] { (byte)(level%256), (byte)(level/256) });
+
+                while (DateTime.Now < end)
+                {
+                    if (displayResponse(true))
+                    {
+                        n = respnse[15] * 256 + respnse[14]; // sound level returned
+                    }
+                    x(n);
+                    Console.WriteLine(DateTime.Now.ToString() + " = " + message + " n=" + n);
+                }
+            }
+            serialPort1.ReadTimeout = tmp;
+            return n;
         }
 
         public void setDCmode(bool f)
