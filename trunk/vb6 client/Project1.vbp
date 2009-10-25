@@ -1,6 +1,6 @@
 Type=Exe
 Reference=*\G{00020430-0000-0000-C000-000000000046}#2.0#0#..\..\..\..\..\..\..\Windows\system32\stdole2.tlb#OLE Automation
-Reference=*\G{9C19A9EB-38EC-4C9C-913B-865F31DDF808}#1.0#0#..\RBC_library\reverseMe_dll\bin\Release\reverseMe_dll.tlb#test
+Reference=*\G{CECAA0E4-41C5-4453-8842-F57C1711B36D}#1.0#0#..\RobobuilderLib\bin\Release\RobobuilderLib.tlb#RobobuilderLib
 Form=Form1.frm
 Startup="Form1"
 ExeName32="vb6test.exe"
