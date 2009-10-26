@@ -9,6 +9,8 @@ namespace RobobuilderLib
 {
     public class wckMotion
     {
+        public const int MAX_SERVOS = 19;
+
         byte[] basic_pos = new byte[] {
                 /*0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18 */
                 143,179,198,83,106,106,69,48,167,141,47,47,49,199,204,204,122,125,127 };
@@ -33,11 +35,17 @@ namespace RobobuilderLib
             serialPort1 = r.serialPort1;
             pcR = r;
             pcR.setDCmode(true);
+            delay_ms(100);
         }
 
         ~wckMotion()
         {
             close();
+        }
+
+        public void servoStatus(int id, bool f)
+        {
+            sids[id] = (f) ? id : -1;
         }
 
         public void close()
