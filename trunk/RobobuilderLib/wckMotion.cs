@@ -165,6 +165,246 @@ namespace RobobuilderLib
             }
         }
 
+        public bool wckBreak()
+        {
+            byte[] buff = new byte[4];
+            buff[0] = 0xFF;
+            buff[1] = (byte)((6 << 5) | 31);
+            buff[2] = (byte)0x20;
+            buff[3] = (byte)((buff[1] ^ buff[2]) & 0x7f);
+
+            try
+            {
+                serialPort1.Write(buff, 0, 4);
+                respnse[0] = (byte)serialPort1.ReadByte();
+                respnse[1] = (byte)serialPort1.ReadByte();
+                Message = "Break = " + respnse[0] + ":" + respnse[1];
+                return true;
+            }
+            catch (Exception e1)
+            {
+                Message = "Break Failed" + e1.Message;
+                return false;
+            }
+        }
+
+        /* 
+         * wck set operation(s)
+         * 
+         */ 
+        public bool wckSetOper(byte d1,byte d2, byte d3, byte d4)
+        {
+            byte[] buff = new byte[5];
+            buff[0] = 0xFF;
+            buff[1] = d1;
+            buff[2] = d2;
+            buff[3] = d3;
+            buff[4] = d4;
+            buff[5] = (byte)((buff[1] ^ buff[2] ^ buff[3] ^ buff[4]) & 0x7f);
+
+            try
+            {
+                serialPort1.Write(buff, 0, 6);
+                respnse[0] = (byte)serialPort1.ReadByte();
+                respnse[1] = (byte)serialPort1.ReadByte();
+                Message = "Set Oper = " + respnse[0] + ":" + respnse[1];
+                return true;
+            }
+            catch (Exception e1)
+            {
+                Message = "Set Op Failed" + e1.Message;
+                return false;
+            }
+        }
+
+        public bool wckSetBaudRate(int baudrate, int id)
+        {
+            byte d1, d3;
+            d1=(byte)((7<<5) | (id %31));
+            //0(921600bps), 1(460800bps), 3(230400bps), 7(115200bps),
+            //15(57600bps), 23(38400bps), 95(9600bps), 191(4800bps),
+            switch (baudrate)
+            {
+                case 115200:
+                    d3 = 7;
+                    break;
+                case 57600:
+                    d3 = 15;
+                    break;
+                case 9600:
+                    d3 = 95;
+                    break;
+                case 4800:
+                    d3 = 191;
+                    break;
+                default:
+                    return false;
+            }
+            return wckSetOper(d1, 0x08, d3, d3);
+        }
+
+        public bool wckSetSpeed(int id, int speed, int acceleration)
+        {
+            byte d1, d3, d4;
+            if (speed < 0 || speed > 30) 
+                return false;
+            if (acceleration < 20 || acceleration > 100) 
+                return false;
+            d1 = (byte)((7 << 5) | (id % 31));
+            d3 = (byte)speed;
+            d4 = (byte)acceleration;
+            return wckSetOper(d1, 0x0D, d3, d4);
+        }
+
+        public bool wckSetPDgain(int id, int pGain, int dGain)
+        {
+            return false; // not implemented
+        }
+
+        public bool wckSetID(int id, int new_id)
+        {
+            return false; // not implemented
+        }
+
+        public bool wckSetIgain(int id, int iGain)
+        {
+            return false; // not implemented
+        }
+
+        public bool wckSetPDgainRT(int id, int pGain, int dGain)
+        {
+            return false; // not implemented
+        }
+
+        public bool wckSetIgainRT(int id, int iGain)
+        {
+            return false; // not implemented
+        }
+
+        public bool wckSetSpeedRT(int id, int speed, int acceleration)
+        {
+            return false; // not implemented
+        }
+
+        public bool wckSetOverload(int id, int overT)
+        {
+            /*
+            1 33 400
+            2 44 500
+            3 56 600
+            4 68 700
+            5 80 800
+            6 92 900
+            7 104 1000
+            8 116 1100
+            9 128 1200
+            10 199 1800
+             */
+            byte d1, d3=33;
+            d1 = (byte)((7 << 5) | (id % 31));
+            switch (overT)
+            {
+                case 400:
+                    d3 = 33;
+                    break;
+                case 500:
+                    d3 = 44;
+                    break;
+                case 600:
+                    d3 = 56;
+                    break;
+                case 700:
+                    d3 = 68;
+                    break;
+                case 800:
+                    d3 = 80;
+                    break;                 
+            }
+            return wckSetOper(d1, 0x0F, d3, d3);
+        }
+
+        public bool wckSetBoundary(int id, int UBound, int LBound)
+        {
+            byte d1, d3, d4;
+            d1 = (byte)((7 << 5) | (id % 31));
+            d3 = (byte)LBound;
+            d4 = (byte)UBound;
+            return wckSetOper(d1, 0x11, d3, d4);
+        }
+
+        public bool wckWriteIO(int id, bool ch0, bool ch1 )
+        {
+            byte d1, d3;
+            d1 = (byte)((7 << 5) | (id % 31));
+            d3 = (byte)((byte)((ch0) ? 1 : 0) | (byte)((ch1) ? 3 : 0));
+            return wckSetOper(d1, 0x64, d3, d3);
+        }
+
+        /* 
+         * wck - Read operation(s)
+         */ 
+
+        public bool wckReadPDgain(int id)
+        {
+            return wckSetOper((byte)((7 << 5) | (id % 31)), 0x0A, 0x00, 0x00);
+        }
+
+        public bool wckReadIgain(int id)
+        {
+            return wckSetOper((byte)((7 << 5) | (id % 31)), 0x16, 0x00, 0x00);
+        }
+
+        public bool wckReadSpeed(int id)
+        {
+            return wckSetOper((byte)((7 << 5) | (id % 31)), 0x0E, 0x00, 0x00);
+        }
+
+        public bool wckReadOverload(int id)
+        {
+            return wckSetOper((byte)((7 << 5) | (id % 31)), 0x10, 0x00, 0x00);
+        }
+
+        public bool wckReadBoundary(int id)
+        {
+            return wckSetOper((byte)((7 << 5) | (id % 31)), 0x12, 0x00, 0x00);
+        }
+
+        public bool wckReadIO(int id)
+        {
+            return wckSetOper((byte)((7 << 5) | (id % 31)), 0x65, 0x00, 0x00);
+        }
+
+        public bool wckReadMotionData(int id)
+        {
+            return wckSetOper((byte)((7 << 5) | (id % 31)), 0x97, 0x00, 0x00);
+        }
+
+        public bool wckPosRead10Bit(int id)
+        {
+            return wckSetOper((byte)(7 << 5), 0x09, (byte)id, (byte)id);
+        }
+
+        /* 
+         * special extended / 10 bit commands
+         */ 
+
+        public bool wckWriteMotionData(int id, int pos, int torq)
+        {
+            return false; // not implemented
+        }
+        
+        public bool wckPosMove10Bit(int id, int pos, int torq)
+        {
+            return false; // not implemented
+        }
+
+
+        /*********************************************************************************************
+         * 
+         * higher level functions
+         * 
+         *********************************************************************************************/
+
         public void servoID_readservo()
         {
             pos = new byte[sids.Length];
