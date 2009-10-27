@@ -194,7 +194,7 @@ namespace RobobuilderLib
          */ 
         public bool wckSetOper(byte d1,byte d2, byte d3, byte d4)
         {
-            byte[] buff = new byte[5];
+            byte[] buff = new byte[6];
             buff[0] = 0xFF;
             buff[1] = d1;
             buff[2] = d2;
