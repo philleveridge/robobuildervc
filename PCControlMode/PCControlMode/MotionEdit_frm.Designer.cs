@@ -74,6 +74,7 @@
             this.base_chk = new System.Windows.Forms.CheckBox();
             this.servoStatus1 = new RobobuilderLib.ServoStatus();
             this.label1 = new System.Windows.Forms.Label();
+            this.torq_list = new System.Windows.Forms.ListBox();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.servoPoseDataBindingSource)).BeginInit();
             this.SuspendLayout();
@@ -494,12 +495,29 @@
             this.label1.TabIndex = 84;
             this.label1.Text = "Info=";
             // 
+            // torq_list
+            // 
+            this.torq_list.FormattingEnabled = true;
+            this.torq_list.Items.AddRange(new object[] {
+            "0 (max Torq)",
+            "1",
+            "2 (default Torq)",
+            "3",
+            "4 (Min Torq)"});
+
+            this.torq_list.SelectedIndex = 2;
+            this.torq_list.Location = new System.Drawing.Point(423, 118);
+            this.torq_list.Name = "torq_list";
+            this.torq_list.Size = new System.Drawing.Size(92, 30);
+            this.torq_list.TabIndex = 85;
+            // 
             // MotionEdit_frm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoSize = true;
             this.ClientSize = new System.Drawing.Size(708, 456);
+            this.Controls.Add(this.torq_list);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.servoStatus1);
             this.Controls.Add(this.base_chk);
@@ -579,5 +597,6 @@
         private System.Windows.Forms.CheckBox base_chk;
         private ServoStatus servoStatus1;
         private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.ListBox torq_list;
     }
 }
