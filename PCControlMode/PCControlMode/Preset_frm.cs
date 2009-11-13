@@ -31,8 +31,7 @@ namespace RobobuilderLib
             InitializeComponent();
 
             button_dir = Directory.GetCurrentDirectory();
-
-            build_buttons();
+            //build_buttons();
         }
 
         public void connect(PCremote r)
@@ -41,12 +40,14 @@ namespace RobobuilderLib
             if (r != null && r.serialPort1 != null && r.serialPort1.IsOpen)
             {
                 wckm = new wckMotion(r);
+                build_buttons();
                 this.Show();
             }
             else
+            {
                 MessageBox.Show("Must connect first");
-
-            this.Show();
+                return;
+            }
         }
 
         public void disconnect()
