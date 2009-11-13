@@ -6,6 +6,7 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.Text;
 using System.Windows.Forms;
+using System.Speech.Recognition;
 
 using AForge;
 using AForge.Video;
@@ -17,6 +18,7 @@ namespace RobobuilderLib
 {
     public partial class Video_frm : Form
     {
+        //ffSpeechRecognizer rec = new SpeechRecognizer();
         FilterInfoCollection videoDevices;
         int cnt;
         // image processing stuff
@@ -52,6 +54,23 @@ namespace RobobuilderLib
             }
 
             setup_filter();
+
+            var c = new Choices();
+            c.Add("wave");
+            c.Add("stand");
+            c.Add("basic");
+
+            //var gb = new GrammarBuilder(c);
+            //var g = new Grammar(gb);
+            //rec.LoadGrammar(g);
+            //rec.Enabled = true;
+            //rec.SpeechRecognized += rec_SpeechRecognized;
+
+        }
+
+        void rec_SpeechRecognized(object sender, SpeechRecognizedEventArgs e)
+        {
+            label1.Text = e.Result.Text;
         }
 
         private void setup_filter()

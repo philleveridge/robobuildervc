@@ -14,6 +14,9 @@ namespace RobobuilderLib
         const int MAXBUTTONS = 10;
         const int MAXDEPTH = 5;
 
+        public string button_dir = "";
+        const string button_fmt = "*.csv";
+
         private System.Windows.Forms.Button[] button_array;
         private string[] fnames;
         int cnt;
@@ -27,33 +30,33 @@ namespace RobobuilderLib
         {
             InitializeComponent();
 
-            button_array = new Button[MAXBUTTONS];
-            fnames = new string[MAXBUTTONS];
+            button_dir = Directory.GetCurrentDirectory();
 
-            cnt = 0;
-
-            update("Basic");
-
-            presets_flg = false;
+            build_buttons();
         }
 
         public void connect(PCremote r)
         {
             remote = r;
-            if (r.serialPort1.IsOpen)
+            if (r != null && r.serialPort1 != null && r.serialPort1.IsOpen)
             {
                 wckm = new wckMotion(r);
                 this.Show();
             }
             else
                 MessageBox.Show("Must connect first");
+
+            this.Show();
         }
 
         public void disconnect()
         {
-            wckm.close();
-            wckm = null;
-            remote = null;
+            if (wckm != null)
+            {
+                wckm.close();
+                wckm = null;
+                remote = null;
+            }
             this.Hide();
         }
 
@@ -71,9 +74,30 @@ namespace RobobuilderLib
         {
             for (int i = 0; i < cnt; i++)
             {
-                if (button_array[i].Text == name) return i;
+                if (button_array[i].Text.Equals(name,StringComparison.InvariantCultureIgnoreCase)) return i;
             }
             return -1;
+        }
+
+        public void build_buttons()
+        {
+            button_array = new Button[MAXBUTTONS];
+            fnames = new string[MAXBUTTONS];
+            cnt = 0;
+            update("Basic");
+            presets_flg = false;
+
+            Console.WriteLine(button_dir);
+            string[] s = Directory.GetFileSystemEntries(button_dir, button_fmt);
+            foreach (string n in s)
+            {
+                string t = n.Substring(1 + n.LastIndexOf('\\'));
+                t = t.Substring(0, t.LastIndexOf('.'));
+                t = t.ToLower();
+                t = t.Substring(0, 1).ToUpper() + t.Substring(1);
+                Console.WriteLine(t);
+                update(t + "," + n);
+            }
         }
 
         public void update(string name)
@@ -140,15 +164,17 @@ namespace RobobuilderLib
 
                     string[] r = line.Split(',');
 
+                    int l = r.Length;
+
                     if (r.Length > 2)
                     {
                         n++;
 
                         // label2.Text = n.ToString();
 
-                        byte[] t = new byte[r.Length - 2];
+                        byte[] t = new byte[r.Length - 5];  //add because includes XYZ now
 
-                        for (int i = 2; i < r.Length; i++)
+                        for (int i = 2; i < r.Length-3; i++)
                         {
                             if (r[i] != "")
                                 t[i - 2] = Convert.ToByte(r[i]);
