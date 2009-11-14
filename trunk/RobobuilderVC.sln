@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 10.00
 # Visual C# Express 2008
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PCControlMode", "PCControlMode\PCControlMode\PCControlMode.csproj", "{DD6C2175-5C03-4589-B867-8432CF17B58E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PCControlMode", "PCControlMode\PCControlMode.csproj", "{DD6C2175-5C03-4589-B867-8432CF17B58E}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RBC", "RobobuilderLib\RBC.csproj", "{2073C55A-E147-4A4B-893C-18ED07FD2B61}"
 EndProject

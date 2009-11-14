@@ -99,6 +99,21 @@ namespace RobobuilderLib
                 Console.WriteLine(t);
                 update(t + "," + n);
             }
+
+            s = Directory.GetFileSystemEntries(button_dir, "*.txt");
+            foreach (string n in s)
+            {
+                string t = n.Substring(1 + n.LastIndexOf('\\'));
+                t = t.Substring(0, t.LastIndexOf('.'));
+                t = t.ToLower();
+                t = t.Substring(0, 1).ToUpper() + t.Substring(1);
+                Console.WriteLine(t);
+                //update(t + "," + n);
+                string p = File.ReadAllText(n);
+                update(t + ",S:" + p);
+            }
+
+
         }
 
         public void update(string name)
@@ -236,7 +251,10 @@ namespace RobobuilderLib
                 if (j >= 0)
                 {
                     // call code
-                    play(fnames[j]);
+                    if (j == 0)
+                        NewBasicPose();
+                    else
+                        play(fnames[j]);
                     continue;
                 }
                 switch (words[0])
@@ -375,6 +393,8 @@ namespace RobobuilderLib
             int i = check(n);
             c = c.Replace("\r\n", ";");
             Console.WriteLine("Name=" + n + " Script=" + c);
+
+            File.WriteAllText(n + ".txt", c);
 
             if (i < 0)
             {
