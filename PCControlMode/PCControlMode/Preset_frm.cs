@@ -80,6 +80,15 @@ namespace RobobuilderLib
             return -1;
         }
 
+        static public string convname(string n)
+        {
+            string t = n.Substring(1 + n.LastIndexOf('\\'));
+            t = t.Substring(0, t.LastIndexOf('.'));
+            t = t.ToLower();
+            t = t.Substring(0, 1).ToUpper() + t.Substring(1);
+            return t;
+        }
+
         public void build_buttons()
         {
             button_array = new Button[MAXBUTTONS];
@@ -92,10 +101,7 @@ namespace RobobuilderLib
             string[] s = Directory.GetFileSystemEntries(button_dir, button_fmt);
             foreach (string n in s)
             {
-                string t = n.Substring(1 + n.LastIndexOf('\\'));
-                t = t.Substring(0, t.LastIndexOf('.'));
-                t = t.ToLower();
-                t = t.Substring(0, 1).ToUpper() + t.Substring(1);
+                string t = convname(n);
                 Console.WriteLine(t);
                 update(t + "," + n);
             }
@@ -103,10 +109,7 @@ namespace RobobuilderLib
             s = Directory.GetFileSystemEntries(button_dir, "*.txt");
             foreach (string n in s)
             {
-                string t = n.Substring(1 + n.LastIndexOf('\\'));
-                t = t.Substring(0, t.LastIndexOf('.'));
-                t = t.ToLower();
-                t = t.Substring(0, 1).ToUpper() + t.Substring(1);
+                string t = convname(n);
                 Console.WriteLine(t);
                 //update(t + "," + n);
                 string p = File.ReadAllText(n);
