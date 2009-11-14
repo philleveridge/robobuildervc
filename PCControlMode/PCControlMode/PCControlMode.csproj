@@ -200,7 +200,7 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\RobobuilderLib\RBC.csproj">
+    <ProjectReference Include="..\RobobuilderLib\RBC.csproj">
       <Project>{2073C55A-E147-4A4B-893C-18ED07FD2B61}</Project>
       <Name>RBC</Name>
     </ProjectReference>
