@@ -8,10 +8,7 @@ namespace RobobuilderLib
 {
     public partial class Preset_frm : Form
     {
-        //public SerialPort sp1;
-        public PCremote pcR;
-
-        const int MAXBUTTONS = 10;
+        const int MAXBUTTONS = 15;
         const int MAXDEPTH = 5;
 
         public string button_dir = "";
@@ -36,11 +33,14 @@ namespace RobobuilderLib
 
         public void connect(PCremote r)
         {
+            this.Show();
+
             remote = r;
             if (r != null && r.serialPort1 != null && r.serialPort1.IsOpen)
             {
                 wckm = new wckMotion(r);
                 build_buttons();
+
                 this.Show();
             }
             else
@@ -94,8 +94,7 @@ namespace RobobuilderLib
             button_array = new Button[MAXBUTTONS];
             fnames = new string[MAXBUTTONS];
             cnt = 0;
-            update("Basic");
-            presets_flg = false;
+            update("Basic","");
 
             Console.WriteLine(button_dir);
             string[] s = Directory.GetFileSystemEntries(button_dir, button_fmt);
@@ -103,7 +102,7 @@ namespace RobobuilderLib
             {
                 string t = convname(n);
                 Console.WriteLine(t);
-                update(t + "," + n);
+                update(t,n);
             }
 
             s = Directory.GetFileSystemEntries(button_dir, "*.txt");
@@ -113,26 +112,23 @@ namespace RobobuilderLib
                 Console.WriteLine(t);
                 //update(t + "," + n);
                 string p = File.ReadAllText(n);
-                update(t + ",S:" + p);
+                update(t, "S:" + p);
             }
 
-
+            presets_flg = false;
         }
 
-        public void update(string name)
+        public void update(string name, string arg)
         {
             // 
             // add 'unique' button
             // 
 
-            string[] args = name.Split(',');
 
-            if (check(args[0]) >= 0) return;
+            if (check(name) >= 0) return; // already exists
 
-            if (args.Length > 1)
-                fnames[cnt] = args[1];
-            else
-                fnames[cnt] = "";
+            fnames[cnt] = arg;
+
 
             int cols = 3;
 
@@ -142,13 +138,17 @@ namespace RobobuilderLib
             button_array[cnt].Name = "button-" + cnt;
             button_array[cnt].Size = new System.Drawing.Size(53, 27);
             button_array[cnt].TabIndex = 1;
-            button_array[cnt].Text = args[0];
+            button_array[cnt].Text = name;
             button_array[cnt].UseVisualStyleBackColor = true;
             button_array[cnt].Click += new System.EventHandler(this.button_Click);
 
+            if (fnames[cnt].StartsWith("S:")) 
+                button_array[cnt].ForeColor = System.Drawing.Color.Red;
+
             this.Controls.Add(button_array[cnt]);
 
-            if (cnt<MAXBUTTONS-1) cnt++;
+            if (cnt<MAXBUTTONS-1) 
+                cnt++;
 
             presets_flg=true;
         }
@@ -188,8 +188,6 @@ namespace RobobuilderLib
                     if (r.Length > 2)
                     {
                         n++;
-
-                        // label2.Text = n.ToString();
 
                         byte[] t = new byte[r.Length - 5];  //add because includes XYZ now
 
@@ -231,7 +229,60 @@ namespace RobobuilderLib
                 string v = en.Value.ToString();
                 x = x.Replace("$" + k, v);
             }
+
+            if (x.StartsWith("\"") && x.EndsWith("\""))
+                x = x.Substring(1,x.Length-2);
+            else
+                x = evalNumeric(x).ToString();
+
             return x;
+        }
+
+        private int evalNumeric(string x)
+        {
+            //
+            int r = 0;
+            int t = 0;
+            int i = 0;
+            int v=0;
+            char op='+';
+            while (i < x.Length)
+            {
+                if (x[i] == ' ') continue;
+                if (x[i] >= '0' && x[i] <= '9')
+                {
+                    r = r * 10 + (x[i] - '0');
+                }
+                if (x[i] == '+' || x[i] == '-' || x[i] == '=' || x[i] == '<' || x[i] == '>' || x[i] == '!')
+                {
+                    t = r;
+                    r = 0;
+                    op = x[i];
+                }
+                i = i + 1;
+            }
+            switch (op)
+            {
+                case '+':
+                    v = t + r;
+                    break;
+                case '-':
+                    v = t - r;
+                    break;
+                case '=':
+                    v = (t == r) ?1 : 0;
+                    break;
+                case '<':
+                    v = (t < r) ? 1 : 0;
+                    break;
+                case '>':
+                    v = (t > r) ? 1 : 0;
+                    break;
+                case '!':
+                    v = (t != r) ? 1 : 0;
+                    break;
+            }
+            return v;
         }
 
         private void run(string script)
@@ -244,45 +295,66 @@ namespace RobobuilderLib
 
             int lc = 0;
 
+            bool ifcond = true;
+
             string[] sc = script.Split(';');
             for (int i = 0; i < sc.Length; i++)
             {
                 string line = sc[i];
                 Console.WriteLine(i + " " + sc[i]);
                 string[] words = line.Split(' ');
-                int j = check(words[0]);
-                if (j >= 0)
-                {
-                    // call code
-                    if (j == 0)
-                        NewBasicPose();
-                    else
-                        play(fnames[j]);
+
+                if (ifcond == false && words[0] != "else")
                     continue;
-                }
-                switch (words[0])
+
+                switch (words[0].ToLower())
                 {
+                    case "getacc":
+                        {
+                            short x, y, z;
+                            Console.WriteLine(remote.readXYZ(out x, out y, out z));
+                            vars["gX"] = x;
+                            vars["gY"] = y;
+                            vars["gZ"] = z;
+                        }
+                        break;
                     case "wait":
                         // wait x ms
                         int t = Convert.ToInt32(evalExpr(words[1]));
                         System.Threading.Thread.Sleep(t);
                         break;
+                    case "alert":
+                        output_txt.Text = evalExpr(line.Substring(6));
+                        MessageBox.Show(output_txt.Text);
+                        break;
                     case "message":
-                        MessageBox.Show(evalExpr(line.Substring(8)));
+                        output_txt.Text = evalExpr(line.Substring(8));
                         break;
                     case "if":
-                        // if [condition] [true] [false]
+                        // if [condition] 
+                        ifcond = (evalExpr(line.Substring(3))!="0");
+                        break;
+                    case "else":
+                        // if [condition] [false]
+                        ifcond = !ifcond;
+                        break;
+                    case "fi":
+                        // if end
+                        ifcond = true;
                         break;
                     case "kfactor":
-                        // kfactor val
+                        // kfactor val (speed up or slow down)
                         k = Convert.ToDouble(evalExpr(words[1]));
+                        vScrollBar1.Value = (int)(k * 100f);
+                        label1.Text = k.ToString();
+                        vars["kf"] = k;
                         break;
                     case "setservo":
                         // setservo id pos
                         {
                             int id = Convert.ToInt32(evalExpr(words[1]));
                             int pos = Convert.ToInt32(evalExpr(words[2]));
-                            wckMotion m = new wckMotion(pcR);
+                            wckMotion m = new wckMotion(remote);
                             m.wckMovePos(id, pos, 0);
                             m.close();                      
                         }
@@ -292,7 +364,7 @@ namespace RobobuilderLib
                         {
                             int id = Convert.ToInt32(evalExpr(words[1]));
                             int pos = Convert.ToInt32(evalExpr(words[2]));
-                            wckMotion m = new wckMotion(pcR);
+                            wckMotion m = new wckMotion(remote);
                             if (m.wckReadPos(id))
                             {
                                 m.wckMovePos(id, (int)m.respnse[1] + pos, 0);
@@ -327,33 +399,50 @@ namespace RobobuilderLib
                             }
                         }
                         break;
+                    default:
+                        int j = check(words[0]);
+                        if (j >= 0)
+                        {
+                            // call code
+                            if (j == 0)
+                                NewBasicPose();
+                            else
+                                play(fnames[j]);
+                        }
+                        break;
                 }
             }
         }
 
         private void button_Click(object sender, EventArgs e)
         {
-            switch (((Button)sender).Name)
+            if (checkBox2.Checked && action.Text == "")
             {
-                case "button-0":
-                    NewBasicPose();
-                    break;
-                default:
-                    int i = Convert.ToInt32(((Button)sender).Name.Substring(7));
-                    Console.WriteLine("Name = " + ((Button)sender).Name + "=" + ((Button)sender).Text +"-"+ fnames[i]);
-                    if (fnames[i].StartsWith("S:"))
-                    {
-                        //load into editor
-                        action.Text = ((Button)sender).Text;
-                        script.Text = fnames[i].Substring(2).Replace(";", "\r\n");
-                        //run script
-                        run(fnames[i].Substring(2));                       
-                    }
-                    else
-                    {
-                        play(fnames[i]);
-                    }
-                    break;
+                if (!script.Text.EndsWith("\r\n")) script.Text += "\r\n";
+                script.Text += ((Button)sender).Text + "\r\n" ;
+            }
+
+            if (((Button)sender).Name == "button-0")
+            {
+                NewBasicPose();
+            }
+            else
+            {
+                int i = Convert.ToInt32(((Button)sender).Name.Substring(7));
+                Console.WriteLine("Name = " + ((Button)sender).Name + "=" + ((Button)sender).Text +"-"+ fnames[i]);
+
+                if (fnames[i].StartsWith("S:"))
+                {
+                    //load into editor
+                    action.Text = ((Button)sender).Text;
+                    script.Text = fnames[i].Substring(2).Replace(";", "\r\n");
+                    //run script
+                    run(fnames[i].Substring(2));                       
+                }
+                else
+                {
+                    play(fnames[i]);
+                }
             }
         }
 
@@ -364,11 +453,11 @@ namespace RobobuilderLib
             string c = script.Text;
             int i = 0;
 
-            if (n == "" || check(n) >= 0)
-            {
-                action.Text = "";
-                return;
-            }
+            //if (n == "" || check(n) >= 0)
+            //{
+            //    action.Text = "";
+            //    return;
+            //}
 
             if (MessageBox.Show("Run : " + n + " - OK ?", "Run", MessageBoxButtons.OKCancel) == DialogResult.OK)
             {
@@ -401,7 +490,7 @@ namespace RobobuilderLib
 
             if (i < 0)
             {
-                update(n + ",S:" + c);
+                update(n ,"S:" + c);
             }
             else
             {
@@ -456,6 +545,16 @@ namespace RobobuilderLib
                         play(fnames[i]);
                     }
                 }
+            }
+        }
+
+        private void checkBox2_CheckedChanged(object sender, EventArgs e)
+        {
+            panel1.Visible = checkBox2.Checked;
+            if (panel1.Visible)
+            {
+                action.Text = "";
+                script.Text = "";
             }
         }
         
