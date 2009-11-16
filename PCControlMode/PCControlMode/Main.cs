@@ -16,7 +16,6 @@ namespace RobobuilderLib
         MotionEdit_frm  medit   = new MotionEdit_frm();
         Basic_frm       bc      = new Basic_frm();
         Display3D_frm   view    = null;
-
         PCremote        pcR     = null;
 
         public Main()

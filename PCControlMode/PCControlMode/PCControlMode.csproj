@@ -164,7 +164,6 @@
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
     </Compile>
-    <None Include="default.ini" />
     <None Include="Properties\DataSources\RobobuilderLib.Form4.datasource" />
     <None Include="Properties\DataSources\RobobuilderLib.ServoPoseData.datasource" />
     <None Include="Properties\Settings.settings">
