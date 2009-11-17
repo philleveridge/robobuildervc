@@ -18,6 +18,8 @@ namespace RobobuilderLib
         Display3D_frm   view    = null;
         PCremote        pcR     = null;
 
+        string robot_config = "config-20dof.txt";
+
         public Main()
         {
             InitializeComponent();
@@ -51,6 +53,10 @@ namespace RobobuilderLib
                     {
                         case "BUTTONS":
                             presets.button_dir = nvp[1]; //
+                            //presets.build_buttons();
+                            break;
+                        case "RCONFIG":
+                            robot_config = nvp[1]; //
                             //presets.build_buttons();
                             break;
                         case "BASIC":
@@ -301,7 +307,7 @@ namespace RobobuilderLib
 
         private void viewModelToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (view == null) view = new Display3D_frm();
+            if (view == null) view = new Display3D_frm(robot_config);
             view.Show();
             medit.viewport = view;
 

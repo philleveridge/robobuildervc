@@ -53,7 +53,7 @@ namespace RobobuilderLib
         bool temp_focus;
 
 
-        public Display3D_frm()
+        public Display3D_frm(string n)
         {
             InitializeComponent();
 
@@ -61,7 +61,7 @@ namespace RobobuilderLib
 
             InitializeKeyboard();
 
-            initSetup("config-20dof.txt");
+            initSetup(n);
 
             //initSetup("c-test.txt");
             //selectServo(1, true);
