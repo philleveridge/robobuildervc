@@ -283,13 +283,13 @@ namespace RobobuilderLib
         public enum RemoCon {
             FAILED=0,
             A=0x01,B,LeftTurn,Forward,RightTurn,Left,Stop,Right,Punch_Left,Back,Punch_Right,
-            N1,N2,N3,N4,N5,N6,N7,N8,N9,B0,
+            N1,N2,N3,N4,N5,N6,N7,N8,N9,N0,
         
             S_A=0x16,S_B,S_LeftTurn,S_Forward,S_RightTurn,S_Left,S_Stop,S_Right,S_Punch_Left,S_Back,S_Punch_Right,
-            S_N1,S_N2,S_N3,S_N4,S_N5,S_N6,S_N7,S_N8,S_N9,S_B0,
+            S_N1,S_N2,S_N3,S_N4,S_N5,S_N6,S_N7,S_N8,S_N9,S_N0,
 
             H_A=0x2B,H_B,H_LeftTurn,H_Forward,H_RightTurn,H_Left,H_Stop,H_Right,H_Punch_Left,H_Back,H_Punch_Right,
-            H_N1,H_N2,H_N3,H_N4,H_N5,H_N6,H_N7,H_N8,H_N9,H_B0
+            H_N1,H_N2,H_N3,H_N4,H_N5,H_N6,H_N7,H_N8,H_N9,H_N0
        };
 
         public RemoCon readIR(int timeout_ms, callBack x)
@@ -312,7 +312,10 @@ namespace RobobuilderLib
                         n = respnse[14] + (respnse[15] <<8) ;
                     }
                     Console.WriteLine(message);
-                    x(n); //callback
+                    if (x != null)
+                        x(n);
+                    else
+                        break;
                 }
             }
 
@@ -339,8 +342,13 @@ namespace RobobuilderLib
                     {
                         n = respnse[14] + (respnse[15] << 8);
                     }
-                    x(n);
+
                     Console.WriteLine(DateTime.Now.ToString() + " = " + message + " n=" + n);
+
+                    if (x != null)
+                        x(n);
+                    else
+                        break;
                }
              }
              serialPort1.ReadTimeout = tmp;
@@ -365,8 +373,11 @@ namespace RobobuilderLib
                     {
                         n = respnse[14] + (respnse[15] << 8); // sound level
                     }
-                    x(n);
                     Console.WriteLine(DateTime.Now.ToString() + " = " + message + " n=" + n);
+                    if (x != null)
+                        x(n);
+                    else
+                        break;
                 }
             }
             serialPort1.ReadTimeout = tmp;

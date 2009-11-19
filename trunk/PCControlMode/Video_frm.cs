@@ -26,10 +26,13 @@ namespace RobobuilderLib
         ColorFiltering colorFilter2 = new ColorFiltering();
         GrayscaleBT709 grayscaleFilter = new GrayscaleBT709();
         BlobCounter blobCounter = new BlobCounter();
+        Preset_frm pf1;
 
-        public Video_frm()
+        public Video_frm(Preset_frm p)
         {
             InitializeComponent();
+
+            pf1 = p;
 
             try
             {
@@ -93,7 +96,8 @@ namespace RobobuilderLib
         private void cmdStart_Click(object sender, EventArgs e)
         {
             // start the video capture.
-            //label1.Visible = true;
+            label1.Text = "";
+            label1.Visible = true;
 
             // connect to camera
             VideoCaptureDevice videoSource = new VideoCaptureDevice(videoDevices[listBox2.SelectedIndex].MonikerString);
@@ -117,7 +121,14 @@ namespace RobobuilderLib
             cnt++;
             Graphics g1 = Graphics.FromImage(image);
 
-            string text = string.Format("VideoControl 0.1");
+            string text;
+            if (pf1.video_obj_loc == 0)
+            {
+                text = string.Format("VideoControl 0.1");
+            }
+            else
+                text = string.Format("VideoControl 0.1 [{0}]", pf1.video_obj_loc);
+
 
             Font drawFont = new Font("Courier", 13, FontStyle.Bold);
             SolidBrush drawBrush = new SolidBrush(Color.Blue);
@@ -174,7 +185,21 @@ namespace RobobuilderLib
 
                     g.Dispose();
 
+                    int cx = objectRect.X + objectRect.Width / 2;
+                    int cy = objectRect.Y + objectRect.Height / 2;
+
+                    cx = ((3 * cx) / image.Width) % 3;
+                    cy = ((3 * cy) / image.Height) % 3;
+
+                    int n = cx * 3 + cy + 1;
+
+                    if (pf1.video_obj_loc != n)
+                    {
+                        pf1.video_obj_loc = n;
+                    }
                 }
+                else
+                    pf1.video_obj_loc = 0;
 
                 // free temporary image
                 if (!showOnlyObjects)
@@ -183,7 +208,6 @@ namespace RobobuilderLib
                 }
                 grayImage.Dispose();
             }
-
         }
 
         private void button1_Click(object sender, EventArgs e)

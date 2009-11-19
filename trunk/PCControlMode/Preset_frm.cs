@@ -20,8 +20,14 @@ namespace RobobuilderLib
         double k = 1.0; //speed factor
         public bool presets_flg;
 
+        public int video_obj_loc;
+
         PCremote remote;
         wckMotion wckm;
+
+        bool script_active = false;
+
+        PCremote.RemoCon ir_val = PCremote.RemoCon.FAILED;
 
         public Preset_frm()
         {
@@ -33,21 +39,19 @@ namespace RobobuilderLib
 
         public void connect(PCremote r)
         {
-            this.Show();
-
             remote = r;
+            build_buttons();
+            this.Show(); 
+            
             if (r != null && r.serialPort1 != null && r.serialPort1.IsOpen)
             {
                 wckm = new wckMotion(r);
-                build_buttons();
-
-                this.Show();
             }
             else
             {
                 MessageBox.Show("Must connect first");
-                return;
             }
+
         }
 
         public void disconnect()
@@ -168,7 +172,7 @@ namespace RobobuilderLib
             // play
             int n = 0;
             bool ff = true;
-            bool stepflg = checkBox1.Checked;
+            bool stepflg = dbg_flg.Checked;
 
             try
             {
@@ -177,18 +181,21 @@ namespace RobobuilderLib
 
                 while ((line = tr.ReadLine()) != null)
                 {
+                    n++;
+
                     line = line.Trim();
                     if (line.StartsWith("#")) // comment
+                    {
+                        Console.WriteLine(n + ": " + line);
                         continue;
+                    }
 
                     string[] r = line.Split(',');
 
                     int l = r.Length;
 
-                    if (r.Length > 2)
+                    if (r.Length > 5)
                     {
-                        n++;
-
                         byte[] t = new byte[r.Length - 5];  //add because includes XYZ now
 
                         for (int i = 2; i < r.Length-3; i++)
@@ -288,6 +295,8 @@ namespace RobobuilderLib
         private void run(string script)
         {
             Console.WriteLine("Script=" + script);
+            script_active = true;
+
             int[] loop_l = new int[MAXDEPTH];
             int[] loop_c = new int[MAXDEPTH];
 
@@ -300,8 +309,12 @@ namespace RobobuilderLib
             string[] sc = script.Split(';');
             for (int i = 0; i < sc.Length; i++)
             {
-                string line = sc[i];
-                Console.WriteLine(i + " " + sc[i]);
+                string line = sc[i].Trim() ;
+                if (line.StartsWith("#")) continue;
+
+                Console.WriteLine(i + " " + line);
+
+
                 string[] words = line.Split(' ');
 
                 if (ifcond == false && words[0] != "else")
@@ -309,19 +322,61 @@ namespace RobobuilderLib
 
                 switch (words[0].ToLower())
                 {
-                    case "getacc":
-                        {
+                    case "get":
+                       switch (words[1].ToLower())
+                       {
+                        case "acc":
+                            {
                             short x, y, z;
                             Console.WriteLine(remote.readXYZ(out x, out y, out z));
                             vars["gX"] = x;
                             vars["gY"] = y;
                             vars["gZ"] = z;
+                            }
+                            break;
+                        case "distance":
+                            string r=remote.readDistance();
+                            Console.WriteLine("Dist = " + r);
+                            vars["Dist"] = r;
+                            break;
                         }
                         break;
                     case "wait":
                         // wait x ms
                         int t = Convert.ToInt32(evalExpr(words[1]));
                         System.Threading.Thread.Sleep(t);
+                        break;
+
+                    case "video" :
+                        // video [location] [filter id] 
+                        // if obj detected put loc into $video
+
+                        while (video_obj_loc == 0) { Application.DoEvents(); }
+                        vars["video"] = video_obj_loc;
+                        break;
+
+                    case "read":
+                        // read [IR | PF1/2 button | PSD | Sound
+                        {
+                            switch (words[1].ToUpper())
+                            {
+                                case "IR":
+                                    while (ir_val == PCremote.RemoCon.FAILED) { Application.DoEvents(); }
+                                    vars["iR"] = ir_val;
+                                    ir_val = PCremote.RemoCon.FAILED;
+                                    break;
+                                case "BUTTON":
+                                    int b =remote.readButton(5000, null);
+                                    vars["pf"] = b; // 1 or 2
+                                    break;
+                                case "PSD": 
+                                    //read PSD x = wait until less than x
+                                    break;
+                                case "SOUND":
+                                    //read SOUND x = wait until level above x
+                                    break;
+                            }
+                        }
                         break;
                     case "alert":
                         output_txt.Text = evalExpr(line.Substring(6));
@@ -412,6 +467,7 @@ namespace RobobuilderLib
                         break;
                 }
             }
+            script_active = false;
         }
 
         private void button_Click(object sender, EventArgs e)
@@ -451,15 +507,17 @@ namespace RobobuilderLib
             // run
             string n = action.Text;
             string c = script.Text;
-            int i = 0;
 
-            //if (n == "" || check(n) >= 0)
-            //{
-            //    action.Text = "";
-            //    return;
-            //}
+            if (n == "") 
+                n = "noname";
 
-            if (MessageBox.Show("Run : " + n + " - OK ?", "Run", MessageBoxButtons.OKCancel) == DialogResult.OK)
+            if (c == "")
+            {
+                MessageBox.Show("No script");
+                return;
+            }
+
+            if (!dbg_flg.Checked || MessageBox.Show("Run : " + n + " - OK ?", "Run", MessageBoxButtons.OKCancel) == DialogResult.OK)
             {
                 c = c.Replace("\r\n", ";");
                 Console.WriteLine("Script=" + c);
@@ -480,51 +538,85 @@ namespace RobobuilderLib
             string c = script.Text;
             string n = action.Text;
 
-            if (n == "") return;
-
+            if (n == "") 
+            {
+                MessageBox.Show("No name");
+                return;
+            } 
+            
             int i = check(n);
-            c = c.Replace("\r\n", ";");
+            //c = c.Replace("\r\n", ";");
             Console.WriteLine("Name=" + n + " Script=" + c);
 
-            File.WriteAllText(n + ".txt", c);
+            File.WriteAllText(button_dir + "\\" + n + ".txt", c);
 
             if (i < 0)
             {
-                update(n ,"S:" + c);
+                update(n, "S:" + c);  // new button
             }
             else
             {
-                fnames[i] = "S:" + c;
+                fnames[i] = "S:" + c; // update script against existing button
             }
         }
 
         private void pictureBox1_Click(object sender, MouseEventArgs e)
         {
+            //FAILED=0,
+            //A=0x01,B,LeftTurn,Forward,RightTurn,Left,Stop,Right,Punch_Left,Back,Punch_Right,
+            //N1,N2,N3,N4,N5,N6,N7,N8,N9,B0,
             string[] spots = new string[] 
             {
-            "@,73,81,87,94",
             "A,43,29,54,42",
             "B,111,28,121,45",
+            "",
             "F,76,42,87,63",
-            "B,75,110,88,129",
+            "",
             "L,38,79,51,93",
+            "@,73,81,87,94",
             "R,111,78,127,93",
-            "*,45,226,58,236",
-            "#,105,225,118,235",
+            "",
+            "B,75,110,88,129",
+            "",
             "1,48,148,59,160",
-            "2,75,149,89,160" 
+            "2,75,149,89,160",
+            "3",
+            "4",
+            "5",
+            "6",
+            "7",
+            "8",
+            "9",
+            "0",
+            "*,45,226,58,236",      // need to rememebr
+            "#,105,225,118,235"     // need to rememebr
             };
 
+            int ir;
             string h = "";
-            foreach (string t in spots)
+
+            for (ir=0; ir<spots.Length; ir++)
             {
-                string[] r = t.Split(',');
-                if ((e.X > Convert.ToInt32(r[1])) && (e.X < Convert.ToInt32(r[3])) && (e.Y > Convert.ToInt32(r[2])) && (e.Y < Convert.ToInt32(r[4])))
+                string[] r = spots[ir].Split(',');
+                if (r.Length == 5)
                 {
-                    h = r[0];
+                    if ((e.X > Convert.ToInt32(r[1])) && (e.X < Convert.ToInt32(r[3])) && (e.Y > Convert.ToInt32(r[2])) && (e.Y < Convert.ToInt32(r[4])))
+                    {
+                        h = r[0];
+                        break;
+                    }
                 }
             }
             Console.WriteLine("Mouse - " + e.X + "," + e.Y + " : " + h);
+
+            if (script_active)
+            {
+                if (ir < spots.Length)
+                    ir_val = (PCremote.RemoCon)(ir+1);
+                else
+                    ir_val = PCremote.RemoCon.FAILED;
+                return;
+            }
 
             if (h == "@")
             {
