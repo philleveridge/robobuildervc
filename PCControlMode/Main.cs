@@ -11,10 +11,10 @@ namespace RobobuilderLib
 
     public partial class Main : Form
     {
-        Preset_frm      presets = new Preset_frm();
-        Video_frm       videoc  = new Video_frm();
-        MotionEdit_frm  medit   = new MotionEdit_frm();
-        Basic_frm       bc      = new Basic_frm();
+        Preset_frm      presets = null;
+        Video_frm       videoc  = null;
+        MotionEdit_frm  medit   = null;
+        Basic_frm       bc      = null;
         Display3D_frm   view    = null;
         PCremote        pcR     = null;
 
@@ -23,6 +23,12 @@ namespace RobobuilderLib
         public Main()
         {
             InitializeComponent();
+
+            presets = new Preset_frm();
+            videoc = new Video_frm(presets);
+            medit = new MotionEdit_frm();
+            bc = new Basic_frm();
+
 
             serialPort1.PortName = "COM3";
             serialPort1.BaudRate = 115200;
