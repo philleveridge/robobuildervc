@@ -1,0 +1,40 @@
+#summary One-sentence summary of this page.
+
+= Introduction =
+
+In the preset form buttons are assigned to motion file (.csv) but also there are script file (.txt) that can chain motions together with some simple logic commands.
+
+= remote scripting =
+
+  * get [acc | distance]
+  * wait
+  * video
+  * read [IR | BUTTON | PSD | SOUND ]
+  * alert
+  * message
+  * if expression
+  * else
+  * fi
+  * kfactor
+  * setservo
+  * modservo
+  * let var expression
+  * repeat expression
+  * end
+
+  * xxx [Anything else]
+
+= example =
+
+{{{
+#example file
+alert "hello world"
+let a 5
+message "value of a is $a"
+read ir
+message "you pressed $iR"
+let b $a+5
+message "value of b is $b"
+end
+}}}
+
