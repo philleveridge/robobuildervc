@@ -8,6 +8,4 @@ A .NET based client terminal for robobuilderlib.
 
 Design of Object library
 
-http://code.google.com/p/robobuildervc/source/browse/trunk/old/pic.jpg
-
 http://robobuildervc.googlecode.com/files/pic.jpg
