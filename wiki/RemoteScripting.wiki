@@ -1,8 +1,10 @@
-#summary One-sentence summary of this page.
+#summary Simple scripting language that chains motions with simple logic flow
 
 = Introduction =
 
 In the preset form buttons are assigned to motion file (.csv) but also there are script file (.txt) that can chain motions together with some simple logic commands.
+
+http://code.google.com/p/robobuildervc/source/browse/trunk/PCControlMode/bin/Debug/motions/test.txt
 
 = remote scripting =
 
@@ -37,4 +39,3 @@ let b $a+5
 message "value of b is $b"
 end
 }}}
-
