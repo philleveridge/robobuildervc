@@ -76,7 +76,12 @@ namespace RobobuilderLib
             label1.Text = e.Result.Text;
         }
 
-        private void setup_filter()
+        public void setup_filter()
+        {
+            setup_filter(new IntRange(140, 255), new IntRange(0, 100), new IntRange(0, 100));
+        }
+
+        public void setup_filter(IntRange red, IntRange blue, IntRange green)
         {
             // configure blob counter
             blobCounter.MinWidth = 25;
@@ -84,13 +89,19 @@ namespace RobobuilderLib
             blobCounter.FilterBlobs = true;
             blobCounter.ObjectsOrder = ObjectsOrder.Size;
 
-            colorFilter.Blue = new IntRange(0, 100);
-            colorFilter.Red = new IntRange(140, 255);
-            colorFilter.Green = new IntRange(0, 100);
+            colorFilter.Blue = blue;
+            colorFilter.Red = red;
+            colorFilter.Green = green;
+        }
 
-            colorFilter2.Blue = new IntRange(100, 255);
-            colorFilter2.Red = new IntRange(0, 100);
-            colorFilter2.Green = new IntRange(0, 100);
+        public bool IsfilterOn()
+        {
+            return detectionCheck.Checked;
+        }
+
+        public bool IsVideoOn()
+        {
+            return (videoSourcePlayer.VideoSource != null && videoSourcePlayer.IsRunning);
         }
 
         private void cmdStart_Click(object sender, EventArgs e)
@@ -188,15 +199,14 @@ namespace RobobuilderLib
                     int cx = objectRect.X + objectRect.Width / 2;
                     int cy = objectRect.Y + objectRect.Height / 2;
 
-                    cx = ((3 * cx) / image.Width) % 3;
+                    cx = ((3 * cx) / image.Width) % 3;      // find centre (cx,cy)
                     cy = ((3 * cy) / image.Height) % 3;
 
-                    int n = cx * 3 + cy + 1;
-
-                    if (pf1.video_obj_loc != n)
-                    {
-                        pf1.video_obj_loc = n;
-                    }
+                    // update location sq
+                    // 1 4 7
+                    // 2 5 8
+                    // 3 6 9
+                    pf1.video_obj_loc = cx * 3 + cy + 1;    
                 }
                 else
                     pf1.video_obj_loc = 0;
