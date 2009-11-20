@@ -442,7 +442,7 @@ namespace RobobuilderLib
         private void loadFile_Click(object sender, EventArgs e)
         {
             OpenFileDialog s = new OpenFileDialog();
-            s.Filter = "Motion file (*.csv)|*.csv";
+            s.Filter = "Motion file (*.csv)|*.csv|RoboBuilderMotion (*.rbm)|*.rbm";
             if (s.ShowDialog() == DialogResult.OK)
             {
                 filename = s.FileName;
@@ -454,6 +454,60 @@ namespace RobobuilderLib
             int n = 0;
             motiondata.Clear();
 
+            if (filename.EndsWith("rbm"))
+            {
+                // load r bm file and convert from 16 servos to 19
+
+                RobobuilderVC.Motion m = new RobobuilderVC.Motion();
+                m.LoadFile(filename);
+
+                int[] diff =new int[m.no_servos];
+                for (int delta = 0; delta < m.no_servos; delta++)
+                {
+                    if (delta<wckMotion.MAX_SERVOS) 
+                        diff[delta] = wckMotion.basic_pos[delta] - (int)m.scenes[0].mPositions[delta];
+                    else
+                        diff[delta] = 0;
+                }
+
+
+                for (int i = 0; i < m.no_scenes; i++)
+                {
+                    ServoPoseData t = new ServoPoseData();
+
+                    t.Time = (int)m.scenes[i].TransitionTime;
+                    t.Steps = (int)m.scenes[i].Frames;
+
+                    t.S0  = diff[0]  + (int)m.scenes[i].mPositions[0];
+                    t.S1  = diff[1]  + (int)m.scenes[i].mPositions[1];
+                    t.S2  = diff[2]  + (int)m.scenes[i].mPositions[2];
+                    t.S3  = diff[3]  + (int)m.scenes[i].mPositions[3];
+                    t.S4  = diff[4]  + (int)m.scenes[i].mPositions[4];
+                    t.S5  = diff[5]  + (int)m.scenes[i].mPositions[5];
+                    t.S6  = diff[6]  + (int)m.scenes[i].mPositions[6];
+                    t.S7  = diff[7]  + (int)m.scenes[i].mPositions[7];
+                    t.S8  = diff[8]  + (int)m.scenes[i].mPositions[8];
+                    t.S9  = diff[9]  + (int)m.scenes[i].mPositions[9];
+                    t.S10 = diff[10] + (int)m.scenes[i].mPositions[10];
+                    t.S11 = diff[11] + (int)m.scenes[i].mPositions[11];
+                    t.S12 = diff[12] + (int)m.scenes[i].mPositions[12];
+                    t.S13 = diff[13] + (int)m.scenes[i].mPositions[13];
+                    t.S14 = diff[14] + (int)m.scenes[i].mPositions[14];
+                    t.S15 = diff[15] + (int)m.scenes[i].mPositions[15];
+                    t.S16 = (m.no_servos > 16) ? (diff[15] + (int)m.scenes[i].mPositions[16]) : 125;
+                    t.S17 = (m.no_servos > 17) ? (diff[15] + (int)m.scenes[i].mPositions[17]) : 125;
+                    t.S18 = (m.no_servos > 18) ? (diff[15] + (int)m.scenes[i].mPositions[18]) : 127;
+                    t.X   = 0;
+                    t.Y   = 0;
+                    t.Z   = 0;
+                    motiondata.Add(t);
+                }
+
+                dataGridView1.DataSource = null;
+                dataGridView1.DataSource = motiondata;
+                dataGridView1.Refresh();
+                return;
+            }
 
             try
             {
@@ -592,6 +646,15 @@ namespace RobobuilderLib
             if (viewport != null) 
                 viewport.PlayPose(r.Time, r.Steps, t, true);
 
+            if (dataGridView1.CurrentRow.Index < dataGridView1.RowCount - 1)
+            {
+                dataGridView1.CurrentCell = dataGridView1.Rows[dataGridView1.CurrentRow.Index + 1].Cells[0];
+            }
+            else
+            {
+                dataGridView1.CurrentCell = dataGridView1.Rows[0].Cells[0];
+            }
+            dataGridView1.Refresh();
         }
 
         private void setBasic_Click(object sender, EventArgs e)

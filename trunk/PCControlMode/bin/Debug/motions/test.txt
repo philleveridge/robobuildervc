@@ -1,0 +1,46 @@
+#
+# test file
+#
+
+alert "hello world"
+let a 5
+message "value of a is $a"
+
+# ir is simulated - click on image
+read ir
+message "you pressed $iR"
+let b $a+5
+message "value of b is $b"
+
+#video test - need to be on and filter selected
+alert "switch on video"
+
+repeat 5
+  video
+
+  if $video=5
+    message "centered"
+  fi
+
+  if $video<4
+    message "left"
+  fi
+
+  if $video>6
+    message "right"
+  fi
+
+  wait 1000
+end
+
+#acceleromter test - need to be connected
+alert "connect now"
+get acc
+message "acc $gX $gY $gZ"
+
+get distance
+message "d=$Dist"
+
+#robot move - requires motion csv files
+Basic
+

@@ -164,7 +164,7 @@ namespace RobobuilderLib
 
         private void NewBasicPose()
         {
-            wckm.BasicPose(1000, 10);
+            if (wckm != null) wckm.BasicPose(1000, 10);
         }
 
         private void play(string filename)
@@ -310,19 +310,20 @@ namespace RobobuilderLib
             for (int i = 0; i < sc.Length; i++)
             {
                 string line = sc[i].Trim() ;
-                if (line.StartsWith("#")) continue;
+                if (line=="" || line.StartsWith("#")) 
+                    continue;
 
                 Console.WriteLine(i + " " + line);
 
-
                 string[] words = line.Split(' ');
 
-                if (ifcond == false && words[0] != "else")
+                if (ifcond == false && !(words[0] == "else" || words[0] == "fi"))
                     continue;
 
                 switch (words[0].ToLower())
                 {
                     case "get":
+                       if (remote == null) continue;
                        switch (words[1].ToLower())
                        {
                         case "acc":
@@ -344,7 +345,11 @@ namespace RobobuilderLib
                     case "wait":
                         // wait x ms
                         int t = Convert.ToInt32(evalExpr(words[1]));
-                        System.Threading.Thread.Sleep(t);
+                        for (int n = 0; n < t / 50; n++)
+                        {
+                            System.Threading.Thread.Sleep(50);
+                            Application.DoEvents();
+                        }
                         break;
 
                     case "video" :
@@ -353,6 +358,7 @@ namespace RobobuilderLib
 
                         while (video_obj_loc == 0) { Application.DoEvents(); }
                         vars["video"] = video_obj_loc;
+                        Console.WriteLine("V: " + vars["video"]);
                         break;
 
                     case "read":
@@ -380,10 +386,12 @@ namespace RobobuilderLib
                         break;
                     case "alert":
                         output_txt.Text = evalExpr(line.Substring(6));
+                        Console.WriteLine("M: " + output_txt.Text);
                         MessageBox.Show(output_txt.Text);
                         break;
                     case "message":
                         output_txt.Text = evalExpr(line.Substring(8));
+                        Console.WriteLine("M: " + output_txt.Text);
                         break;
                     case "if":
                         // if [condition] 
@@ -407,6 +415,8 @@ namespace RobobuilderLib
                     case "setservo":
                         // setservo id pos
                         {
+                            if (remote == null) continue;
+
                             int id = Convert.ToInt32(evalExpr(words[1]));
                             int pos = Convert.ToInt32(evalExpr(words[2]));
                             wckMotion m = new wckMotion(remote);
@@ -417,6 +427,8 @@ namespace RobobuilderLib
                     case "modservo":
                         // mod id relative-pos
                         {
+                            if (remote == null) continue;
+
                             int id = Convert.ToInt32(evalExpr(words[1]));
                             int pos = Convert.ToInt32(evalExpr(words[2]));
                             wckMotion m = new wckMotion(remote);
