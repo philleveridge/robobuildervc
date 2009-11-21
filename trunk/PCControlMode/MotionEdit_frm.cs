@@ -291,25 +291,8 @@ namespace RobobuilderLib
             ServoPoseData n = new ServoPoseData();
             n.Time = 500;
             n.Steps = 10;
-            n.S0 = servoPos[0].Value;
-            n.S1 = servoPos[1].Value;
-            n.S2 = servoPos[2].Value;
-            n.S3 = servoPos[3].Value;
-            n.S4 = servoPos[4].Value;
-            n.S5 = servoPos[5].Value;
-            n.S6 = servoPos[6].Value;
-            n.S7 = servoPos[7].Value;
-            n.S8 = servoPos[8].Value;
-            n.S9 = servoPos[9].Value;
-            n.S10 = servoPos[10].Value;
-            n.S11 = servoPos[11].Value;
-            n.S12 = servoPos[12].Value;
-            n.S13 = servoPos[13].Value;
-            n.S14 = servoPos[14].Value;
-            n.S15 = servoPos[15].Value;
-            n.S16 = servoPos[16].Value;
-            n.S17 = servoPos[17].Value;
-            n.S18 = servoPos[18].Value;
+            for (int i = 0; i < 19; i++)
+                n.S[i] = servoPos[i].Value;
 
             Console.WriteLine(remote.readXYZ(out x, out y, out z));
             xV.Text = "X=" + x.ToString();
@@ -342,25 +325,8 @@ namespace RobobuilderLib
                 dataGridView1.Refresh();
 
                 byte[] t = new byte[19];
-                t[0] = (byte)r.S0;
-                t[1] = (byte)r.S1;
-                t[2] = (byte)r.S2;
-                t[3] = (byte)r.S3;
-                t[4] = (byte)r.S4;
-                t[5] = (byte)r.S5;
-                t[6] = (byte)r.S6;
-                t[7] = (byte)r.S7;
-                t[8] = (byte)r.S8;
-                t[9] = (byte)r.S9;
-                t[10] = (byte)r.S10;
-                t[11] = (byte)r.S11;
-                t[12] = (byte)r.S12;
-                t[13] = (byte)r.S13;
-                t[14] = (byte)r.S14;
-                t[15] = (byte)r.S15;
-                t[16] = (byte)r.S16;
-                t[17] = (byte)r.S17;
-                t[18] = (byte)r.S18;
+                for (int i = 0; i < 19; i++)
+                    t[i] = (byte)r.S[i];
 
                 if (dcontrol != null) dcontrol.PlayPose(r.Time, r.Steps, t, ff);
                 if (viewport != null) viewport.PlayPose(r.Time, r.Steps, t, ff);
@@ -400,25 +366,10 @@ namespace RobobuilderLib
                 {
                     tw.Write(r.Time + ",");
                     tw.Write(r.Steps + ",");
-                    tw.Write(r.S0 + ",");
-                    tw.Write(r.S1 + ",");
-                    tw.Write(r.S2 + ",");
-                    tw.Write(r.S3 + ",");
-                    tw.Write(r.S4 + ",");
-                    tw.Write(r.S5 + ",");
-                    tw.Write(r.S6 + ",");
-                    tw.Write(r.S7 + ",");
-                    tw.Write(r.S8 + ",");
-                    tw.Write(r.S9 + ",");
-                    tw.Write(r.S10 + ",");
-                    tw.Write(r.S11 + ",");
-                    tw.Write(r.S12 + ",");
-                    tw.Write(r.S13 + ",");
-                    tw.Write(r.S14 + ",");
-                    tw.Write(r.S15 + ",");
-                    tw.Write(r.S16 + ",");
-                    tw.Write(r.S17 + ",");
-                    tw.Write(r.S18 + ",");
+
+                    for (int i = 0; i < 19; i++)
+                        tw.Write(r.S[i] + ",");
+
                     tw.Write(r.X + ",");
                     tw.Write(r.Y + ",");
                     tw.WriteLine(r.Z);
@@ -470,7 +421,6 @@ namespace RobobuilderLib
                         diff[delta] = 0;
                 }
 
-
                 for (int i = 0; i < m.no_scenes; i++)
                 {
                     ServoPoseData t = new ServoPoseData();
@@ -478,25 +428,18 @@ namespace RobobuilderLib
                     t.Time = (int)m.scenes[i].TransitionTime;
                     t.Steps = (int)m.scenes[i].Frames;
 
-                    t.S0  = diff[0]  + (int)m.scenes[i].mPositions[0];
-                    t.S1  = diff[1]  + (int)m.scenes[i].mPositions[1];
-                    t.S2  = diff[2]  + (int)m.scenes[i].mPositions[2];
-                    t.S3  = diff[3]  + (int)m.scenes[i].mPositions[3];
-                    t.S4  = diff[4]  + (int)m.scenes[i].mPositions[4];
-                    t.S5  = diff[5]  + (int)m.scenes[i].mPositions[5];
-                    t.S6  = diff[6]  + (int)m.scenes[i].mPositions[6];
-                    t.S7  = diff[7]  + (int)m.scenes[i].mPositions[7];
-                    t.S8  = diff[8]  + (int)m.scenes[i].mPositions[8];
-                    t.S9  = diff[9]  + (int)m.scenes[i].mPositions[9];
-                    t.S10 = diff[10] + (int)m.scenes[i].mPositions[10];
-                    t.S11 = diff[11] + (int)m.scenes[i].mPositions[11];
-                    t.S12 = diff[12] + (int)m.scenes[i].mPositions[12];
-                    t.S13 = diff[13] + (int)m.scenes[i].mPositions[13];
-                    t.S14 = diff[14] + (int)m.scenes[i].mPositions[14];
-                    t.S15 = diff[15] + (int)m.scenes[i].mPositions[15];
-                    t.S16 = (m.no_servos > 16) ? (diff[15] + (int)m.scenes[i].mPositions[16]) : 125;
-                    t.S17 = (m.no_servos > 17) ? (diff[15] + (int)m.scenes[i].mPositions[17]) : 125;
-                    t.S18 = (m.no_servos > 18) ? (diff[15] + (int)m.scenes[i].mPositions[18]) : 127;
+                    for (int k = 0; k < m.no_servos; k++)
+                    {
+                        t.S[k] = diff[k] + (int)m.scenes[i].mPositions[k];
+                    }
+
+                    if (m.no_servos < 17)
+                        t.S16 =  125;
+                    if (m.no_servos < 18)
+                        t.S17 = 125;
+                    if (m.no_servos < 19)
+                        t.S18 = 127;
+
                     t.X   = 0;
                     t.Y   = 0;
                     t.Z   = 0;
@@ -528,25 +471,9 @@ namespace RobobuilderLib
                         ServoPoseData t = new ServoPoseData();
                         t.Time = Convert.ToInt32(r[0]);
                         t.Steps = Convert.ToInt32(r[1]);
-                        t.S0 = Convert.ToInt32(r[2]);
-                        t.S1 = Convert.ToInt32(r[3]);
-                        t.S2 = Convert.ToInt32(r[4]);
-                        t.S3 = Convert.ToInt32(r[5]);
-                        t.S4 = Convert.ToInt32(r[6]);
-                        t.S5 = Convert.ToInt32(r[7]);
-                        t.S6 = Convert.ToInt32(r[8]);
-                        t.S7 = Convert.ToInt32(r[9]);
-                        t.S8 = Convert.ToInt32(r[10]);
-                        t.S9 = Convert.ToInt32(r[11]);
-                        t.S10 = Convert.ToInt32(r[12]);
-                        t.S11 = Convert.ToInt32(r[13]);
-                        t.S12 = Convert.ToInt32(r[14]);
-                        t.S13 = Convert.ToInt32(r[15]);
-                        t.S14 = Convert.ToInt32(r[16]);
-                        t.S15 = Convert.ToInt32(r[17]);
-                        t.S16 = Convert.ToInt32(r[18]);
-                        t.S17 = Convert.ToInt32(r[19]);
-                        t.S18 = Convert.ToInt32(r[20]);
+
+                        for (int i = 0; i < 19; i++)
+                            t.S[i] = Convert.ToInt32(r[i+2]);
 
                         motiondata.Add(t);
                     }
@@ -579,25 +506,9 @@ namespace RobobuilderLib
             ServoPoseData n = new ServoPoseData();
             n.Time = 500;
             n.Steps = 10;
-            n.S0 = servoPos[0].Value;
-            n.S1 = servoPos[1].Value;
-            n.S2 = servoPos[2].Value;
-            n.S3 = servoPos[3].Value;
-            n.S4 = servoPos[4].Value;
-            n.S5 = servoPos[5].Value;
-            n.S6 = servoPos[6].Value;
-            n.S7 = servoPos[7].Value;
-            n.S8 = servoPos[8].Value;
-            n.S9 = servoPos[9].Value;
-            n.S10 = servoPos[10].Value;
-            n.S11 = servoPos[11].Value;
-            n.S12 = servoPos[12].Value;
-            n.S13 = servoPos[13].Value;
-            n.S14 = servoPos[14].Value;
-            n.S15 = servoPos[15].Value;
-            n.S16 = servoPos[16].Value;
-            n.S17 = servoPos[17].Value;
-            n.S18 = servoPos[18].Value;
+
+            for (int i = 0; i < 19; i++) 
+                n.S[i] = servoPos[i].Value;
 
             motiondata[j] = n;
 
@@ -621,25 +532,9 @@ namespace RobobuilderLib
             ServoPoseData r = motiondata[j];
 
             byte[] t = new byte[19];
-            t[0] = (byte)r.S0;
-            t[1] = (byte)r.S1;
-            t[2] = (byte)r.S2;
-            t[3] = (byte)r.S3;
-            t[4] = (byte)r.S4;
-            t[5] = (byte)r.S5;
-            t[6] = (byte)r.S6;
-            t[7] = (byte)r.S7;
-            t[8] = (byte)r.S8;
-            t[9] = (byte)r.S9;
-            t[10] = (byte)r.S10;
-            t[11] = (byte)r.S11;
-            t[12] = (byte)r.S12;
-            t[13] = (byte)r.S13;
-            t[14] = (byte)r.S14;
-            t[15] = (byte)r.S15;
-            t[16] = (byte)r.S16;
-            t[17] = (byte)r.S17;
-            t[18] = (byte)r.S18;
+
+            for (int i = 0; i < 19; i++) 
+                t[i] = (byte)r.S[i];
 
             if (dcontrol != null) 
                 dcontrol.PlayPose(r.Time, r.Steps, t, true);
@@ -753,25 +648,27 @@ namespace RobobuilderLib
     {
         public int Time { get; set; }
         public int Steps { get; set; }
-        public int S0 { get; set; }
-        public int S1 { get; set; }
-        public int S2 { get; set; }
-        public int S3 { get; set; }
-        public int S4 { get; set; }
-        public int S5 { get; set; }
-        public int S6 { get; set; }
-        public int S7 { get; set; }
-        public int S8 { get; set; }
-        public int S9 { get; set; }
-        public int S10 { get; set; }
-        public int S11 { get; set; }
-        public int S12 { get; set; }
-        public int S13 { get; set; }
-        public int S14 { get; set; }
-        public int S15 { get; set; }
-        public int S16 { get; set; }
-        public int S17 { get; set; }
-        public int S18 { get; set; }
+        public int S0 { get { return S[0]; } set { S[0] = value; } }
+        public int S1 { get { return S[1]; } set { S[1] = value; } }
+        public int S2 { get { return S[2]; } set { S[2] = value; } }
+        public int S3 { get { return S[3]; } set { S[3] = value; } }
+        public int S4 { get { return S[4]; } set { S[4] = value; } }
+        public int S5 { get { return S[5]; } set { S[5] = value; } }
+        public int S6 { get { return S[6]; } set { S[6] = value; } }
+        public int S7 { get { return S[7]; } set { S[7] = value; } }
+        public int S8 { get { return S[8]; } set { S[8] = value; } }
+        public int S9 { get { return S[9]; } set { S[9] = value; } }
+        public int S10 { get { return S[10]; } set { S[10] = value; } }
+        public int S11 { get { return S[11]; } set { S[11] = value; } }
+        public int S12 { get { return S[12]; } set { S[12] = value; } }
+        public int S13 { get { return S[13]; } set { S[13] = value; } }
+        public int S14 { get { return S[14]; } set { S[14] = value; } }
+        public int S15 { get { return S[15]; } set { S[15] = value; } }
+        public int S16 { get { return S[16]; } set { S[16] = value; } }
+        public int S17 { get { return S[17]; } set { S[17] = value; } }
+        public int S18 { get { return S[18]; } set { S[18] = value; } }
+        public int S19 { get { return S[19]; } set { S[19] = value; } }
+        public int[] S = new int[20];
         public Int16 X { get; set; }
         public Int16 Y { get; set; }
         public Int16 Z { get; set; }

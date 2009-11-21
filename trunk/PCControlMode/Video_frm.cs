@@ -28,6 +28,9 @@ namespace RobobuilderLib
         BlobCounter blobCounter = new BlobCounter();
         Preset_frm pf1;
 
+        bool min_upd = false;
+        bool pausev = false;
+
         public Video_frm(Preset_frm p)
         {
             InitializeComponent();
@@ -92,6 +95,16 @@ namespace RobobuilderLib
             colorFilter.Blue = blue;
             colorFilter.Red = red;
             colorFilter.Green = green;
+
+            panel1.BackColor = System.Drawing.Color.FromArgb(red.Min, green.Min, blue.Min);
+            panel2.BackColor = System.Drawing.Color.FromArgb(red.Max, green.Max, blue.Max);
+
+            label2.Text = colorFilter.Red.Min.ToString();
+            label3.Text = colorFilter.Green.Min.ToString();
+            label4.Text = colorFilter.Blue.Min.ToString();
+            label5.Text = colorFilter.Red.Max.ToString();
+            label6.Text = colorFilter.Green.Max.ToString();
+            label7.Text = colorFilter.Blue.Max.ToString();
         }
 
         public bool IsfilterOn()
@@ -117,6 +130,7 @@ namespace RobobuilderLib
 
             videoSourcePlayer.VideoSource = videoSource;
             videoSourcePlayer.Start();
+            cmdPause.Visible = true;
         }
 
         private void cmdStop_Click(object sender, EventArgs e)
@@ -124,13 +138,29 @@ namespace RobobuilderLib
             // stop camera
             videoSourcePlayer.SignalToStop();
             videoSourcePlayer.WaitForStop();
+
+            cmdPause.Visible = false;
+        }
+
+        private void cmdPause_Click(object sender, EventArgs e)
+        {
+            pausev = !pausev;
+            videoSourcePlayer.Visible = !pausev;
+            pictureBox1.Image = null;
         }
 
         // New video frame has arrived
         void videoSourcePlayer_NewFrame(object sender, ref Bitmap image)
         {
             cnt++;
+
+            if (pausev && pictureBox1.Image!=null)
+            {
+                return;
+            }
+
             Graphics g1 = Graphics.FromImage(image);
+
 
             string text;
             if (pf1.video_obj_loc == 0)
@@ -218,11 +248,81 @@ namespace RobobuilderLib
                 }
                 grayImage.Dispose();
             }
+
+            if (pausev && pictureBox1.Image == null)
+            {
+                pictureBox1.Image = image;
+            }
         }
 
         private void button1_Click(object sender, EventArgs e)
         {
+            //exit button
             this.Hide();
         }
+
+
+        private void color_bar_Scroll(object sender, ScrollEventArgs e)
+        {
+            int t, a , b;
+            t = ((HScrollBar)(sender)).Value;
+
+            switch (((HScrollBar)(sender)).Name)
+            {
+                case "red_bar":
+                    a = colorFilter.Red.Min;
+                    b = colorFilter.Red.Max;
+                    if (min_upd && t < b) a = t;
+                    if (!min_upd && t>a) b = t;
+                    colorFilter.Red = new IntRange(a, b);
+                    break;
+                 case "green_bar":
+                    a = colorFilter.Green.Min;
+                    b = colorFilter.Green.Max;
+                    if (min_upd && t < b) a = t;
+                    if (!min_upd && t > a) b = t;
+                    colorFilter.Green = new IntRange(a, b);
+                    break;          
+                case "blue_bar":
+                    a = colorFilter.Blue.Min;
+                    b = colorFilter.Blue.Max;
+                    if (min_upd && t < b) a = t;
+                    if (!min_upd && t > a) b = t;
+                    colorFilter.Blue = new IntRange(a, b);
+                    break;
+            }
+            panel1.BackColor = System.Drawing.Color.FromArgb(colorFilter.Red.Min, colorFilter.Green.Min, colorFilter.Blue.Min);
+            panel2.BackColor = System.Drawing.Color.FromArgb(colorFilter.Red.Max, colorFilter.Green.Max, colorFilter.Blue.Max);
+
+            label2.Text = colorFilter.Red.Min.ToString();
+            label3.Text = colorFilter.Green.Min.ToString();
+            label4.Text = colorFilter.Blue.Min.ToString();
+            label5.Text = colorFilter.Red.Max.ToString();
+            label6.Text = colorFilter.Green.Max.ToString();
+            label7.Text = colorFilter.Blue.Max.ToString();
+        }
+
+        private void panel1_click(object sender, EventArgs e)
+        {
+            min_upd = true;
+            panel1.BorderStyle = BorderStyle.FixedSingle;
+            panel2.BorderStyle = BorderStyle.None;
+            red_bar.Value = colorFilter.Red.Min;
+            green_bar.Value = colorFilter.Green.Min;
+            blue_bar.Value = colorFilter.Blue.Min;
+        }
+
+        private void panel2_click(object sender, EventArgs e)
+        {
+            min_upd = false;
+            panel1.BorderStyle = BorderStyle.None;
+            panel2.BorderStyle = BorderStyle.FixedSingle;
+
+            red_bar.Value = colorFilter.Red.Max;
+            green_bar.Value = colorFilter.Green.Max;
+            blue_bar.Value = colorFilter.Blue.Max;
+        }
+
+
     }
 }
