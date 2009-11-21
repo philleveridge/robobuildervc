@@ -245,6 +245,13 @@ namespace RobobuilderLib
             return x;
         }
 
+        private void Message(string x)
+        {
+            output_txt.Text = x;
+            mssage_txt.Text = x;
+            Console.WriteLine(x);
+        }
+
         private int evalNumeric(string x)
         {
             //
@@ -309,6 +316,12 @@ namespace RobobuilderLib
             string[] sc = script.Split(';');
             for (int i = 0; i < sc.Length; i++)
             {
+                if (script_active == false)
+                {
+                    Message("Stopped");
+                    break;
+                }
+
                 string line = sc[i].Trim() ;
                 if (line=="" || line.StartsWith("#")) 
                     continue;
@@ -349,16 +362,16 @@ namespace RobobuilderLib
                         {
                             System.Threading.Thread.Sleep(50);
                             Application.DoEvents();
+                            if (script_active == false) break;
                         }
                         break;
-
                     case "video" :
                         // video [location] [filter id] 
                         // if obj detected put loc into $video
 
                         while (video_obj_loc == 0) { Application.DoEvents(); }
                         vars["video"] = video_obj_loc;
-                        Console.WriteLine("V: " + vars["video"]);
+                        //Message("V: " + vars["video"]);
                         break;
 
                     case "read":
@@ -385,13 +398,11 @@ namespace RobobuilderLib
                         }
                         break;
                     case "alert":
-                        output_txt.Text = evalExpr(line.Substring(6));
-                        Console.WriteLine("M: " + output_txt.Text);
+                        Message(evalExpr(line.Substring(6)));
                         MessageBox.Show(output_txt.Text);
                         break;
                     case "message":
-                        output_txt.Text = evalExpr(line.Substring(8));
-                        Console.WriteLine("M: " + output_txt.Text);
+                        Message(evalExpr(line.Substring(8)));
                         break;
                     case "if":
                         // if [condition] 
@@ -484,6 +495,8 @@ namespace RobobuilderLib
 
         private void button_Click(object sender, EventArgs e)
         {
+            if (script_active) return;
+
             if (checkBox2.Checked && action.Text == "")
             {
                 if (!script.Text.EndsWith("\r\n")) script.Text += "\r\n";
@@ -502,10 +515,13 @@ namespace RobobuilderLib
                 if (fnames[i].StartsWith("S:"))
                 {
                     //load into editor
+                    string c = fnames[i].Substring(2);
+
                     action.Text = ((Button)sender).Text;
-                    script.Text = fnames[i].Substring(2).Replace(";", "\r\n");
+                    script.Text = c;
                     //run script
-                    run(fnames[i].Substring(2));                       
+                    c = c.Replace("\r\n", ";");
+                    run(c);                       
                 }
                 else
                 {
@@ -516,6 +532,17 @@ namespace RobobuilderLib
 
         private void run_btn_Click(object sender, EventArgs e)
         {
+            if (run_btn.Text == "Stop")
+            {
+                run_btn.Text = "Run";
+                run_btn.BackColor = System.Drawing.SystemColors.ControlLight;
+                script_active = false;
+                return;
+            }
+
+            run_btn.Text = "Stop";
+            run_btn.BackColor = System.Drawing.Color.Red;
+
             // run
             string n = action.Text;
             string c = script.Text;
@@ -526,15 +553,19 @@ namespace RobobuilderLib
             if (c == "")
             {
                 MessageBox.Show("No script");
-                return;
+            }
+            else
+            {
+                if (!dbg_flg.Checked || MessageBox.Show("Run : " + n + " - OK ?", "Run", MessageBoxButtons.OKCancel) == DialogResult.OK)
+                {
+                    c = c.Replace("\r\n", ";");
+                    Console.WriteLine("Script=" + c);
+                    run(c);
+                }
             }
 
-            if (!dbg_flg.Checked || MessageBox.Show("Run : " + n + " - OK ?", "Run", MessageBoxButtons.OKCancel) == DialogResult.OK)
-            {
-                c = c.Replace("\r\n", ";");
-                Console.WriteLine("Script=" + c);
-                run(c);
-            }
+            run_btn.Text = "Run";
+            run_btn.BackColor = System.Drawing.SystemColors.ControlLight;
         }
 
         private void vScrollBar1_Scroll(object sender, ScrollEventArgs e)

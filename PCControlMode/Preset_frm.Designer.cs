@@ -41,6 +41,7 @@
             this.script = new System.Windows.Forms.TextBox();
             this.dbg_flg = new System.Windows.Forms.CheckBox();
             this.checkBox2 = new System.Windows.Forms.CheckBox();
+            this.mssage_txt = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.panel1.SuspendLayout();
             this.SuspendLayout();
@@ -122,12 +123,13 @@
             // 
             // run_btn
             // 
+            this.run_btn.BackColor = System.Drawing.SystemColors.Control;
             this.run_btn.Location = new System.Drawing.Point(219, 5);
             this.run_btn.Name = "run_btn";
             this.run_btn.Size = new System.Drawing.Size(36, 25);
             this.run_btn.TabIndex = 3;
             this.run_btn.Text = "Run";
-            this.run_btn.UseVisualStyleBackColor = true;
+            this.run_btn.UseVisualStyleBackColor = false;
             this.run_btn.Click += new System.EventHandler(this.run_btn_Click);
             // 
             // action
@@ -167,11 +169,20 @@
             this.checkBox2.UseVisualStyleBackColor = true;
             this.checkBox2.CheckedChanged += new System.EventHandler(this.checkBox2_CheckedChanged);
             // 
+            // mssage_txt
+            // 
+            this.mssage_txt.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            this.mssage_txt.Location = new System.Drawing.Point(1, 314);
+            this.mssage_txt.Name = "mssage_txt";
+            this.mssage_txt.Size = new System.Drawing.Size(501, 19);
+            this.mssage_txt.TabIndex = 38;
+            // 
             // Preset_frm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(506, 318);
+            this.ClientSize = new System.Drawing.Size(506, 332);
+            this.Controls.Add(this.mssage_txt);
             this.Controls.Add(this.checkBox2);
             this.Controls.Add(this.pictureBox1);
             this.Controls.Add(this.label1);
@@ -202,6 +213,7 @@
         private System.Windows.Forms.CheckBox dbg_flg;
         private System.Windows.Forms.CheckBox checkBox2;
         private System.Windows.Forms.Label output_txt;
+        private System.Windows.Forms.Label mssage_txt;
 
     }
 }
