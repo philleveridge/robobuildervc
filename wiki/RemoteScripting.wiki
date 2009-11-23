@@ -24,7 +24,7 @@ http://code.google.com/p/robobuildervc/source/browse/trunk/PCControlMode/bin/Deb
   * repeat expression
   * end
 
-  * xxx [Anything else]
+  * xxx [ Anything else is treated as a motion file ( .csv  ) ]
 
 = example =
 
