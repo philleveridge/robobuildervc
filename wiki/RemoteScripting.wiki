@@ -8,10 +8,10 @@ http://code.google.com/p/robobuildervc/source/browse/trunk/PCControlMode/bin/Deb
 
 = remote scripting =
 
-  * get [acc | distance]
+  * get [ acc | distance ]
   * wait
   * video
-  * read [IR | BUTTON | PSD | SOUND ]
+  * read [ IR | BUTTON | PSD | SOUND ]
   * alert
   * message
   * if expression
