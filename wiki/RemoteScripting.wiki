@@ -29,7 +29,7 @@ http://code.google.com/p/robobuildervc/source/browse/trunk/PCControlMode/bin/Deb
 = example =
 
 {{{
-#example file
+#comments - example file
 alert "hello world"
 let a 5
 message "value of a is $a"
@@ -37,5 +37,9 @@ read ir
 message "you pressed $iR"
 let b $a+5
 message "value of b is $b"
+repeat
+  message "loop count $_count"
+  wait 1000
 end
+#end of script
 }}}
