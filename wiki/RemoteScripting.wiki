@@ -23,6 +23,7 @@ http://code.google.com/p/robobuildervc/source/browse/trunk/PCControlMode/bin/Deb
   * let var expression
   * repeat expression
   * end
+  * #any line strating with a # is treated as a comment - and blank lines ignored
 
   * xxx [ Anything else is treated as a motion file ( .csv  ) ]
 
