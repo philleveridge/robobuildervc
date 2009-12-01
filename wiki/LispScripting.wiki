@@ -2,7 +2,7 @@
 
 = Introduction =
 
-A tutorial on both L# and programming Robobuilder with LISP
+A tutorial on both L# and programming Robobuilder with [http://en.wikipedia.org/wiki/Lisp_(programming_language) LISP]
 
 
 = Details =
@@ -22,7 +22,7 @@ svn co https://lsharp.svn.sourceforge.net/svnroot/lsharp/v2 lsharp
 }}}
 
 
-If you're not familiar with Lisp it stands for list processing - this particular lisp uses a dialect based on arc http://www.paulgraham.com/arc.html
+If you're not familiar with Lisp it stands for list processing - this particular LISP uses a dialect based on arc http://www.paulgraham.com/arc.html
 
 A few simple examples:
 
