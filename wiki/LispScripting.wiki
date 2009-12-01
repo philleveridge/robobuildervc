@@ -7,7 +7,7 @@ A tutorial on both L# and programming Robobuilder with LISP
 
 = Details =
 
-I've been playing with controlling my robot with L# a dialect of Lisp built in .NET. Its big advantage is it can hook into any windows library such as my RobobuilderLib.dll for controlling your robot.
+I've been playing with controlling my robot with L# a dialect of Lisp built in .NET. Its big advantage is it can hook into any windows library such as my RobobuilderLib.dll for controlling your robot. L# is written and developed by Rob Blackwell.
 
 If you're interested in trying it out (and following along) I've built  L# and added it into a zip with my library (one small 30K download).
 
@@ -15,7 +15,12 @@ If you're interested in trying it out (and following along) I've built  L# and a
 
 (contains 3 files; LSharpConsole.exe, LSharp.dll, RobobuilderLib.dll)
 
-If you want you can build and download the L# yourself from LSharp.org - there is an svn to extract latest version (v2).
+If you want you can build and download the L# yourself from http://LSharp.org/ - there is an svn to extract latest version (v2). 
+
+{{{
+svn co https://lsharp.svn.sourceforge.net/svnroot/lsharp/v2 lsharp 
+}}}
+
 
 If you're not familiar with Lisp it stands for list processing - this particular lisp uses a dialect based on arc http://www.paulgraham.com/arc.html
 
