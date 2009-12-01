@@ -11,7 +11,9 @@ I've been playing with controlling my robot with L# a dialect of Lisp built in .
 
 If you're interested in trying it out (and following along) I've built  L# and added it into a zip with my library (one small 30K download).
 
-(should be 3 files; LSharpConsole.exe, LSharp.dll, RobobuilderLib.dll)
+[http://robobuildervc.googlecode.com/files/LSharp%20with%20RBLib.zip Lsharp with RBLib.zip]
+
+(containsbe 3 files; LSharpConsole.exe, LSharp.dll, RobobuilderLib.dll)
 
 If you want you can build and download the L# yourself from LSharp.org - there is an svn to extract latest version (v2).
 
@@ -45,5 +47,3 @@ Final example: - try this (> is the prompt!)
 > (MessageBox.Show  "Loaded?" "RoboBuilder is Go!")
 OK
 }}}
-
-
