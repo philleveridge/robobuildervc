@@ -13,7 +13,7 @@ If you're interested in trying it out (and following along) I've built  L# and a
 
 [http://robobuildervc.googlecode.com/files/LSharp%20with%20RBLib.zip Lsharp with RBLib.zip]
 
-(containsbe 3 files; LSharpConsole.exe, LSharp.dll, RobobuilderLib.dll)
+(contains 3 files; LSharpConsole.exe, LSharp.dll, RobobuilderLib.dll)
 
 If you want you can build and download the L# yourself from LSharp.org - there is an svn to extract latest version (v2).
 
@@ -39,7 +39,7 @@ The code should work in Linux/Ubuntu using Mono without change. Just put Mono in
 
 I'll post how to access and run the RobobuilderLib, read firmware version read the accelerometer   (if you have one), and read and control servo positions, and make complex motions, all in a Lsharp using the standard software on your robot. in addition to RobobuilderLib.dll library of course.
 
-Final example: - try this (> is the prompt!)
+Another example: - try this (> is the prompt!)
 
 {{{
 > (reference "System.Windows.Forms")
@@ -47,3 +47,45 @@ Final example: - try this (> is the prompt!)
 > (MessageBox.Show  "Loaded?" "RoboBuilder is Go!")
 OK
 }}}
+
+___
+
+_A little history - Lisp was invented by John McCarthy in 1960 - So next year is its 50th anniversary. _
+
+To load files into Lisp/Lsharp you use the command Load. So with you favorite text editor (vi or notepad) create a file "demo.lisp".
+
+Content of file:
+
+(prn "Hello world")
+
+
+Now start LsharpConsole.exe
+
+{{{
+> (Load "demo.lisp")
+Hello world
+}}}
+
+Note it runs the file immediately displaying the result to the console.
+
+You might be wondering about the () and think there like {} in C but they really not. The fundamental thinks in Lisp are atoms and atoms are formed into list by ().
+So (+ 1 2) represents a list of 3 atoms and if the list is evaluated the + is taken as function and 5 is the result. 
+
+heres another list 
+{{{
+> (= x 5)
+5
+> x
+5
+}}}
+
+This show how to assign a value to the atom x. X evaluates to value of x which in this case is 5.
+
+{{{
+> (+ x x)
+10
+> x
+5
+}}}
+
+Note:  Although (+ x x) added the value of to itself it didn't change its original value
