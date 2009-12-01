@@ -1,0 +1,49 @@
+#summary Using RobobuilderLib.dll with L#
+
+= Introduction =
+
+A tutorial on both L# and programming Robobuilder with LISP
+
+
+= Details =
+
+I've been playing with controlling my robot with L# a dialect of Lisp built in .NET. Its big advantage is it can hook into any windows library such as my RobobuilderLib.dll for controlling your robot.
+
+If you're interested in trying it out (and following along) I've built  L# and added it into a zip with my library (one small 30K download).
+
+(should be 3 files; LSharpConsole.exe, LSharp.dll, RobobuilderLib.dll)
+
+If you want you can build and download the L# yourself from LSharp.org - there is an svn to extract latest version (v2).
+
+If you're not familiar with Lisp it stands for list processing - this particular lisp uses a dialect based on arc http://www.paulgraham.com/arc.html
+
+A few simple examples:
+
+First run the command line environment and get a prompt:
+LSharpConsole.exe
+
+{{{
+> (+ 2 3 4 5)  
+14
+> (= x 5)
+5
+> (= y 7)
+7
+> (* x y)
+35
+}}}
+
+The code should work in Linux/Ubuntu using Mono without change. Just put Mono in front of the shell.
+
+I'll post how to access and run the RobobuilderLib, read firmware version read the accelerometer   (if you have one), and read and control servo positions, and make complex motions, all in a Lsharp using the standard software on your robot. in addition to RobobuilderLib.dll library of course.
+
+Final example: - try this (> is the prompt!)
+
+{{{
+> (reference "System.Windows.Forms")
+> (using "System.Windows.Forms")
+> (MessageBox.Show  "Loaded?" "RoboBuilder is Go!")
+OK
+}}}
+
+
