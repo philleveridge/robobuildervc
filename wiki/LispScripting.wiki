@@ -74,7 +74,7 @@ Hello world
 Note it runs the file immediately displaying the result to the console.
 
 You might be wondering about the () and think there like {} in C but they really not. The fundamental thinks in Lisp are atoms and atoms are formed into list by ().
-So (+ 1 2) represents a list of 3 atoms and if the list is evaluated the + is taken as function and 5 is the result. 
+So (+ 1 2) represents a list of 3 atoms and if the list is evaluated the + is taken as function and the result is 3!
 
 heres another list 
 {{{
