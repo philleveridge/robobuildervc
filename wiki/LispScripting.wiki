@@ -137,10 +137,10 @@ So (+ 1 2) is just another list:
 (+ 2 3)
 }}}
 
-Now a little history (from wikipedia)
+_Now a little history (from wikipedia)
 
 Two assembly language routines for the IBM 704 became the primitive operations for decomposing lists: car (Contents of Address Register) and cdr (Contents of Decrement Register). Lisp dialects still use car and cdr (pronounced /'k?r/ and /'k?d?r/)
-for the operations that return the first item in a list and the rest of the list respectively.
+for the operations that return the first item in a list and the rest of the list respectively._
 
 So how do these work?
 
