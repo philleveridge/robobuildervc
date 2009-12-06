@@ -93,4 +93,464 @@ This show how to assign a value to the atom x. X evaluates to value of x which i
 5
 }}}
 
-Note:  Although (+ x x) added the value of to itself it didn't change its original value
+Note although (+ x x) added the value of to itself it didn't change its value. Atoms can also be made of ascii characters - so (a b c) or (a b 1 3) are lists.
+
+I mentioned that Lisp is basically just atoms and list - or s-expressions as they are called. So what is a list and do we work on them ?
+
+The simplest way is to do a few examples
+
+{{{
+> '(a b c d)
+(a b c d)
+> '(1 2 3)
+(1 2 3)
+}}}
+
+Note the quote (') - this is important! it means don't evaluate the list - take its literal contents. Atoms can be numbers or symbols, and numbers can be integers or floating points (real numbers).
+And lists can be me a mixture:
+
+{{{
+> '(a b 1 2 4.0)
+(a b 1 2 4.0)
+
+;;; or even lists of lists [This is a comment by the way!
+> '( (a b) (c d))
+((a b) ( c d))
+
+;;; I can set a atom to a list
+> (= x '(a b c))
+(a b c)
+> x
+(a b c)
+}}}
+
+But atoms can also be functions - which is where Lisp gets its power - its a user definable symbolic processing language that can be written in itself using just a few primitives
+So (+ 1 2) is just another list:
+
+{{{
+
+> '(+ 2 3)
+(+ 2 3)
+> (= x '(+ 2 3))
+(+ 2 3)
+> x
+(+ 2 3)
+}}}
+
+Now a little history (from wikipedia)
+
+Two assembly language routines for the IBM 704 became the primitive operations for decomposing lists: car (Contents of Address Register) and cdr (Contents of Decrement Register). Lisp dialects still use car and cdr (pronounced /'k?r/ and /'k?d?r/)
+for the operations that return the first item in a list and the rest of the list respectively.
+
+So how do these work?
+
+      car - a function that returns the first item in the list (some Lisp dialects call it first)
+      cdr - a function that return the rest of the list (some Lisp dialects call it last)
+
+
+
+{{{
+> (= x '(1 2 3 4 3 2 1))
+> ( car x)
+1
+> (cdr x)
+(2 3 4 3 2 1)
+}}}
+
+Note they can be chained.
+
+{{{
+> (cdr (cdr ( cdr x)))
+(4 3 2 1)
+}}}
+
+Also if you have an empty list ()
+{{{
+> (cdr '())
+null
+}}}
+
+This becomes important later when we do recursion.
+
+Car and cdr breaks lists apart - how do we stick them back together ?
+
+cons - construct a list
+
+{{{
+> (cons 'a '(1))
+(a 1)
+> (cons 'b x)
+(b 1 2 3 4 3 2 1)
+}}}
+
+Here a bit more complex example - adding a list to another list
+
+{{{
+> (cons '(a b) '(c d))
+((a b) c d)
+}}}
+
+So what would I get if I took car of the newly constructed list??
+
+{{{
+> (car '((a b) c d))
+(a b)
+}}}
+
+A list is returned - the first element
+
+Did you try to create like this
+Code:
+{{{
+> (cons 'a 'b)
+Exception : Not a sequence
+}}}
+
+This is because cons expects its second argument to be a list (or null). so to do the above
+you need
+
+{{{
+> (cons 'a (cons 'b nil))
+(a b)
+>
+}}}
+
+Now on to functions as promised.
+
+When a list is processed or evaluated the first atom is treated as a function. This function can be define by the user, here's an example
+
+{{{
+> (def hello () (prn "hello world"))
+LSharp.Function
+> (hello)
+hello world
+"hello world"
+}}}
+
+So whats going on here?
+The first line defines a function called "hello" that takes no arguments (). The functions then calls prn to print with new line. Note how 'def' is a function that returns a type 'Lsharp.Function' I then invoke the function by using it in a list (hello). So that hello is evaluated. The output is "hello world", and the return value from prn function "hello world" is also displayed.
+
+here's an example of a simple function with an argument
+{{{
+> (def addone (x) (+ x 1))
+LSharp.Function
+> (addone 5)
+6
+> (addone (addone (addone 7)))
+10
+}}}
+
+You might try an see what happens if you addone to a list
+
+To make functions useful we need one more element, the conditional. In LISP this is normally called 'cond' however in this Lisp dialect it instead uses the more familiar (to non LISP people!) if function. if relies on the fact that the atom 't' mean true and null is not true. So a few examples:
+
+{{{
+
+> (if null 'true 'false)
+false
+> (if t 'true 'false)
+true
+> (if (> 3 5) 'true 'false)
+false
+> (if (<3>
+}}}
+
+To use an if statement you need a predicate - a function that return true (t) or false (null), such as "is x greater than y ?" which would be written (> x y), or "is x equal to y ?" written as (is x y). b]if[/b] statement can be compound so they are very similar to the old style LISP cond statements, i.e (if a b c d e) means if a then belseif c then d else e.
+
+A few examples:
+
+{{{
+> (= x 1)
+1
+> (if (is x 1) 'one (is x 2) 'two  'no)
+one
+> (= x 2)
+2
+> (if (is x 1) 'one (is x 2) 'two  'no)
+two
+> (= x 3)
+3
+> (if (is x 1) 'one (is x 2) 'two  'no)
+no
+
+}}}
+
+So todays quiz - can you create a function 'spell' that uses an if statement and outputs the following
+
+{{{
+
+> (spell 1)
+one
+> (spell 3)
+three
+> (spell 21)
+twenty one
+}}}
+
+etc .. i.e. any number up to 99. Can you do it without listing all 99 values??
+
+ So a simple spell function would provide an compound if statement - as follows:
+
+{{{
+> (def spell (x) (if (is x 1) 'one (is x 2) 'two 'no))
+LSharp.Function
+> (spell 1)
+one
+> (spell 2)
+two
+> (spell 3)
+no
+>
+}}}
+
+But what about handling bigger numbers? Now you need to have multiple if statements:
+{{{
+ 
+> (def spell (x)
+  (progn
+    (if (> x 29) ( progn (= x (- x 30)) (pr "thirty ")))
+    (if (> x 19) ( progn (= x (- x 20)) (pr "twenty ")))
+    (if (is x 1) 'one (is x 2) 'two (is x 3) 'three (is x 4) 'four (is x 5) 'five (is x 6) 'six  'no  )
+  )
+)
+*** redefining spell
+LSharp.Function
+>
+(spell 1)
+one
+> (spell 2)
+two
+> (spell 21)
+twenty one
+> (spell 24)
+twenty four
+> (spell 20)
+twenty no
+>
+
+}}}
+
+Important: look how to chain instructions you need a function - called progn. you can't simply
+go ((pr "hello") (pr "world")) - can you see why ? The first element of the list isn't a function - its a list ! So it errors. the correct way to write this is (progn (pr "hello") (pr "world")).
+
+Also: "twenty no" ??? - Well its almost there - can you think how to improve this ? Send me your suggestions !
+
+Ok - so how do we control the robobuilder ?? The first thing we need to do is establish a serial port connection to robot. And here's how we do it. Remember from Day 1 - this code launched a MessageBox ...
+
+{{{
+
+(reference "System.Windows.Forms")
+(using "System.Windows.Forms")
+(MessageBox.Show  "Loaded?" "RoboBbuilder is Go!")
+}}}
+
+Its easy to call windows functions. Heres an alternative way of creating your own prn function, using windows console class.
+
+{{{
+
+> (Console.WriteLine "helloworld")
+helloworld
+null
+}}}
+
+So now to create a function to connect to the robot !!
+
+{{{
+
+> (reference "System.IO.Ports")
+null
+> (using "System.IO.Ports")
+"System.IO.Ports"
+> (def connect ()
+ (= sport (new "SerialPort"))
+ (.set_BaudRate sport 115200)
+ (.set_PortName sport "COM3")
+)
+LSharp.Function
+> (connect)
+null
+}}}
+
+
+So what did this do ? "reference" loads the list of assemblies and "using" makes the code shorter so that functions don't need to be named in full. The heart of this connect functions is this line - (= sport (new "SerialPort")). This assigns ("=" function) to the atom 'sport' a new instance of the object SerialPort. This is a built in .NET function. .set_xxxx enables property xxxx on the object instance to be set. So in this case I set the baud rate and COM port required. This doesn't have to be a function - but I could have passed parameters into the function for com port or baud rate - something you might want to try??
+
+At this point I've not attempted to connect to the robot. To do that I need to 'open' or close the port ...
+
+{{{
+> (.open sport)
+null
+
+> (.close sport)
+null
+}}}
+
+That really did open and close the port !
+
+
+We saw how to connect to a serial port. So we now need to create some functions that use this. First off lets set up some headers and globals. Note you need the full path RobobuilderLib. If its in the same directory as the LSharpConsole.exe then just the name is fine.
+
+{{{
+
+(reference "RobobuilderLib")
+
+
+(using "RobobuilderLib")
+(using "System.Windows.Forms")
+(using "System.IO.Ports")
+
+(= sport ()) ;; initialise global
+(= pcr  ())  ;; initialise global
+
+(def connect (pn)
+ (prn "connecting to " pn)
+ (= sport (new "SerialPort"))
+ (.set_BaudRate sport 115200)
+ (.set_PortName sport pn)
+ (= pcr (new "RobobuilderLib.PCremote" sport))
+)
+}}}
+
+
+This creates a serial port object (sport) and also creates a PCremote object (pcr) that takes the serial port as a parameter, to enable it to do the communication with the robot. The serial port is still not open at this point. But everything is now set up. connect is defined as a function that takes the serial port as an argument - such as "COM1". But what would be neat is to write a function and let the user select the port from the keyboard. So here goes ....
+
+{{{
+(def askPort ()
+  (with (k 0 p 0 y 0)
+      (prn "Available Ports:")
+      (= p (System.IO.Ports.SerialPort.GetPortNames))
+      (each y p (prn y))
+      (prn "Select:")
+      (while (is (= k (Console.ReadLine)) "" ) (pr ": "))
+      (if (not (member? k p)) (do (prn "Invalid port?") (askPort)) k)
+  )
+)
+}}}
+
+
+So what does askPort do ? It gets a list of ports using the .NET function into a local atom / variable 'p. This will be a list i.e. "COM1" "COM2" etc. Using the each iterator function its displays each element of the list returned. Finally it ask the user for input. If the input matches (is a member of the list returned) it exists with value of the data entered 'k. Otherwise its displays an error message and re-enters (a recursive call) askPort - so the user can try again. So a lot of code and a few elements - well it is Sunday!
+
+We've got a connection using PCremote, sol ets get data from the robot to prove its all working!. The simplest is the serial number. Using the readSN() method the function getsn opens the serial port - reads the serial number and then closes. sn is the return value of the function, it should really be a local variable. Note: If you are not connected at this point the system will hang - it should time out - but its not at the moment. So make sure your serial cable is connected and the robot is on.
+
+{{{
+Code:
+
+(def getsn ()
+  (do
+    (.open sport)
+    (= sn (.readSN  pcr))
+    (.close sport)
+    sn
+  )
+)
+}}}
+
+Finally we now have the top level function that brings it all together:
+{{{
+Code:
+
+(def run_robobuilder()
+  (connect (askPort))
+  (getsn)
+)
+}}}
+
+Just type (run_robobuilder). You should see something like this:
+
+{{{
+Code:
+
+> (run_robobuilder)
+Available Ports:
+COM1
+COM3
+COM9
+Select:
+: COM3
+connecting to COM3
+"1041100010***"
+>
+}}}
+
+BTW the * are there to obscure my serial number - it's actually just 13 numbers.
+
+I've put all the PCremote functions in a single file. http://robobuildervc.googlecode.com/files/Day7.lisp Download into the same directory as the LSharpConsole.exe
+
+[u]Now to use this just start Lsharp L#[/u]
+
+{{{
+L Sharp 2.0.0.0 on 2.0.50727.3603
+Copyright (c) Rob Blackwell. All rights reserved.
+> (load "Day7.lisp")
+................
+OK
+> (run_robobuilder)
+Available Ports:
+COM1
+COM3
+COM9
+Select:
+: COM3
+connecting to COM3
+Good Firmware loaded (2.26)
+Serial Number = 1041100010***
+Distance      = 10 cm
+ok
+>
+}}}
+
+
+How does this work? All the key functions have been describe in previous posts - but now with an added  top level function [b]run_robobuilder[/b]. 
+
+{{{
+(def run_robobuilder()
+  (connect (askPort))
+  (MessageBox.Show "make sure robot is connected to serial port and on"  "warning" )
+  (.open sport)
+  (checkver)
+  (prn "Serial Number = " (getsn))
+  (prn "Distance      = " (readdistance) " cm")
+  (.close sport)
+  'ok 
+) 
+}}}
+
+Its starts by setting up the connection to a serial port as we have already seen. It then pops up a message box to warn you to connect and switch on the robot. It then opens the serial connections (.open sport) and then calls a function to check the firmware version you are running. Here is the [b]checkver[/b] function:
+
+{{{
+(def checkver () 
+  (if (not (.Isopen sport)) 
+      (.open sport))
+  (= v (.readVer pcr) )
+  (if (< v 2.23) 
+     (prn "Download new firmware")                       
+     (prn "Good Firmware loaded (" v ")" ) 
+  )
+  v
+)
+}}}
+
+This routine get the firmware via PCremote using this (= v (.readVer pcr) ) storing the resultant string in a variable v. Note although v is a string it can still be used for a numeric test as L# converts seamlessly between string and number.
+
+Some of the PC remote functions do rely on recent firmware I suggest 2.23 or better (you can see I'm running 2.26) go to the http://Robobuilder.net/eng site to download.
+
+The program then gets and displays, using the print (prn) command, the serial number and also now the distance. If you don't have a distance sensor it show 10 (cm). The prn is the same as pr but with newline added.
+
+Finally the Day7.lisp also includes [b]runMotion[/b] and [b]runSound[/b]. More on these tomorrow - but for now assuming your robot is still on and connected
+
+{{{
+> (runMotion 7) 
+}}}
+This will make robot take up basic pose.
+
+Form more information on PCremote http://code.google.com/p/robobuildervc/wiki/Starthere shows you the schema - and the details in the code http://code.google.com/p/robobuildervc/source/browse/trunk/RobobuilderLib/PCremote.cs
+
+To edit the files I use notepad but for those who prefer something with parenthesis mapping I can recommend Notepad2 or Programmers Notepad freeware which are both good.  You could 'even' use Emacs as your editor with Lsharp - according to the Lsharp.org web site:
+
+{{{
+;; Support for L Sharp
+(show-paren-mode t)
+(add-to-list 'auto-mode-alist '("\\.ls$" . lisp-mode))
+(setq inferior-lisp-program "cmd /c  C:\\LSharp\\LSharpConsole\\bin\\Debug\\LSharpConsole.exe")
+}}}
+
+Next - menu driven motions
