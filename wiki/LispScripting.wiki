@@ -40,7 +40,7 @@ LSharpConsole.exe
 35
 }}}
 
-The code should work in Linux/Ubuntu using Mono without change. Just put Mono in front of the shell.
+The code should work in Linux/Ubuntu using Mono without change. Just put Mono in front of the shell. _(Edit: actually I've not been able to get with Mono)_
 
 I'll post how to access and run the RobobuilderLib, read firmware version read the accelerometer   (if you have one), and read and control servo positions, and make complex motions, all in a Lsharp using the standard software on your robot. in addition to RobobuilderLib.dll library of course.
 
@@ -139,15 +139,13 @@ So (+ 1 2) is just another list:
 
 _Now a little history (from wikipedia)
 
-Two assembly language routines for the IBM 704 became the primitive operations for decomposing lists: car (Contents of Address Register) and cdr (Contents of Decrement Register). Lisp dialects still use car and cdr (pronounced /'k?r/ and /'k?d?r/)
+_Two assembly language routines for the IBM 704 became the primitive operations for decomposing lists: car (Contents of Address Register) and cdr (Contents of Decrement Register). Lisp dialects still use car and cdr (pronounced /'k?r/ and /'k?d?r/)
 for the operations that return the first item in a list and the rest of the list respectively._
 
 So how do these work?
 
-      car - a function that returns the first item in the list (some Lisp dialects call it first)
-      cdr - a function that return the rest of the list (some Lisp dialects call it last)
-
-
+  *  car - a function that returns the first item in the list (some Lisp dialects call it first)
+  *  cdr - a function that return the rest of the list (some Lisp dialects call it last)
 
 {{{
 > (= x '(1 2 3 4 3 2 1))
@@ -255,7 +253,7 @@ false
 > (if (<3>
 }}}
 
-To use an if statement you need a predicate - a function that return true (t) or false (null), such as "is x greater than y ?" which would be written (> x y), or "is x equal to y ?" written as (is x y). b]if[/b] statement can be compound so they are very similar to the old style LISP cond statements, i.e (if a b c d e) means if a then belseif c then d else e.
+To use an if statement you need a predicate - a function that return true (t) or false (null), such as "is x greater than y ?" which would be written (> x y), or "is x equal to y ?" written as (is x y). b]if[/b] statement can be compound so they are very similar to the old style LISP cond statements, i.e (if a b c d e) means if a then b elseif c then d else e.
 
 A few examples:
 
@@ -305,13 +303,10 @@ no
 
 But what about handling bigger numbers? Now you need to have multiple if statements:
 {{{
- 
 > (def spell (x)
-  (progn
     (if (> x 29) ( progn (= x (- x 30)) (pr "thirty ")))
     (if (> x 19) ( progn (= x (- x 20)) (pr "twenty ")))
     (if (is x 1) 'one (is x 2) 'two (is x 3) 'three (is x 4) 'four (is x 5) 'five (is x 6) 'six  'no  )
-  )
 )
 *** redefining spell
 LSharp.Function
@@ -327,7 +322,6 @@ twenty four
 > (spell 20)
 twenty no
 >
-
 }}}
 
 Important: look how to chain instructions you need a function - called progn. you can't simply
@@ -338,7 +332,6 @@ Also: "twenty no" ??? - Well its almost there - can you think how to improve thi
 Ok - so how do we control the robobuilder ?? The first thing we need to do is establish a serial port connection to robot. And here's how we do it. Remember from Day 1 - this code launched a MessageBox ...
 
 {{{
-
 (reference "System.Windows.Forms")
 (using "System.Windows.Forms")
 (MessageBox.Show  "Loaded?" "RoboBbuilder is Go!")
@@ -347,7 +340,6 @@ Ok - so how do we control the robobuilder ?? The first thing we need to do is es
 Its easy to call windows functions. Heres an alternative way of creating your own prn function, using windows console class.
 
 {{{
-
 > (Console.WriteLine "helloworld")
 helloworld
 null
@@ -356,7 +348,6 @@ null
 So now to create a function to connect to the robot !!
 
 {{{
-
 > (reference "System.IO.Ports")
 null
 > (using "System.IO.Ports")
@@ -379,7 +370,6 @@ At this point I've not attempted to connect to the robot. To do that I need to '
 {{{
 > (.open sport)
 null
-
 > (.close sport)
 null
 }}}
@@ -390,7 +380,6 @@ That really did open and close the port !
 We saw how to connect to a serial port. So we now need to create some functions that use this. First off lets set up some headers and globals. Note you need the full path RobobuilderLib. If its in the same directory as the LSharpConsole.exe then just the name is fine.
 
 {{{
-
 (reference "RobobuilderLib")
 
 
@@ -432,7 +421,6 @@ So what does askPort do ? It gets a list of ports using the .NET function into a
 We've got a connection using PCremote, sol ets get data from the robot to prove its all working!. The simplest is the serial number. Using the readSN() method the function getsn opens the serial port - reads the serial number and then closes. sn is the return value of the function, it should really be a local variable. Note: If you are not connected at this point the system will hang - it should time out - but its not at the moment. So make sure your serial cable is connected and the robot is on.
 
 {{{
-Code:
 
 (def getsn ()
   (do
@@ -446,8 +434,6 @@ Code:
 
 Finally we now have the top level function that brings it all together:
 {{{
-Code:
-
 (def run_robobuilder()
   (connect (askPort))
   (getsn)
@@ -457,8 +443,6 @@ Code:
 Just type (run_robobuilder). You should see something like this:
 
 {{{
-Code:
-
 > (run_robobuilder)
 Available Ports:
 COM1
@@ -475,7 +459,7 @@ BTW the * are there to obscure my serial number - it's actually just 13 numbers.
 
 I've put all the PCremote functions in a single file. http://robobuildervc.googlecode.com/files/Day7.lisp Download into the same directory as the LSharpConsole.exe
 
-[u]Now to use this just start Lsharp L#[/u]
+Now to use this just start Lsharp L#
 
 {{{
 L Sharp 2.0.0.0 on 2.0.50727.3603
