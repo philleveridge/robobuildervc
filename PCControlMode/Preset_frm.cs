@@ -43,9 +43,9 @@ namespace RobobuilderLib
             runtime = new Runtime(System.Console.In, System.Console.Out, System.Console.Error);
 
             runtime.GlobalEnvironment.Set(Symbol.FromName("form"),  this);
-            runtime.GlobalEnvironment.Set(Symbol.FromName("sport"), remote.serialPort1);
             runtime.GlobalEnvironment.Set(Symbol.FromName("pcr"),   remote);
-            runtime.GlobalEnvironment.Set(Symbol.FromName("wck"),   wckm);
+            if (remote != null) runtime.GlobalEnvironment.Set(Symbol.FromName("sport"), remote.serialPort1);
+            runtime.GlobalEnvironment.Set(Symbol.FromName("wck"), wckm);
             runtime.EvalString("(load \"init.lisp\")");
             //Console.WriteLine(runtime.EvalString("(map show-doc environment)"));
         }
@@ -254,6 +254,20 @@ namespace RobobuilderLib
             return r;
         }
 
+        private void setKfactor(double kf)
+        {
+            // kfactor val (speed up or slow down)
+            k = kf;
+            vScrollBar1.Value = (int)(k * 100f);
+            label1.Text = k.ToString();
+        }
+
+        private double getKfactor()
+        {
+            // kfactor val (speed up or slow down)
+            return k;
+        }
+
         private int readVideo()
         {
             while (video_obj_loc == 0) { Application.DoEvents(); }
@@ -289,18 +303,7 @@ namespace RobobuilderLib
                 int i = Convert.ToInt32(((Button)sender).Name.Substring(7));
                 Console.WriteLine("Name = " + ((Button)sender).Name + "=" + ((Button)sender).Text +"-"+ fnames[i]);
 
-                if (fnames[i].StartsWith("S:"))
-                {
-                    //load into editor
-                    string c = fnames[i].Substring(2);
-
-                    action.Text = ((Button)sender).Text;
-                    script.Text = c;
-                    //run script
-                    //c = c.Replace("\r\n", ";");
-                    //run(c);                       
-                }
-                else if (fnames[i].StartsWith("L:"))
+                if (fnames[i].StartsWith("L:"))
                 {
                     //load into editor
                     string c = fnames[i].Substring(2);
@@ -315,9 +318,14 @@ namespace RobobuilderLib
             }
         }
 
-
-
         private void run_btn_Click(object sender, EventArgs e)
+        {
+            // run LISP script
+
+            run_script(script.Text);
+        }
+
+        private void run_script(string c)
         {
             if (run_btn.Text == "Stop")
             {
@@ -327,22 +335,14 @@ namespace RobobuilderLib
                 return;
             }
 
-            run_btn.Text = "Stop";
-            run_btn.BackColor = System.Drawing.Color.Red;
-
-            // run LISP script
-
-            string n = action.Text;
-            string c = script.Text;
-
-            if (n == "")
-                n = "noname";
-
             if (c == "")
             {
                 MessageBox.Show("No script");
                 return;
             }
+
+            run_btn.Text = "Stop";
+            run_btn.BackColor = System.Drawing.Color.Red;
 
             try
             {
@@ -464,7 +464,7 @@ namespace RobobuilderLib
                     if (fnames[i].StartsWith("L:"))
                     {
                         //run script
-                        //run(fnames[i].Substring(2));
+                        run_script(fnames[i].Substring(2));
                     }
                     else
                     {
