@@ -22,6 +22,7 @@ namespace RobobuilderLib
             header = new byte[] { 0xFF, 0xFF, 0xAA, 0x55, 0xAA, 0x55, 0x37, 0xBA };
             message = "";
             DCmode = false;
+            if (serialPort1.IsOpen) serialPort1.Write(new byte[] { 0xFF, 0xE0, 0xFB, 0x1, 0x00, 0x1A }, 0, 6);
         }
 
         public int Test(byte[] a)

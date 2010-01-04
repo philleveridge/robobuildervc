@@ -42,13 +42,12 @@ namespace RobobuilderLib
         {
             runtime = new Runtime(System.Console.In, System.Console.Out, System.Console.Error);
 
-            runtime.GlobalEnvironment.Set(Symbol.FromName("form"), this);
-            runtime.GlobalEnvironment.Set(Symbol.FromName("pcr"),  remote);
-            runtime.GlobalEnvironment.Set(Symbol.FromName("wck"),  wckm);
+            runtime.GlobalEnvironment.Set(Symbol.FromName("form"),  this);
+            runtime.GlobalEnvironment.Set(Symbol.FromName("sport"), remote.serialPort1);
+            runtime.GlobalEnvironment.Set(Symbol.FromName("pcr"),   remote);
+            runtime.GlobalEnvironment.Set(Symbol.FromName("wck"),   wckm);
             runtime.EvalString("(load \"init.lisp\")");
-            Console.WriteLine(runtime.EvalString("(map show-doc environment)"));
-
-
+            //Console.WriteLine(runtime.EvalString("(map show-doc environment)"));
         }
 
         public void connect(PCremote r)
@@ -121,16 +120,6 @@ namespace RobobuilderLib
                 string t = convname(n);
                 Console.WriteLine(t);
                 update(t,n);
-            }
-
-            s = Directory.GetFileSystemEntries(button_dir, "*.txt");
-            foreach (string n in s)
-            {
-                string t = convname(n);
-                Console.WriteLine(t);
-                //update(t + "," + n);
-                string p = File.ReadAllText(n);
-                update(t, "S:" + p);
             }
 
             s = Directory.GetFileSystemEntries(button_dir, "*.lisp");
@@ -249,84 +238,11 @@ namespace RobobuilderLib
             }
         }
 
-
-        Hashtable vars;
-
-        private string evalExpr(string x)
-        {
-            //
-            IDictionaryEnumerator en = vars.GetEnumerator();
-
-            while (en.MoveNext())
-            {
-                string k = en.Key.ToString();
-                string v = en.Value.ToString();
-                x = x.Replace("$" + k, v);
-            }
-
-            if (x.StartsWith("\"") && x.EndsWith("\""))
-                x = x.Substring(1,x.Length-2);
-            else
-                x = evalNumeric(x).ToString();
-
-            return x;
-        }
-
         private void Message(string x)
         {
             output_txt.Text = x;
             mssage_txt.Text = x;
             Console.WriteLine(x);
-        }
-
-        private int evalNumeric(string x)
-        {
-            //
-            int r = 0;
-            int t = 0;
-            int i = 0;
-            int v=0;
-            char op='+';
-            while (i < x.Length)
-            {
-                if (x[i] == ' ') continue;
-                if (x[i] >= '0' && x[i] <= '9')
-                {
-                    r = r * 10 + (x[i] - '0');
-                }
-                if (x[i] == '+' || x[i] == '-' || x[i] == '=' || x[i] == '<' || x[i] == '>' || x[i] == '!' || x[i] == '*')
-                {
-                    t = r;
-                    r = 0;
-                    op = x[i];
-                }
-                i = i + 1;
-            }
-            switch (op)
-            {
-                case '+':
-                    v = t + r;
-                    break;
-                case '*':
-                    v = t * r;
-                    break;
-                case '-':
-                    v = t - r;
-                    break;
-                case '=':
-                    v = (t == r) ?1 : 0;
-                    break;
-                case '<':
-                    v = (t < r) ? 1 : 0;
-                    break;
-                case '>':
-                    v = (t > r) ? 1 : 0;
-                    break;
-                case '!':
-                    v = (t != r) ? 1 : 0;
-                    break;
-            }
-            return v;
         }
 
         private PCremote.RemoCon readIR()
@@ -344,198 +260,14 @@ namespace RobobuilderLib
             return video_obj_loc;
         }
 
-        private void run(string script)
-        {
-            Console.WriteLine("Script=" + script);
-            script_active = true;
-
-            int[] loop_l = new int[MAXDEPTH];
-            int[] loop_c = new int[MAXDEPTH];
-
-            vars = new Hashtable();
-
-            int lc = 0;
-
-            bool ifcond = true;
-
-            string[] sc = script.Split(';');
-            for (int i = 0; i < sc.Length; i++)
+        private void wait(int t)
+        {                               // wait x ms
+            for (int n = 0; n < t / 50; n++)
             {
-                if (script_active == false)
-                {
-                    Message("Stopped");
-                    break;
-                }
-
-                string line = sc[i].Trim() ;
-                if (line=="" || line.StartsWith("#")) 
-                    continue;
-
-                Console.WriteLine(i + " " + line);
-
-                string[] words = line.Split(' ');
-
-                if (ifcond == false && !(words[0] == "else" || words[0] == "fi"))
-                    continue;
-
-                switch (words[0].ToLower())
-                {
-                    case "get":
-                       if (remote == null) continue;
-                       switch (words[1].ToLower())
-                       {
-                        case "acc":
-                            {
-                            short x, y, z;
-                            Console.WriteLine(remote.readXYZ(out x, out y, out z));
-                            vars["gX"] = x;
-                            vars["gY"] = y;
-                            vars["gZ"] = z;
-                            }
-                            break;
-                        case "distance":
-                            string r=remote.readDistance();
-                            Console.WriteLine("Dist = " + r);
-                            vars["Dist"] = r;
-                            break;
-                        }
-                        break;
-                    case "wait":
-                        // wait x ms
-                        int t = Convert.ToInt32(evalExpr(words[1]));
-                        for (int n = 0; n < t / 50; n++)
-                        {
-                            System.Threading.Thread.Sleep(50);
-                            Application.DoEvents();
-                            if (script_active == false) break;
-                        }
-                        break;
-                    case "video" :
-                        // video [location] [filter id] 
-                        // if obj detected put loc into $video
-
-                        while (video_obj_loc == 0) { Application.DoEvents(); }
-                        vars["video"] = video_obj_loc;
-                        //Message("V: " + vars["video"]);
-                        break;
-
-                    case "read":
-                        // read [IR | PF1/2 button | PSD | Sound
-                        {
-                            switch (words[1].ToUpper())
-                            {
-                                case "IR":
-                                    while (ir_val == PCremote.RemoCon.FAILED) { Application.DoEvents(); }
-                                    vars["iR"] = ir_val;
-                                    ir_val = PCremote.RemoCon.FAILED;
-                                    break;
-                                case "BUTTON":
-                                    int b =remote.readButton(5000, null);
-                                    vars["pf"] = b; // 1 or 2
-                                    break;
-                                case "PSD": 
-                                    //read PSD x = wait until less than x
-                                    break;
-                                case "SOUND":
-                                    //read SOUND x = wait until level above x
-                                    break;
-                            }
-                        }
-                        break;
-                    case "alert":
-                        Message(evalExpr(line.Substring(6)));
-                        MessageBox.Show(output_txt.Text);
-                        break;
-                    case "message":
-                        Message(evalExpr(line.Substring(8)));
-                        break;
-                    case "if":
-                        // if [condition] 
-                        ifcond = (evalExpr(line.Substring(3))!="0");
-                        break;
-                    case "else":
-                        // if [condition] [false]
-                        ifcond = !ifcond;
-                        break;
-                    case "fi":
-                        // if end
-                        ifcond = true;
-                        break;
-                    case "kfactor":
-                        // kfactor val (speed up or slow down)
-                        k = Convert.ToDouble(evalExpr(words[1]));
-                        vScrollBar1.Value = (int)(k * 100f);
-                        label1.Text = k.ToString();
-                        vars["kf"] = k;
-                        break;
-                    case "setservo":
-                        // setservo id pos
-                        {
-                            if (remote == null) continue;
-
-                            int id = Convert.ToInt32(evalExpr(words[1]));
-                            int pos = Convert.ToInt32(evalExpr(words[2]));
-                            wckMotion m = new wckMotion(remote);
-                            m.wckMovePos(id, pos, 0);
-                            m.close();                      
-                        }
-                        break;
-                    case "modservo":
-                        // mod id relative-pos
-                        {
-                            if (remote == null) continue;
-
-                            int id = Convert.ToInt32(evalExpr(words[1]));
-                            int pos = Convert.ToInt32(evalExpr(words[2]));
-                            wckMotion m = new wckMotion(remote);
-                            if (m.wckReadPos(id))
-                            {
-                                m.wckMovePos(id, (int)m.respnse[1] + pos, 0);
-                            }
-                            m.close();
-                        } 
-                        break;
-                    case "let":
-                        // let var (=value or expression)
-                        vars[words[1]] = evalExpr(words[2]);
-                        break;
-                    case "repeat":
-                        // loop x times
-                        loop_c[lc] = Convert.ToInt32(evalExpr(words[1]));
-                        loop_l[lc] = i;
-                        vars["_count"] = "0";
-                        lc++;
-                        break;
-                    case "end":
-                        // end of loop
-                        if (lc > 0)
-                        {
-                            loop_c[lc-1] -= 1;
-                            vars["_count"] = (Convert.ToInt32(vars["_count"]) + 1).ToString();
-                            if (loop_c[lc-1] == 0)
-                            {
-                                lc--;
-                            }
-                            else
-                            {
-                                i = loop_l[lc-1];
-                            }
-                        }
-                        break;
-                    default:
-                        int j = check(words[0]);
-                        if (j >= 0)
-                        {
-                            // call code
-                            if (j == 0)
-                                NewBasicPose();
-                            else
-                                play(fnames[j]);
-                        }
-                        break;
-                }
+                System.Threading.Thread.Sleep(50);
+                Application.DoEvents();
+                if (script_active == false) break;
             }
-            script_active = false;
         }
 
         private void button_Click(object sender, EventArgs e)
@@ -564,7 +296,6 @@ namespace RobobuilderLib
 
                     action.Text = ((Button)sender).Text;
                     script.Text = c;
-                    lispMode.Checked = false;
                     //run script
                     //c = c.Replace("\r\n", ";");
                     //run(c);                       
@@ -576,7 +307,6 @@ namespace RobobuilderLib
 
                     action.Text = ((Button)sender).Text;
                     script.Text = c;
-                    lispMode.Checked = true;
                 }
                 else 
                 {
@@ -600,44 +330,29 @@ namespace RobobuilderLib
             run_btn.Text = "Stop";
             run_btn.BackColor = System.Drawing.Color.Red;
 
-            if (lispMode.Checked)
+            // run LISP script
+
+            string n = action.Text;
+            string c = script.Text;
+
+            if (n == "")
+                n = "noname";
+
+            if (c == "")
             {
-                // run LISP script
-
-                try
-                {
-                    script_active = true;
-                    object result = runtime.EvalString(script.Text);
-                    output_txt.Text = (result == null) ? "null" : result.ToString();
-                }
-                catch (Exception t)
-                {
-                    output_txt.Text = t.Message;
-                }
-
+                MessageBox.Show("No script");
+                return;
             }
-            else
+
+            try
             {
-                // run script
-                string n = action.Text;
-                string c = script.Text;
-
-                if (n == "")
-                    n = "noname";
-
-                if (c == "")
-                {
-                    MessageBox.Show("No script");
-                }
-                else
-                {
-                    if (!dbg_flg.Checked || MessageBox.Show("Run : " + n + " - OK ?", "Run", MessageBoxButtons.OKCancel) == DialogResult.OK)
-                    {
-                        c = c.Replace("\r\n", ";");
-                        Console.WriteLine("Script=" + c);
-                        run(c);
-                    }
-                }
+                script_active = true;
+                object result = runtime.EvalString(script.Text);
+                output_txt.Text = (result == null) ? "null" : result.ToString();
+            }
+            catch (Exception t)
+            {
+                output_txt.Text = t.Message;
             }
 
             run_btn.Text = "Run";
@@ -667,15 +382,15 @@ namespace RobobuilderLib
             //c = c.Replace("\r\n", ";");
             Console.WriteLine("Name=" + n + " Script=" + c);
 
-            File.WriteAllText(button_dir + "\\" + n + ((lispMode.Checked==true)?".lisp":".txt"), c);
+            File.WriteAllText(button_dir + "\\" + n + ".lisp", c);
 
             if (i < 0)
             {
-                update(n, ((lispMode.Checked==true)?"L:":"S:") + c);  // new button
+                update(n, "L:" + c);  // new button
             }
             else
             {
-                fnames[i] = ((lispMode.Checked==true)?"L:":"S:") + c; // update script against existing button
+                fnames[i] = "L:" + c; // update script against existing button
             }
         }
 
@@ -746,10 +461,10 @@ namespace RobobuilderLib
                 int i = check(h);  // button defined
                 if (i >= 0)
                 {
-                    if (fnames[i].StartsWith("S:"))
+                    if (fnames[i].StartsWith("L:"))
                     {
                         //run script
-                        run(fnames[i].Substring(2));
+                        //run(fnames[i].Substring(2));
                     }
                     else
                     {
