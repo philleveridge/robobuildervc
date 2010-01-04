@@ -173,6 +173,9 @@ namespace RobobuilderLib
             if (fnames[cnt].StartsWith("S:")) 
                 button_array[cnt].ForeColor = System.Drawing.Color.Red;
 
+            if (fnames[cnt].StartsWith("L:"))
+                button_array[cnt].ForeColor = System.Drawing.Color.Green; 
+            
             this.Controls.Add(button_array[cnt]);
 
             if (cnt<MAXBUTTONS-1) 
@@ -561,9 +564,10 @@ namespace RobobuilderLib
 
                     action.Text = ((Button)sender).Text;
                     script.Text = c;
+                    lispMode.Checked = false;
                     //run script
-                    c = c.Replace("\r\n", ";");
-                    run(c);                       
+                    //c = c.Replace("\r\n", ";");
+                    //run(c);                       
                 }
                 else if (fnames[i].StartsWith("L:"))
                 {
@@ -572,6 +576,7 @@ namespace RobobuilderLib
 
                     action.Text = ((Button)sender).Text;
                     script.Text = c;
+                    lispMode.Checked = true;
                 }
                 else 
                 {
@@ -662,15 +667,15 @@ namespace RobobuilderLib
             //c = c.Replace("\r\n", ";");
             Console.WriteLine("Name=" + n + " Script=" + c);
 
-            File.WriteAllText(button_dir + "\\" + n + ".txt", c);
+            File.WriteAllText(button_dir + "\\" + n + ((lispMode.Checked==true)?".lisp":".txt"), c);
 
             if (i < 0)
             {
-                update(n, "S:" + c);  // new button
+                update(n, ((lispMode.Checked==true)?"L:":"S:") + c);  // new button
             }
             else
             {
-                fnames[i] = "S:" + c; // update script against existing button
+                fnames[i] = ((lispMode.Checked==true)?"L:":"S:") + c; // update script against existing button
             }
         }
 
