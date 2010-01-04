@@ -2,7 +2,7 @@
 
 = Introduction =
 
-This now uses the LSharp.NET / L# engine
+This now uses the LSharp.NET / L# engine (see LispScripting)
 
 ===Default functions/variables===
 
@@ -23,7 +23,7 @@ caar seq       : Returns the first item of the first item in a sequence.
 cadr seq       : Returns the second item in a sequence.
 cddr seq       : Returns the rest of the rest of a sequence.
 cdr seq        : Returns the rest of a sequence.
-coerce x t     : Converts objext x to type t.
+coerce x t     : Converts object x to type t.
 compile expr   : Compiles the expression and returns executable code.
 cons x seq     : Creates a new sequence whose head is x and tail is seq.
 do & body      : Executes body forms in order, returns the result of the last body.
