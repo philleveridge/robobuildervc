@@ -15,7 +15,7 @@ namespace RobobuilderLib
         Video_frm       videoc  = null;
         MotionEdit_frm  medit   = null;
         Display3D_frm   view = null;
-        balance_frm         bal = null;
+        balance_frm     bal = null;
         PCremote        pcR = null;
         Basic_frm       bc = null;
 
@@ -31,10 +31,10 @@ namespace RobobuilderLib
             bal = new balance_frm();
             bc = new Basic_frm();
 
-
             serialPort1.PortName = "COM3";
             serialPort1.BaudRate = 115200;
-            serialPort1.ReadTimeout = 3000;
+            serialPort1.ReadTimeout = 1000;
+            serialPort1.WriteTimeout = 1000;
 
             listBox1.Items.Clear();
             foreach (string s in System.IO.Ports.SerialPort.GetPortNames())
@@ -130,6 +130,7 @@ namespace RobobuilderLib
                 if (pcR == null) pcR = new PCremote(serialPort1);
 
                 // start up on connect
+
                 string v = pcR.readVer();
                 if (v == "")
                 {
@@ -375,7 +376,7 @@ namespace RobobuilderLib
 
         private void balance_Click(object sender, EventArgs e)
         {
-
+            bal.pcr = pcR;
             bal.Show();
         }
 

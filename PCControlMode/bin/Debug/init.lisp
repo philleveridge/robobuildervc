@@ -6,7 +6,7 @@
            "System.Windows.Forms"
            "System.IO.Ports")
            
-(def getsn ()
+(def readSn ()
   "Read serial number"
   (if (not (.Isopen sport)) 
         (.open sport))
@@ -21,7 +21,7 @@
   (.readXYZ pcr)
 )
 
-(def readdistance ()
+(def readDistance ()
   "Read distance"
   (if (not (.Isopen sport)) 
       (.open sport))
@@ -29,7 +29,7 @@
   d
 )
 
-(def checkver () 
+(def checkVer () 
   "Check version of robobuilder firmware"
   (if (not (.Isopen sport)) 
       (.open sport))
@@ -42,9 +42,10 @@
   v
 )
 
-(def serial? () "check if serial port connected" (if (and (bound 'sport) (.isopen sport)) "Green" "Red"))
-(def remote? () "check if robot connected"       (if (and (bound 'pcr) (is "Green" (serial?))) "Green" "Red"))
-
+(def serial? ()  "check if serial port connected" (if (and (bound 'sport) (.isopen sport)) "Green" "Red"))
+(def remote? ()  "check if robot connected"       (if (and (bound 'pcr) (is "Green" (serial?))) "Green" "Red"))
+(def number? (x) "check if x number" (and x (or (isa x (typeof "Int32")) (isa x (typeof "Double")))))
+(def byte?   (x) "check if x byte"   (and x (number? x) (< 0 x) (< x 255)))
 
 (def play (x) "Play motion file" (.play form x))
 
@@ -125,14 +126,37 @@
      "done"
 )   
 
+(def add   (x y) 
+   "Add two vectors x and y together"
+   (if (and x y) (cons (+ (car x) (car y)) (add (cdr x) (cdr y)))))
+   
+(def diff  (x y) 
+   "Subtract two vectors x and y "
+      (if (and x y) (cons (- (car x) (car y)) (diff (cdr x) (cdr y)))))
+
+(def dot-product (a b)
+  "calculate dot product of two vectors."
+  (if (or (empty? a) (empty? b))
+      0
+      (+ (* (car a) (car b))
+      (dot-product (cdr a) (cdr b)))))
+
+(def norm (a) 
+  "normalise a vecor i.e. sqrt(a.a)"
+  (sqrt (dot-product a a)))
+
 
 (= basic18 '( 143 179 198  83 106 106  69  48 167 141  47  47  49 199 204 204 122 125 127 ))	
 
 (def stand ()     "Stand" (smove (getallServos 17) basic18 10 0.1)) ; basic pose
 
-;eg (is (readIR) (RobobuilderLib.PCremote+RemoCon.A))
-(def readIR ()    "Read IR - simulate" (.readIR form))
+(def readIR ()    "Read IR - simulate" (.readIR form)) ;eg (is (readIR) (RobobuilderLib.PCremote+RemoCon.A))
 
 (def readVideo () "Read Video " (.readVideo form))
 
-(def alert (x)  "Display alert box!" (MessageBox.Show x))
+(def alert (x)    "Display alert box!" (MessageBox.Show x))
+(def message (x)   "Display message"    (.Message form x))
+
+(mac repeat (n & body) `(for x 1 ,n ,@body))
+
+

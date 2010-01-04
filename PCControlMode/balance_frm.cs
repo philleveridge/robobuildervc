@@ -12,13 +12,14 @@ namespace RobobuilderLib
     {
         Random n = new Random();
         List<int> history = new List<int>();
+        public PCremote pcr = null;
 
         public balance_frm()
         {
             InitializeComponent();
         }
 
-        private void plot(int x, int y, string txt)
+        public void plot(int x, int y, string txt)
         {
             Graphics g = panel1.CreateGraphics();
             g.Clear(Color.Wheat);
@@ -94,7 +95,11 @@ namespace RobobuilderLib
 
         private void timer1_Tick(object sender, EventArgs e)
         {
-            int[] xyz = readAcc(); // read dummy data
+            int[] xyz;
+            if (pcr == null)
+                xyz = readAcc(); // read dummy data
+            else
+                xyz = pcr.readXYZ();
 
             plot(xyz[0], xyz[1], String.Format("XY ({0},{1})", xyz[0], xyz[1]));
 
