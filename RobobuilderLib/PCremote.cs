@@ -24,6 +24,17 @@ namespace RobobuilderLib
             DCmode = false;
         }
 
+        public int Test(byte[] a)
+        {
+            Console.WriteLine("Debug test byte[]");
+            int r = 0;
+            for (int i = 0; i < a.Length; i++)
+            {
+                r += (int)a[i];
+            }
+            return r;
+        }
+
         /**********************************************
           * 
           * send request/ read response 
@@ -77,7 +88,7 @@ namespace RobobuilderLib
 
                     if (b < header.Length && respnse[b] != header[b])
                     {
-                        Console.WriteLine("skip [" + b + "]=" + respnse[b]);
+                        System.Diagnostics.Debug.WriteLine("skip [" + b + "]=" + respnse[b]);
                         b = 0;
                         continue;
                     }
@@ -85,7 +96,7 @@ namespace RobobuilderLib
                     if (b == 13)
                     {
                         l = (respnse[b - 3] << 24) + (respnse[b - 2] << 16) + (respnse[b - 1] << 8) + respnse[b];
-                        Console.WriteLine("L=" + l);
+                        //Console.WriteLine("L=" + l);
                     }
                     b++;
                 }
@@ -151,6 +162,13 @@ namespace RobobuilderLib
                     r = (respnse[14] + (respnse[15]<<8)).ToString();
             }
             return r;
+        }
+
+        public int[] readXYZ()
+        {
+            Int16 x, y, z;
+            readXYZ(out x, out y, out z) ;   
+            return (new int[3] {(int)x, (int)y, (int)z});
         }
 
         public string readXYZ(out Int16 x, out Int16 y, out Int16 z)
@@ -292,6 +310,11 @@ namespace RobobuilderLib
             H_N1,H_N2,H_N3,H_N4,H_N5,H_N6,H_N7,H_N8,H_N9,H_N0
        };
 
+        public RemoCon readIR(int timeout_ms)
+        {
+            return readIR(timeout_ms, null);
+        }
+
         public RemoCon readIR(int timeout_ms, callBack x)
         {
             int n=0;
@@ -325,6 +348,11 @@ namespace RobobuilderLib
         }
 
 
+        public int readButton(int timeout)
+        {
+            return readButton(timeout, null);
+        }
+
         public int readButton(int timeout, callBack x)
         {
             int n = 0;
@@ -343,7 +371,7 @@ namespace RobobuilderLib
                         n = respnse[14] + (respnse[15] << 8);
                     }
 
-                    Console.WriteLine(DateTime.Now.ToString() + " = " + message + " n=" + n);
+                    System.Diagnostics.Debug.WriteLine(DateTime.Now.ToString() + " = " + message + " n=" + n);
 
                     if (x != null)
                         x(n);
@@ -353,6 +381,11 @@ namespace RobobuilderLib
              }
              serialPort1.ReadTimeout = tmp;
              return n;
+        }
+
+        public int readsoundLevel(int timeout, int level)
+        {
+            return readsoundLevel(timeout, level, null);
         }
 
         public int readsoundLevel(int timeout, int level, callBack x)
@@ -373,7 +406,7 @@ namespace RobobuilderLib
                     {
                         n = respnse[14] + (respnse[15] << 8); // sound level
                     }
-                    Console.WriteLine(DateTime.Now.ToString() + " = " + message + " n=" + n);
+                    System.Diagnostics.Debug.WriteLine(DateTime.Now.ToString() + " = " + message + " n=" + n);
                     if (x != null)
                         x(n);
                     else

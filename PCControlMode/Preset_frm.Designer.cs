@@ -42,6 +42,7 @@
             this.dbg_flg = new System.Windows.Forms.CheckBox();
             this.checkBox2 = new System.Windows.Forms.CheckBox();
             this.mssage_txt = new System.Windows.Forms.Label();
+            this.lispMode = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.panel1.SuspendLayout();
             this.SuspendLayout();
@@ -91,6 +92,7 @@
             // panel1
             // 
             this.panel1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(192)))), ((int)(((byte)(0)))));
+            this.panel1.Controls.Add(this.lispMode);
             this.panel1.Controls.Add(this.output_txt);
             this.panel1.Controls.Add(this.store_btn);
             this.panel1.Controls.Add(this.run_btn);
@@ -151,7 +153,7 @@
             // dbg_flg
             // 
             this.dbg_flg.AutoSize = true;
-            this.dbg_flg.Location = new System.Drawing.Point(129, 10);
+            this.dbg_flg.Location = new System.Drawing.Point(155, 5);
             this.dbg_flg.Name = "dbg_flg";
             this.dbg_flg.Size = new System.Drawing.Size(58, 17);
             this.dbg_flg.TabIndex = 8;
@@ -161,7 +163,7 @@
             // checkBox2
             // 
             this.checkBox2.AutoSize = true;
-            this.checkBox2.Location = new System.Drawing.Point(336, 293);
+            this.checkBox2.Location = new System.Drawing.Point(333, 294);
             this.checkBox2.Name = "checkBox2";
             this.checkBox2.Size = new System.Drawing.Size(59, 17);
             this.checkBox2.TabIndex = 37;
@@ -176,6 +178,16 @@
             this.mssage_txt.Name = "mssage_txt";
             this.mssage_txt.Size = new System.Drawing.Size(501, 19);
             this.mssage_txt.TabIndex = 38;
+            // 
+            // lispMode
+            // 
+            this.lispMode.AutoSize = true;
+            this.lispMode.Location = new System.Drawing.Point(91, 5);
+            this.lispMode.Name = "lispMode";
+            this.lispMode.Size = new System.Drawing.Size(51, 17);
+            this.lispMode.TabIndex = 10;
+            this.lispMode.Text = "Lisp?";
+            this.lispMode.UseVisualStyleBackColor = true;
             // 
             // Preset_frm
             // 
@@ -214,6 +226,7 @@
         private System.Windows.Forms.CheckBox checkBox2;
         private System.Windows.Forms.Label output_txt;
         private System.Windows.Forms.Label mssage_txt;
+        private System.Windows.Forms.CheckBox lispMode;
 
     }
 }

@@ -3,6 +3,7 @@ using System.IO;
 using System.IO.Ports;
 using System.Windows.Forms;
 using System.Collections;
+using LSharp;
 
 namespace RobobuilderLib
 {
@@ -22,8 +23,9 @@ namespace RobobuilderLib
 
         public int video_obj_loc;
 
-        PCremote remote;
+        PCremote  remote;
         wckMotion wckm;
+        Runtime   runtime;
 
         bool script_active = false;
 
@@ -34,7 +36,19 @@ namespace RobobuilderLib
             InitializeComponent();
 
             button_dir = Directory.GetCurrentDirectory();
-            //build_buttons();
+        }
+
+        private void setupLisp()
+        {
+            runtime = new Runtime(System.Console.In, System.Console.Out, System.Console.Error);
+
+            runtime.GlobalEnvironment.Set(Symbol.FromName("form"), this);
+            runtime.GlobalEnvironment.Set(Symbol.FromName("pcr"),  remote);
+            runtime.GlobalEnvironment.Set(Symbol.FromName("wck"),  wckm);
+            runtime.EvalString("(load \"init.lisp\")");
+            Console.WriteLine(runtime.EvalString("(map show-doc environment)"));
+
+
         }
 
         public void connect(PCremote r)
@@ -51,7 +65,7 @@ namespace RobobuilderLib
             {
                 MessageBox.Show("Must connect first");
             }
-
+            setupLisp();
         }
 
         public void disconnect()
@@ -117,6 +131,16 @@ namespace RobobuilderLib
                 //update(t + "," + n);
                 string p = File.ReadAllText(n);
                 update(t, "S:" + p);
+            }
+
+            s = Directory.GetFileSystemEntries(button_dir, "*.lisp");
+            foreach (string n in s)
+            {
+                string t = convname(n);
+                Console.WriteLine(t);
+                //update(t + "," + n);
+                string p = File.ReadAllText(n);
+                update(t, "L:" + p);
             }
 
             presets_flg = false;
@@ -267,7 +291,7 @@ namespace RobobuilderLib
                 {
                     r = r * 10 + (x[i] - '0');
                 }
-                if (x[i] == '+' || x[i] == '-' || x[i] == '=' || x[i] == '<' || x[i] == '>' || x[i] == '!')
+                if (x[i] == '+' || x[i] == '-' || x[i] == '=' || x[i] == '<' || x[i] == '>' || x[i] == '!' || x[i] == '*')
                 {
                     t = r;
                     r = 0;
@@ -279,6 +303,9 @@ namespace RobobuilderLib
             {
                 case '+':
                     v = t + r;
+                    break;
+                case '*':
+                    v = t * r;
                     break;
                 case '-':
                     v = t - r;
@@ -297,6 +324,21 @@ namespace RobobuilderLib
                     break;
             }
             return v;
+        }
+
+        private PCremote.RemoCon readIR()
+        {
+            PCremote.RemoCon r;
+            while (ir_val == PCremote.RemoCon.FAILED) { Application.DoEvents(); }
+            r = ir_val;
+            ir_val = PCremote.RemoCon.FAILED;
+            return r;
+        }
+
+        private int readVideo()
+        {
+            while (video_obj_loc == 0) { Application.DoEvents(); }
+            return video_obj_loc;
         }
 
         private void run(string script)
@@ -523,12 +565,22 @@ namespace RobobuilderLib
                     c = c.Replace("\r\n", ";");
                     run(c);                       
                 }
-                else
+                else if (fnames[i].StartsWith("L:"))
+                {
+                    //load into editor
+                    string c = fnames[i].Substring(2);
+
+                    action.Text = ((Button)sender).Text;
+                    script.Text = c;
+                }
+                else 
                 {
                     play(fnames[i]);
                 }
             }
         }
+
+
 
         private void run_btn_Click(object sender, EventArgs e)
         {
@@ -543,24 +595,43 @@ namespace RobobuilderLib
             run_btn.Text = "Stop";
             run_btn.BackColor = System.Drawing.Color.Red;
 
-            // run
-            string n = action.Text;
-            string c = script.Text;
-
-            if (n == "") 
-                n = "noname";
-
-            if (c == "")
+            if (lispMode.Checked)
             {
-                MessageBox.Show("No script");
+                // run LISP script
+
+                try
+                {
+                    script_active = true;
+                    object result = runtime.EvalString(script.Text);
+                    output_txt.Text = (result == null) ? "null" : result.ToString();
+                }
+                catch (Exception t)
+                {
+                    output_txt.Text = t.Message;
+                }
+
             }
             else
             {
-                if (!dbg_flg.Checked || MessageBox.Show("Run : " + n + " - OK ?", "Run", MessageBoxButtons.OKCancel) == DialogResult.OK)
+                // run script
+                string n = action.Text;
+                string c = script.Text;
+
+                if (n == "")
+                    n = "noname";
+
+                if (c == "")
                 {
-                    c = c.Replace("\r\n", ";");
-                    Console.WriteLine("Script=" + c);
-                    run(c);
+                    MessageBox.Show("No script");
+                }
+                else
+                {
+                    if (!dbg_flg.Checked || MessageBox.Show("Run : " + n + " - OK ?", "Run", MessageBoxButtons.OKCancel) == DialogResult.OK)
+                    {
+                        c = c.Replace("\r\n", ";");
+                        Console.WriteLine("Script=" + c);
+                        run(c);
+                    }
                 }
             }
 
