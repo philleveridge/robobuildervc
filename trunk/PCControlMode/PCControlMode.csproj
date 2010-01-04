@@ -74,6 +74,10 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\Libraries\DirectX_Novodex_NET_Wrapper.dll</HintPath>
     </Reference>
+    <Reference Include="LSharp, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\RoboLSharp\LSharp.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.DirectX, Version=1.0.2902.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35" />
     <Reference Include="Microsoft.DirectX.Direct3D, Version=1.0.2902.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35" />
     <Reference Include="Microsoft.DirectX.Direct3DX, Version=1.0.2902.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35" />
@@ -89,6 +93,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Autonomy.cs" />
+    <Compile Include="balance_frm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="balance_frm.Designer.cs">
+      <DependentUpon>balance_frm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Basic.cs" />
     <Compile Include="Basic_frm.cs">
       <SubType>Form</SubType>
@@ -140,6 +150,9 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="balance_frm.resx">
+      <DependentUpon>balance_frm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Main.resx">
       <DependentUpon>Main.cs</DependentUpon>
     </EmbeddedResource>

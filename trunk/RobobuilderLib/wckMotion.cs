@@ -67,7 +67,7 @@ namespace RobobuilderLib
                 respnse[0] = (byte)serialPort1.ReadByte();
                 respnse[1] = (byte)serialPort1.ReadByte();
                 Message = "Passive " + id + " = " + respnse[0] + ":" + respnse[1];
-                Console.WriteLine(Message); // debug
+                System.Diagnostics.Debug.WriteLine(Message); // debug
                 return true;
             }
             catch (Exception e1)
@@ -92,7 +92,7 @@ namespace RobobuilderLib
                 respnse[0] = (byte)serialPort1.ReadByte();
                 respnse[1] = (byte)serialPort1.ReadByte();
                 Message = "ReadPos " + id + " = " + respnse[0] + ":" + respnse[1];
-                Console.WriteLine(Message); // debug
+                System.Diagnostics.Debug.WriteLine(Message); // debug
                 return true;
             }
             catch (Exception e1)
@@ -124,6 +124,14 @@ namespace RobobuilderLib
                 Message = "Failed" + e1.Message ;
                 return false;
             }
+        }
+
+        public void SyncPosSend(int LastID, int SpeedLevel, object[] TargetArray, int Index)
+        {
+            byte[] b = new byte[TargetArray.Length];
+            for (int i = 0; i < TargetArray.Length; i++) 
+                b[i] = Convert.ToByte(TargetArray[i]);
+            SyncPosSend(LastID, SpeedLevel, b, Index);
         }
 
         public void SyncPosSend(int LastID, int SpeedLevel, byte[] TargetArray, int Index)
@@ -422,7 +430,7 @@ namespace RobobuilderLib
                 }
                 else
                 {
-                    Console.WriteLine("Id {0:0} not connected", id);
+                    System.Diagnostics.Debug.WriteLine("Id " + id + "not connected" );
                     //sids[id] = -1; // not connected
                 }
             }

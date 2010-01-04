@@ -14,9 +14,10 @@ namespace RobobuilderLib
         Preset_frm      presets = null;
         Video_frm       videoc  = null;
         MotionEdit_frm  medit   = null;
-        Basic_frm       bc      = null;
-        Display3D_frm   view    = null;
-        PCremote        pcR     = null;
+        Display3D_frm   view = null;
+        balance_frm         bal = null;
+        PCremote        pcR = null;
+        Basic_frm       bc = null;
 
         string robot_config = "config-20dof.txt";
 
@@ -27,6 +28,7 @@ namespace RobobuilderLib
             presets = new Preset_frm();
             videoc = new Video_frm(presets);
             medit = new MotionEdit_frm();
+            bal = new balance_frm();
             bc = new Basic_frm();
 
 
@@ -369,6 +371,12 @@ namespace RobobuilderLib
 
             test.close();
             test = null;
+        }
+
+        private void balance_Click(object sender, EventArgs e)
+        {
+
+            bal.Show();
         }
 
 
