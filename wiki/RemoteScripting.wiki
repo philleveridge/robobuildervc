@@ -2,45 +2,11 @@
 
 = Introduction =
 
-In the preset form buttons are assigned to motion file (.csv) but also there are script file (.txt) that can chain motions together with some simple logic commands.
+This now uses the LSharp.NET / L# engine
 
-http://code.google.com/p/robobuildervc/source/browse/trunk/PCControlMode/bin/Debug/motions/test.txt
-
-= remote scripting =
-
-  * get [ acc | distance ]
-  * wait
-  * video
-  * read [ IR | BUTTON | PSD | SOUND ]
-  * alert
-  * message
-  * if expression
-  * else
-  * fi
-  * kfactor
-  * setservo
-  * modservo
-  * let var expression
-  * repeat expression
-  * end
-  * #any line starting with a # is treated as a comment - and blank lines ignored
-
-  * xxx [ Anything else is treated as a motion file ( .csv  ) ]
 
 = example =
 
 {{{
-#comments - example file
-alert "hello world"
-let a 5
-message "value of a is $a"
-read ir
-message "you pressed $iR"
-let b $a+5
-message "value of b is $b"
-repeat
-  message "loop count $_count"
-  wait 1000
-end
-#end of script
+
 }}}
