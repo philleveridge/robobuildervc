@@ -4,22 +4,18 @@
 (do 
   (alert "hello world")
 
-  (message "hello")
+  ; ir is simulated - click on bitmap image
+  (message (str "you pressed " (readIR)))
 
-; ir is simulated - click on image
-  (= IR (readIR))
-  (message "you pressed ")
-
-;acceleromter test - need to be connected
+  ; acceleromter test - need to be connected
   (alert "connect now")
 
-  (message "acc ")
-  (prn (tolist (readAcc)))
+  (message (str "Accelerometer " (readAcc)))
 
-  (message "Distance ")
-  (prn (readDistance))
+  (message (str "Distance " (readDistance)))
 
-;robot move - requires motion csv files
+  ;robot move - requires motion csv files
   (.NewBasicPose form)
-
+  
+  'DONE
 )
