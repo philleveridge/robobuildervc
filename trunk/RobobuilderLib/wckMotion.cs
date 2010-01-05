@@ -413,11 +413,13 @@ namespace RobobuilderLib
          * 
          *********************************************************************************************/
 
-        public void servoID_readservo()
+        public void servoID_readservo(int num)
         {
-            pos = new byte[sids.Length];
+            if (num == 0) num = sids.Length;
+            
+            pos = new byte[num];
 
-            for (int id = 0; id < sids.Length; id++)
+            for (int id = 0; id < num; id++)
             {
                 int n = sids[id];
 
@@ -451,7 +453,7 @@ namespace RobobuilderLib
         {
             byte[] temp = new byte[19]; // numbr of servos
 
-            if (first) servoID_readservo(); // read start positons
+            if (first) servoID_readservo(0); // read start positons
 
             double[] intervals = new double[spod.Length];
 

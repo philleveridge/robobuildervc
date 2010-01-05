@@ -585,7 +585,6 @@ namespace RobobuilderLib
         private void autopose_Click(object sender, EventArgs e)
         {
             // every x seconds write to array current possitons
-            Int16 x, y, z;
 
             if (autopose.Text == "Stop")
             {
@@ -599,8 +598,6 @@ namespace RobobuilderLib
             {
                 System.Threading.Thread.Sleep(2000);  //2 s
                 record_Click(null, null);
-
-
 
                 Application.DoEvents();
             }
