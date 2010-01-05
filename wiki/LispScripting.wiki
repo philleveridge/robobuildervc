@@ -4,6 +4,8 @@
 
 A tutorial on both L# and programming Robobuilder with [http://en.wikipedia.org/wiki/Lisp_(programming_language) LISP]
 
+Now available as a word document [http://robobuildervc.googlecode.com/files/final.doc final.doc]
+
 
 = Details =
 
