@@ -112,7 +112,7 @@ wck     wckMotion object handle
 sport   Serial port object handle
 }}}
 
-===Loaded in at start time from init.lisp===
+===Loaded in at start time from [http://code.google.com/p/robobuildervc/source/browse/trunk/PCControlMode/bin/Debug/init.lisp init.lisp]===
 
 {{{
 readSn            : Read serial number
