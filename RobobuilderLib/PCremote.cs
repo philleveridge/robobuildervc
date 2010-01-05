@@ -25,17 +25,6 @@ namespace RobobuilderLib
             if (serialPort1.IsOpen) serialPort1.Write(new byte[] { 0xFF, 0xE0, 0xFB, 0x1, 0x00, 0x1A }, 0, 6);
         }
 
-        public int Test(byte[] a)
-        {
-            Console.WriteLine("Debug test byte[]");
-            int r = 0;
-            for (int i = 0; i < a.Length; i++)
-            {
-                r += (int)a[i];
-            }
-            return r;
-        }
-
         /**********************************************
           * 
           * send request/ read response 

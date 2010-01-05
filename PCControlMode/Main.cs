@@ -44,6 +44,7 @@ namespace RobobuilderLib
 
             label1.Text = "Disconnected";
             loadconfig();
+
         }
 
         void loadconfig()

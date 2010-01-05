@@ -159,9 +159,6 @@ namespace RobobuilderLib
             button_array[cnt].UseVisualStyleBackColor = true;
             button_array[cnt].Click += new System.EventHandler(this.button_Click);
 
-            if (fnames[cnt].StartsWith("S:")) 
-                button_array[cnt].ForeColor = System.Drawing.Color.Red;
-
             if (fnames[cnt].StartsWith("L:"))
                 button_array[cnt].ForeColor = System.Drawing.Color.Green; 
             
