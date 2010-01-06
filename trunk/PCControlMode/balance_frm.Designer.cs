@@ -37,6 +37,7 @@
             this.xyp = new System.Windows.Forms.CheckBox();
             this.xzp = new System.Windows.Forms.CheckBox();
             this.tailp = new System.Windows.Forms.CheckBox();
+            this.label2 = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // label1
@@ -112,11 +113,21 @@
             this.tailp.Text = "Tail?";
             this.tailp.UseVisualStyleBackColor = true;
             // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(267, 242);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(15, 13);
+            this.label2.TabIndex = 7;
+            this.label2.Text = "fit";
+            // 
             // balance_frm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(544, 264);
+            this.Controls.Add(this.label2);
             this.Controls.Add(this.tailp);
             this.Controls.Add(this.xzp);
             this.Controls.Add(this.xyp);
@@ -141,5 +152,6 @@
         private System.Windows.Forms.CheckBox xyp;
         private System.Windows.Forms.CheckBox xzp;
         private System.Windows.Forms.CheckBox tailp;
+        private System.Windows.Forms.Label label2;
     }
 }
