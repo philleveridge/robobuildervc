@@ -155,8 +155,14 @@
 (def readVideo () "Read Video " (.readVideo form))
 
 (def alert (x)    "Display alert box!" (MessageBox.Show x))
-(def message (x)   "Display message"    (.Message form x))
+(def message (x)  "Display message"    (.Message form x))
 
 (mac repeat (n & body) `(for x 1 ,n ,@body))
+
+(mac For (x start finish step & body)  `(with (,x ,start) (while 
+  (or (and (> ,step 0) (< ,x ,finish )) (and (< ,step 0) (< ,finish ,x))) 
+   (do ,@body (= ,x (+ ,x ,step))))))
+   
+
 
 

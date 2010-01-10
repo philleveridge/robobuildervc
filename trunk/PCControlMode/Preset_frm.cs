@@ -4,6 +4,8 @@ using System.IO.Ports;
 using System.Windows.Forms;
 using System.Collections;
 using LSharp;
+using System.Speech.Synthesis;
+using System.Speech.Recognition;
 
 namespace RobobuilderLib
 {
@@ -26,6 +28,7 @@ namespace RobobuilderLib
         PCremote  remote;
         wckMotion wckm;
         Runtime   runtime;
+        SpeechSynthesizer speak = new SpeechSynthesizer();
 
         bool script_active = false;
 
@@ -42,8 +45,9 @@ namespace RobobuilderLib
         {
             runtime = new Runtime(System.Console.In, System.Console.Out, System.Console.Error);
 
-            runtime.GlobalEnvironment.Set(Symbol.FromName("form"),  this);
-            runtime.GlobalEnvironment.Set(Symbol.FromName("pcr"),   remote);
+            runtime.GlobalEnvironment.Set(Symbol.FromName("speak"), speak);
+            runtime.GlobalEnvironment.Set(Symbol.FromName("form"), this);
+            runtime.GlobalEnvironment.Set(Symbol.FromName("pcr"), remote);
             if (remote != null) runtime.GlobalEnvironment.Set(Symbol.FromName("sport"), remote.serialPort1);
             runtime.GlobalEnvironment.Set(Symbol.FromName("wck"), wckm);
             runtime.EvalString("(load \"init.lisp\")");
@@ -279,6 +283,35 @@ namespace RobobuilderLib
                 Application.DoEvents();
                 if (script_active == false) break;
             }
+        }
+
+        private void initrecogniser()
+        {
+            System.Threading.Thread.CurrentThread.CurrentUICulture = new System.Globalization.CultureInfo("en-GB"); 
+
+            SpeechRecognitionEngine recog = new SpeechRecognitionEngine();
+
+            recog.SetInputToDefaultAudioDevice();
+            
+            Choices vm = new Choices("left", "right", "up", "down");
+
+            Grammar g = new Grammar(new GrammarBuilder(vm));
+
+            recog.UnloadAllGrammars();
+
+            //Attach an event handler
+            g.SpeechRecognized +=new EventHandler<SpeechRecognizedEventArgs>(SpeechRecognized);
+
+            recog.LoadGrammar(g);
+
+            runtime.GlobalEnvironment.Set(Symbol.FromName("recog"), recog);
+            
+            recog.RecognizeAsync(RecognizeMode.Multiple);
+        }
+
+        private void SpeechRecognized(object sender, RecognitionEventArgs e)
+        {
+            MessageBox.Show(e.Result.Text);
         }
 
         private void button_Click(object sender, EventArgs e)
