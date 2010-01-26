@@ -28,7 +28,8 @@ namespace RobobuilderLib
         PCremote  remote;
         wckMotion wckm;
         Runtime   runtime;
-        SpeechSynthesizer speak = new SpeechSynthesizer();
+        SpeechSynthesizer       speak = new SpeechSynthesizer();
+        SpeechRecognitionEngine recog ;
 
         bool script_active = false;
 
@@ -285,32 +286,45 @@ namespace RobobuilderLib
             }
         }
 
-        private void initrecogniser()
+        private void initrecogniser(Object[] x)
         {
             System.Threading.Thread.CurrentThread.CurrentUICulture = new System.Globalization.CultureInfo("en-GB"); 
 
-            SpeechRecognitionEngine recog = new SpeechRecognitionEngine();
+            recog = new SpeechRecognitionEngine();
 
             recog.SetInputToDefaultAudioDevice();
-            
-            Choices vm = new Choices("left", "right", "up", "down");
 
-            Grammar g = new Grammar(new GrammarBuilder(vm));
+            if (x != null && x.Length>0)
+            {
 
-            recog.UnloadAllGrammars();
+                Choices vm = new Choices();  //"left", "right", "up", "down"
+                
+                foreach (string verb in x)
+                    vm.Add(verb);
 
-            //Attach an event handler
-            g.SpeechRecognized +=new EventHandler<SpeechRecognizedEventArgs>(SpeechRecognized);
+                Grammar g = new Grammar(new GrammarBuilder(vm));
 
-            recog.LoadGrammar(g);
+                recog.UnloadAllGrammars();
+
+                //Attach an event handler
+                //g.SpeechRecognized += new EventHandler<SpeechRecognizedEventArgs>(SpeechRecognized);
+
+                recog.LoadGrammar(g);
+            }
 
             runtime.GlobalEnvironment.Set(Symbol.FromName("recog"), recog);
             
-            recog.RecognizeAsync(RecognizeMode.Multiple);
+        }
+
+        private string SpeechRecognize()
+        {
+            return recog.Recognize().Text;
         }
 
         private void SpeechRecognized(object sender, RecognitionEventArgs e)
         {
+            //not used
+            //recog.RecognizeAsync(RecognizeMode.Multiple);
             MessageBox.Show(e.Result.Text);
         }
 
@@ -387,6 +401,7 @@ namespace RobobuilderLib
 
             run_btn.Text = "Run";
             run_btn.BackColor = System.Drawing.SystemColors.ControlLight;
+            script_active = false;
         }
 
         private void vScrollBar1_Scroll(object sender, ScrollEventArgs e)
@@ -394,6 +409,19 @@ namespace RobobuilderLib
             // speed up or slow down
             k=(double)(vScrollBar1.Value) / 100;
             label1.Text = k.ToString();
+        }
+
+        private void load_btn_Click(object sender, EventArgs e)
+        {
+            string n = action.Text;
+            try
+            {
+                script.Text = File.ReadAllText(button_dir + "\\" + n + ".lisp");
+            }
+            catch
+            {
+                MessageBox.Show("Load failed");
+            }
         }
 
         private void store_btn_Click(object sender, EventArgs e)
@@ -513,6 +541,8 @@ namespace RobobuilderLib
                 script.Text = "";
             }
         }
+
+ 
         
     }
 }

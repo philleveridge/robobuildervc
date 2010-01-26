@@ -31,6 +31,8 @@ namespace RobobuilderLib
         bool min_upd = false;
         bool pausev = false;
 
+        float sx=0, sy=0, ex=0, ey=0;
+
         public Video_frm(Preset_frm p)
         {
             InitializeComponent();
@@ -84,7 +86,7 @@ namespace RobobuilderLib
             setup_filter(new IntRange(140, 255), new IntRange(0, 100), new IntRange(0, 100));
         }
 
-        public void setup_filter(IntRange red, IntRange blue, IntRange green)
+        public void setup_filter(IntRange red, IntRange green, IntRange blue)
         {
             // configure blob counter
             blobCounter.MinWidth = 25;
@@ -251,7 +253,8 @@ namespace RobobuilderLib
 
             if (pausev && pictureBox1.Image == null)
             {
-                pictureBox1.Image = image;
+                pictureBox1.Image = (System.Drawing.Image)(image.Clone());
+                //bmx = new Bitmap(image);
             }
         }
 
@@ -321,6 +324,65 @@ namespace RobobuilderLib
             red_bar.Value = colorFilter.Red.Max;
             green_bar.Value = colorFilter.Green.Max;
             blue_bar.Value = colorFilter.Blue.Max;
+        }
+
+        private void md(int x, int y)
+        {
+            sx = x;
+            sy = y;
+        }
+
+        private void mu(int x, int y)
+        {
+            ColorFiltering cf = new ColorFiltering();
+
+            ex = x;
+            ey = y;
+
+            if (pictureBox1.Image == null) return;
+
+            Console.WriteLine("x={0}, y={1}", pictureBox1.Image.Height, pictureBox1.Image.Width);
+
+            Bitmap n = new Bitmap(pictureBox1.Image);
+
+            Graphics g = pictureBox1.CreateGraphics();
+
+              
+            Color c = n.GetPixel(x, y);
+
+
+            cf.Red.Min = c.R;
+            cf.Green.Min = c.G;
+            cf.Blue.Min = c.B;
+
+            cf.Red.Max = c.R;
+            cf.Green.Max = c.G;
+            cf.Blue.Max = c.B;
+
+            for (int gx = (int)sx; gx < (int)ex; gx++)
+            {
+                for (int gy = (int)sy; gy < (int)ey; gy++)
+                {
+                    c = n.GetPixel(gx, gy);
+
+                    if (c.R < cf.Red.Min)   cf.Red.Min = c.R;
+                    if (c.G < cf.Green.Min) cf.Green.Min = c.G;
+                    if (c.B < cf.Blue.Min)  cf.Blue.Min = c.B;
+
+                    if (c.R > cf.Red.Max)   cf.Red.Max = c.R;
+                    if (c.G > cf.Green.Max) cf.Green.Max = c.G;
+                    if (c.B > cf.Blue.Max)  cf.Blue.Max = c.B;
+                }
+            }
+
+            setup_filter(cf.Red, cf.Green,cf.Blue);
+
+            Console.WriteLine("CF = {0},{1},{2} to {3},{4},{5}",
+                cf.Red.Min, cf.Green.Min, cf.Blue.Min,
+                cf.Red.Max, cf.Green.Max, cf.Blue.Max);
+
+            g.DrawRectangle(new Pen(Color.White), sx, sy, ex - sx, ey - sy);
+
         }
 
 
