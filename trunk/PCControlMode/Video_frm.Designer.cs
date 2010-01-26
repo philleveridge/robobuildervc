@@ -236,6 +236,8 @@
             this.pictureBox1.Size = new System.Drawing.Size(322, 242);
             this.pictureBox1.TabIndex = 41;
             this.pictureBox1.TabStop = false;
+            this.pictureBox1.MouseDown += new System.Windows.Forms.MouseEventHandler(pictureBox1_MouseDown);
+            this.pictureBox1.MouseUp += new System.Windows.Forms.MouseEventHandler(pictureBox1_MouseUp);
             // 
             // Video_frm
             // 
@@ -268,6 +270,19 @@
             this.ResumeLayout(false);
             this.PerformLayout();
 
+        }
+
+        void pictureBox1_MouseUp(object sender, System.Windows.Forms.MouseEventArgs e)
+        {
+
+            System.Console.WriteLine("mouse up = " + e.X + "," + e.Y);
+            mu(e.X, e.Y);
+        }
+
+        void pictureBox1_MouseDown(object sender, System.Windows.Forms.MouseEventArgs e)
+        {
+            System.Console.WriteLine("mouse down = " + e.X + "," + e.Y);
+            md(e.X, e.Y);
         }
 
         #endregion

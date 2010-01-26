@@ -17,5 +17,14 @@
   ;robot move - requires motion csv files
   (.NewBasicPose form)
   
-  'DONE
+
+  
+  (.speak speak "Speech Synthesis and recognition test")
+  (.speak speak "Say yes or no")
+ 
+  (.initrecogniser form '["yes" "no"])
+  (= r (.SpeechRecognize form))
+  (alert r)
+  
+   'DONE 
 )
