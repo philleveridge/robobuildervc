@@ -38,7 +38,14 @@
             this.loadFile = new System.Windows.Forms.Button();
             this.fnstring = new System.Windows.Forms.Label();
             this.dataGridView1 = new System.Windows.Forms.DataGridView();
+            this.timeDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Steps = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.s0DataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.s1DataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.s2DataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.s3DataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.s4DataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.s5DataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.S6 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.S7 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.S8 = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -55,6 +62,7 @@
             this.X = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Y = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Z = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.servoPoseDataBindingSource = new System.Windows.Forms.BindingSource(this.components);
             this.updateRow = new System.Windows.Forms.Button();
             this.playRow = new System.Windows.Forms.Button();
             this.setBasic = new System.Windows.Forms.Button();
@@ -69,16 +77,15 @@
             this.label1 = new System.Windows.Forms.Label();
             this.torq_list = new System.Windows.Forms.ListBox();
             this.servoStatus1 = new RobobuilderLib.ServoStatus();
-            this.timeDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.s0DataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.s1DataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.s2DataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.s3DataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.s4DataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.s5DataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.servoPoseDataBindingSource = new System.Windows.Forms.BindingSource(this.components);
+            this.panel1 = new System.Windows.Forms.Panel();
+            this.button2 = new System.Windows.Forms.Button();
+            this.close = new System.Windows.Forms.Button();
+            this.label3 = new System.Windows.Forms.Label();
+            this.textBox2 = new System.Windows.Forms.TextBox();
+            this.textBox1 = new System.Windows.Forms.TextBox();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.servoPoseDataBindingSource)).BeginInit();
+            this.panel1.SuspendLayout();
             this.SuspendLayout();
             // 
             // closeBtn
@@ -195,6 +202,14 @@
             this.dataGridView1.Size = new System.Drawing.Size(684, 199);
             this.dataGridView1.TabIndex = 71;
             // 
+            // timeDataGridViewTextBoxColumn
+            // 
+            this.timeDataGridViewTextBoxColumn.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
+            this.timeDataGridViewTextBoxColumn.DataPropertyName = "Time";
+            this.timeDataGridViewTextBoxColumn.HeaderText = "Time";
+            this.timeDataGridViewTextBoxColumn.Name = "timeDataGridViewTextBoxColumn";
+            this.timeDataGridViewTextBoxColumn.Width = 55;
+            // 
             // Steps
             // 
             this.Steps.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
@@ -202,6 +217,54 @@
             this.Steps.HeaderText = "Steps";
             this.Steps.Name = "Steps";
             this.Steps.Width = 59;
+            // 
+            // s0DataGridViewTextBoxColumn
+            // 
+            this.s0DataGridViewTextBoxColumn.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
+            this.s0DataGridViewTextBoxColumn.DataPropertyName = "S0";
+            this.s0DataGridViewTextBoxColumn.HeaderText = "S0";
+            this.s0DataGridViewTextBoxColumn.Name = "s0DataGridViewTextBoxColumn";
+            this.s0DataGridViewTextBoxColumn.Width = 45;
+            // 
+            // s1DataGridViewTextBoxColumn
+            // 
+            this.s1DataGridViewTextBoxColumn.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
+            this.s1DataGridViewTextBoxColumn.DataPropertyName = "S1";
+            this.s1DataGridViewTextBoxColumn.HeaderText = "S1";
+            this.s1DataGridViewTextBoxColumn.Name = "s1DataGridViewTextBoxColumn";
+            this.s1DataGridViewTextBoxColumn.Width = 45;
+            // 
+            // s2DataGridViewTextBoxColumn
+            // 
+            this.s2DataGridViewTextBoxColumn.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
+            this.s2DataGridViewTextBoxColumn.DataPropertyName = "S2";
+            this.s2DataGridViewTextBoxColumn.HeaderText = "S2";
+            this.s2DataGridViewTextBoxColumn.Name = "s2DataGridViewTextBoxColumn";
+            this.s2DataGridViewTextBoxColumn.Width = 45;
+            // 
+            // s3DataGridViewTextBoxColumn
+            // 
+            this.s3DataGridViewTextBoxColumn.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
+            this.s3DataGridViewTextBoxColumn.DataPropertyName = "S3";
+            this.s3DataGridViewTextBoxColumn.HeaderText = "S3";
+            this.s3DataGridViewTextBoxColumn.Name = "s3DataGridViewTextBoxColumn";
+            this.s3DataGridViewTextBoxColumn.Width = 45;
+            // 
+            // s4DataGridViewTextBoxColumn
+            // 
+            this.s4DataGridViewTextBoxColumn.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
+            this.s4DataGridViewTextBoxColumn.DataPropertyName = "S4";
+            this.s4DataGridViewTextBoxColumn.HeaderText = "S4";
+            this.s4DataGridViewTextBoxColumn.Name = "s4DataGridViewTextBoxColumn";
+            this.s4DataGridViewTextBoxColumn.Width = 45;
+            // 
+            // s5DataGridViewTextBoxColumn
+            // 
+            this.s5DataGridViewTextBoxColumn.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
+            this.s5DataGridViewTextBoxColumn.DataPropertyName = "S5";
+            this.s5DataGridViewTextBoxColumn.HeaderText = "S5";
+            this.s5DataGridViewTextBoxColumn.Name = "s5DataGridViewTextBoxColumn";
+            this.s5DataGridViewTextBoxColumn.Width = 45;
             // 
             // S6
             // 
@@ -326,6 +389,10 @@
             this.Z.HeaderText = "Z";
             this.Z.Name = "Z";
             this.Z.ReadOnly = true;
+            // 
+            // servoPoseDataBindingSource
+            // 
+            this.servoPoseDataBindingSource.DataSource = typeof(RobobuilderLib.ServoPoseData);
             // 
             // updateRow
             // 
@@ -464,72 +531,74 @@
             this.servoStatus1.Size = new System.Drawing.Size(138, 209);
             this.servoStatus1.TabIndex = 83;
             // 
-            // timeDataGridViewTextBoxColumn
+            // panel1
             // 
-            this.timeDataGridViewTextBoxColumn.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
-            this.timeDataGridViewTextBoxColumn.DataPropertyName = "Time";
-            this.timeDataGridViewTextBoxColumn.HeaderText = "Time";
-            this.timeDataGridViewTextBoxColumn.Name = "timeDataGridViewTextBoxColumn";
-            this.timeDataGridViewTextBoxColumn.Width = 55;
+            this.panel1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(192)))), ((int)(((byte)(0)))));
+            this.panel1.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            this.panel1.Controls.Add(this.button2);
+            this.panel1.Controls.Add(this.close);
+            this.panel1.Controls.Add(this.label3);
+            this.panel1.Controls.Add(this.textBox2);
+            this.panel1.Controls.Add(this.textBox1);
+            this.panel1.Location = new System.Drawing.Point(21, 476);
+            this.panel1.Name = "panel1";
+            this.panel1.Size = new System.Drawing.Size(212, 64);
+            this.panel1.TabIndex = 86;
             // 
-            // s0DataGridViewTextBoxColumn
+            // button2
             // 
-            this.s0DataGridViewTextBoxColumn.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
-            this.s0DataGridViewTextBoxColumn.DataPropertyName = "S0";
-            this.s0DataGridViewTextBoxColumn.HeaderText = "S0";
-            this.s0DataGridViewTextBoxColumn.Name = "s0DataGridViewTextBoxColumn";
-            this.s0DataGridViewTextBoxColumn.Width = 45;
+            this.button2.Location = new System.Drawing.Point(151, 32);
+            this.button2.Name = "button2";
+            this.button2.Size = new System.Drawing.Size(44, 20);
+            this.button2.TabIndex = 4;
+            this.button2.Text = "button2";
+            this.button2.UseVisualStyleBackColor = true;
+            this.button2.Click += new System.EventHandler(this.button2_Click);
             // 
-            // s1DataGridViewTextBoxColumn
+            // close
             // 
-            this.s1DataGridViewTextBoxColumn.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
-            this.s1DataGridViewTextBoxColumn.DataPropertyName = "S1";
-            this.s1DataGridViewTextBoxColumn.HeaderText = "S1";
-            this.s1DataGridViewTextBoxColumn.Name = "s1DataGridViewTextBoxColumn";
-            this.s1DataGridViewTextBoxColumn.Width = 45;
+            this.close.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
+            this.close.FlatStyle = System.Windows.Forms.FlatStyle.System;
+            this.close.Location = new System.Drawing.Point(175, 1);
+            this.close.Name = "close";
+            this.close.Size = new System.Drawing.Size(22, 14);
+            this.close.TabIndex = 3;
+            this.close.Text = "X";
+            this.close.UseVisualStyleBackColor = true;
+            this.close.Click += new System.EventHandler(this.close_Click);
             // 
-            // s2DataGridViewTextBoxColumn
+            // label3
             // 
-            this.s2DataGridViewTextBoxColumn.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
-            this.s2DataGridViewTextBoxColumn.DataPropertyName = "S2";
-            this.s2DataGridViewTextBoxColumn.HeaderText = "S2";
-            this.s2DataGridViewTextBoxColumn.Name = "s2DataGridViewTextBoxColumn";
-            this.s2DataGridViewTextBoxColumn.Width = 45;
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(5, 2);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(59, 13);
+            this.label3.TabIndex = 2;
+            this.label3.Text = "Range (ID)";
             // 
-            // s3DataGridViewTextBoxColumn
+            // textBox2
             // 
-            this.s3DataGridViewTextBoxColumn.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
-            this.s3DataGridViewTextBoxColumn.DataPropertyName = "S3";
-            this.s3DataGridViewTextBoxColumn.HeaderText = "S3";
-            this.s3DataGridViewTextBoxColumn.Name = "s3DataGridViewTextBoxColumn";
-            this.s3DataGridViewTextBoxColumn.Width = 45;
+            this.textBox2.Location = new System.Drawing.Point(81, 32);
+            this.textBox2.Name = "textBox2";
+            this.textBox2.Size = new System.Drawing.Size(59, 20);
+            this.textBox2.TabIndex = 1;
+            this.textBox2.Text = "254";
             // 
-            // s4DataGridViewTextBoxColumn
+            // textBox1
             // 
-            this.s4DataGridViewTextBoxColumn.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
-            this.s4DataGridViewTextBoxColumn.DataPropertyName = "S4";
-            this.s4DataGridViewTextBoxColumn.HeaderText = "S4";
-            this.s4DataGridViewTextBoxColumn.Name = "s4DataGridViewTextBoxColumn";
-            this.s4DataGridViewTextBoxColumn.Width = 45;
-            // 
-            // s5DataGridViewTextBoxColumn
-            // 
-            this.s5DataGridViewTextBoxColumn.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
-            this.s5DataGridViewTextBoxColumn.DataPropertyName = "S5";
-            this.s5DataGridViewTextBoxColumn.HeaderText = "S5";
-            this.s5DataGridViewTextBoxColumn.Name = "s5DataGridViewTextBoxColumn";
-            this.s5DataGridViewTextBoxColumn.Width = 45;
-            // 
-            // servoPoseDataBindingSource
-            // 
-            this.servoPoseDataBindingSource.DataSource = typeof(RobobuilderLib.ServoPoseData);
+            this.textBox1.Location = new System.Drawing.Point(16, 32);
+            this.textBox1.Name = "textBox1";
+            this.textBox1.Size = new System.Drawing.Size(59, 20);
+            this.textBox1.TabIndex = 0;
+            this.textBox1.Text = "0";
             // 
             // MotionEdit_frm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoSize = true;
-            this.ClientSize = new System.Drawing.Size(708, 456);
+            this.ClientSize = new System.Drawing.Size(708, 457);
+            this.Controls.Add(this.panel1);
             this.Controls.Add(this.torq_list);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.servoStatus1);
@@ -557,6 +626,8 @@
             this.Text = "Motion editor";
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.servoPoseDataBindingSource)).EndInit();
+            this.panel1.ResumeLayout(false);
+            this.panel1.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -612,5 +683,11 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn X;
         private System.Windows.Forms.DataGridViewTextBoxColumn Y;
         private System.Windows.Forms.DataGridViewTextBoxColumn Z;
+        private System.Windows.Forms.Panel panel1;
+        private System.Windows.Forms.Button button2;
+        private System.Windows.Forms.Button close;
+        private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.TextBox textBox2;
+        private System.Windows.Forms.TextBox textBox1;
     }
 }

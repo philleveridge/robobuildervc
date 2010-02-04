@@ -48,6 +48,10 @@
             this.label7 = new System.Windows.Forms.Label();
             this.cmdPause = new System.Windows.Forms.Button();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
+            this.listBox1 = new System.Windows.Forms.ListBox();
+            this.textBox1 = new System.Windows.Forms.TextBox();
+            this.savebtn = new System.Windows.Forms.Button();
+            this.loadbtn = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.SuspendLayout();
             // 
@@ -104,7 +108,7 @@
             // 
             // button1
             // 
-            this.button1.Location = new System.Drawing.Point(346, 252);
+            this.button1.Location = new System.Drawing.Point(352, 357);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(78, 24);
             this.button1.TabIndex = 27;
@@ -168,56 +172,56 @@
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(210, 296);
+            this.label2.Location = new System.Drawing.Point(216, 296);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(10, 13);
+            this.label2.Size = new System.Drawing.Size(16, 13);
             this.label2.TabIndex = 34;
-            this.label2.Text = " ";
+            this.label2.Text = " 0";
             // 
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(210, 314);
+            this.label3.Location = new System.Drawing.Point(216, 314);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(10, 13);
+            this.label3.Size = new System.Drawing.Size(16, 13);
             this.label3.TabIndex = 35;
-            this.label3.Text = " ";
+            this.label3.Text = " 0";
             // 
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(210, 331);
+            this.label4.Location = new System.Drawing.Point(216, 331);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(10, 13);
+            this.label4.Size = new System.Drawing.Size(16, 13);
             this.label4.TabIndex = 36;
-            this.label4.Text = " ";
+            this.label4.Text = " 0";
             // 
             // label5
             // 
             this.label5.AutoSize = true;
             this.label5.Location = new System.Drawing.Point(317, 296);
             this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(10, 13);
+            this.label5.Size = new System.Drawing.Size(16, 13);
             this.label5.TabIndex = 39;
-            this.label5.Text = " ";
+            this.label5.Text = " 0";
             // 
             // label6
             // 
             this.label6.AutoSize = true;
             this.label6.Location = new System.Drawing.Point(317, 314);
             this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(10, 13);
+            this.label6.Size = new System.Drawing.Size(16, 13);
             this.label6.TabIndex = 38;
-            this.label6.Text = " ";
+            this.label6.Text = " 0";
             // 
             // label7
             // 
             this.label7.AutoSize = true;
             this.label7.Location = new System.Drawing.Point(318, 331);
             this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(10, 13);
+            this.label7.Size = new System.Drawing.Size(16, 13);
             this.label7.TabIndex = 37;
-            this.label7.Text = " ";
+            this.label7.Text = " 0";
             // 
             // cmdPause
             // 
@@ -236,14 +240,56 @@
             this.pictureBox1.Size = new System.Drawing.Size(322, 242);
             this.pictureBox1.TabIndex = 41;
             this.pictureBox1.TabStop = false;
-            this.pictureBox1.MouseDown += new System.Windows.Forms.MouseEventHandler(pictureBox1_MouseDown);
-            this.pictureBox1.MouseUp += new System.Windows.Forms.MouseEventHandler(pictureBox1_MouseUp);
+            this.pictureBox1.MouseDown += new System.Windows.Forms.MouseEventHandler(this.pictureBox1_MouseDown);
+            this.pictureBox1.MouseUp += new System.Windows.Forms.MouseEventHandler(this.pictureBox1_MouseUp);
+            // 
+            // listBox1
+            // 
+            this.listBox1.FormattingEnabled = true;
+            this.listBox1.Location = new System.Drawing.Point(121, 296);
+            this.listBox1.Name = "listBox1";
+            this.listBox1.SelectionMode = System.Windows.Forms.SelectionMode.MultiSimple;
+            this.listBox1.Size = new System.Drawing.Size(71, 43);
+            this.listBox1.TabIndex = 42;
+            this.listBox1.SelectedIndexChanged += new System.EventHandler(this.listBox1_SelectedIndexChanged);
+            // 
+            // textBox1
+            // 
+            this.textBox1.Location = new System.Drawing.Point(124, 340);
+            this.textBox1.Name = "textBox1";
+            this.textBox1.Size = new System.Drawing.Size(68, 20);
+            this.textBox1.TabIndex = 43;
+            this.textBox1.Leave += new System.EventHandler(this.textBox1_TextChanged);
+            // 
+            // savebtn
+            // 
+            this.savebtn.Location = new System.Drawing.Point(124, 358);
+            this.savebtn.Name = "savebtn";
+            this.savebtn.Size = new System.Drawing.Size(21, 23);
+            this.savebtn.TabIndex = 44;
+            this.savebtn.Text = "S";
+            this.savebtn.UseVisualStyleBackColor = true;
+            this.savebtn.Click += new System.EventHandler(this.savebtn_Click);
+            // 
+            // loadbtn
+            // 
+            this.loadbtn.Location = new System.Drawing.Point(163, 358);
+            this.loadbtn.Name = "loadbtn";
+            this.loadbtn.Size = new System.Drawing.Size(21, 23);
+            this.loadbtn.TabIndex = 45;
+            this.loadbtn.Text = "L";
+            this.loadbtn.UseVisualStyleBackColor = true;
+            this.loadbtn.Click += new System.EventHandler(this.loadbtn_Click);
             // 
             // Video_frm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(436, 351);
+            this.ClientSize = new System.Drawing.Size(436, 382);
+            this.Controls.Add(this.loadbtn);
+            this.Controls.Add(this.savebtn);
+            this.Controls.Add(this.textBox1);
+            this.Controls.Add(this.listBox1);
             this.Controls.Add(this.cmdPause);
             this.Controls.Add(this.label5);
             this.Controls.Add(this.label6);
@@ -307,5 +353,9 @@
         private System.Windows.Forms.Label label7;
         private System.Windows.Forms.Button cmdPause;
         private System.Windows.Forms.PictureBox pictureBox1;
+        private System.Windows.Forms.ListBox listBox1;
+        private System.Windows.Forms.TextBox textBox1;
+        private System.Windows.Forms.Button savebtn;
+        private System.Windows.Forms.Button loadbtn;
     }
 }
