@@ -31,6 +31,10 @@ namespace RobobuilderLib
         {
             InitializeComponent();
             setup();
+
+            panel1.Location = new Point(500, 30);
+            panel1.Visible = false;
+
         }
 
         public void connect(PCremote r)
@@ -48,7 +52,7 @@ namespace RobobuilderLib
                 if (viewport == null)
                 {
                     MessageBox.Show("Must connect first");
-                    return;
+                    //return;
                 }
             }
             this.Show();
@@ -123,12 +127,19 @@ namespace RobobuilderLib
 
         private void show_Info(int id)
         {
+            panel1.Visible = true;
+            label3.Text  = "Range ("+id+")";
+
+
             string m = "Info=" + id;
             if (dcontrol == null) return;
 
             if (dcontrol.wckReadBoundary(id))
             {
                 m += string.Format(" UL=[{0:0},{1:0}]", dcontrol.respnse[0], dcontrol.respnse[1]);
+
+                textBox1.Text = dcontrol.respnse[0].ToString();
+                textBox2.Text = dcontrol.respnse[1].ToString();
             }
 
             if (dcontrol.wckReadPDgain(id))
@@ -152,6 +163,7 @@ namespace RobobuilderLib
             }
 
             label1.Text = m;
+
         }
 
         private void test_servos()
@@ -637,6 +649,17 @@ namespace RobobuilderLib
                 }
             }
 
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            Console.WriteLine("Need to update boundary !!!!!!!!!!!");
+
+        }
+
+        private void close_Click(object sender, EventArgs e)
+        {
+            panel1.Visible = false;
         }
 
     }

@@ -11,6 +11,17 @@ namespace RobobuilderLib
     {
         public const int MAX_SERVOS = 19;
 
+        static public int[] ub_Huno = new int[] {
+        /* ID
+          0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14, 15 */
+        174,228,254,130,185,254,180,126,208,208,254,224,198,254,228,254};
+
+        static public int[] lb_Huno = new int[] {
+        /* ID
+          0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14, 15 */
+          1, 70,124, 40, 41, 73, 22,  1,120, 57,  1, 23,  1,  1, 25, 40};
+
+
         static public byte[] basic_pos = new byte[] {
                 /*0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18 */
                 143,179,198,83,106,106,69,48,167,141,47,47,49,199,204,204,122,125,127 };
@@ -448,6 +459,8 @@ namespace RobobuilderLib
             PlayPose(duration, no_steps, basic_pos, true);
         }
 
+        // NEW:: if byte = 255 = use current positon
+        // NEW:: check limits / bounds before sending
 
         public void PlayPose(int duration, int no_steps, byte[] spod, bool first)
         {
@@ -456,6 +469,25 @@ namespace RobobuilderLib
             if (first) servoID_readservo(0); // read start positons
 
             double[] intervals = new double[spod.Length];
+
+            // bounds check
+            for (int n = 0; (n < spod.Length ); n++)
+            {
+                if (spod[n] == 0)
+                {
+                    if (wckReadPos(n))
+                    {
+                        spod[n] = respnse[1];
+                    }
+                }
+            }
+
+            // bounds check
+            for (int n = 0; (n < spod.Length && n < lb_Huno.Length); n++)
+            {
+                if (spod[n] < lb_Huno[n]) spod[n] = (byte)lb_Huno[n];
+                if (spod[n] > ub_Huno[n]) spod[n] = (byte)ub_Huno[n];
+            }
 
             for (int n = 0; n < sids.Length; n++)
             {

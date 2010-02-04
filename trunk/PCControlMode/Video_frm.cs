@@ -22,14 +22,16 @@ namespace RobobuilderLib
         FilterInfoCollection videoDevices;
         int cnt;
         // image processing stuff
-        ColorFiltering colorFilter = new ColorFiltering();
-        ColorFiltering colorFilter2 = new ColorFiltering();
+        ColorFiltering[] colorFilterArr = new ColorFiltering[5];
+
         GrayscaleBT709 grayscaleFilter = new GrayscaleBT709();
         BlobCounter blobCounter = new BlobCounter();
         Preset_frm pf1;
 
         bool min_upd = false;
         bool pausev = false;
+        int cindx = 0;
+        int ncf   = 0;
 
         float sx=0, sy=0, ex=0, ey=0;
 
@@ -61,18 +63,8 @@ namespace RobobuilderLib
                 videoDevices = null;
             }
 
-            setup_filter();
-
-            var c = new Choices();
-            c.Add("wave");
-            c.Add("stand");
-            c.Add("basic");
-
-            //var gb = new GrammarBuilder(c);
-            //var g = new Grammar(gb);
-            //rec.LoadGrammar(g);
-            //rec.Enabled = true;
-            //rec.SpeechRecognized += rec_SpeechRecognized;
+            listBox1.Items.Add("default");
+            setup_filter(0);
 
         }
 
@@ -81,13 +73,24 @@ namespace RobobuilderLib
             label1.Text = e.Result.Text;
         }
 
-        public void setup_filter()
+        public void setup_filter(int i)
         {
-            setup_filter(new IntRange(140, 255), new IntRange(0, 100), new IntRange(0, 100));
+            setup_filter(i, new IntRange(140, 255), new IntRange(0, 100), new IntRange(0, 100));
         }
 
-        public void setup_filter(IntRange red, IntRange green, IntRange blue)
+        public void setup_filter(int indx, IntRange red, IntRange green, IntRange blue)
         {
+            ColorFiltering colorFilter;
+            if (indx < ncf)
+            {
+                colorFilter = colorFilterArr[indx];
+            }
+            else
+            {
+                colorFilter = new ColorFiltering();
+                ncf++;
+            }
+
             // configure blob counter
             blobCounter.MinWidth = 25;
             blobCounter.MinHeight = 25;
@@ -98,8 +101,8 @@ namespace RobobuilderLib
             colorFilter.Red = red;
             colorFilter.Green = green;
 
-            panel1.BackColor = System.Drawing.Color.FromArgb(red.Min, green.Min, blue.Min);
-            panel2.BackColor = System.Drawing.Color.FromArgb(red.Max, green.Max, blue.Max);
+            panel1.BackColor = Color.FromArgb(red.Min, green.Min, blue.Min);
+            panel2.BackColor = Color.FromArgb(red.Max, green.Max, blue.Max);
 
             label2.Text = colorFilter.Red.Min.ToString();
             label3.Text = colorFilter.Green.Min.ToString();
@@ -107,6 +110,8 @@ namespace RobobuilderLib
             label5.Text = colorFilter.Red.Max.ToString();
             label6.Text = colorFilter.Green.Max.ToString();
             label7.Text = colorFilter.Blue.Max.ToString();
+
+            colorFilterArr[indx] = colorFilter;
         }
 
         public bool IsfilterOn()
@@ -154,6 +159,8 @@ namespace RobobuilderLib
         // New video frame has arrived
         void videoSourcePlayer_NewFrame(object sender, ref Bitmap image)
         {
+            ColorFiltering colorFilter = colorFilterArr[cindx];
+
             cnt++;
 
             if (pausev && pictureBox1.Image!=null)
@@ -267,6 +274,8 @@ namespace RobobuilderLib
 
         private void color_bar_Scroll(object sender, ScrollEventArgs e)
         {
+            ColorFiltering colorFilter = colorFilterArr[cindx];
+
             int t, a , b;
             t = ((HScrollBar)(sender)).Value;
 
@@ -307,6 +316,8 @@ namespace RobobuilderLib
 
         private void panel1_click(object sender, EventArgs e)
         {
+            ColorFiltering colorFilter = colorFilterArr[cindx];
+
             min_upd = true;
             panel1.BorderStyle = BorderStyle.FixedSingle;
             panel2.BorderStyle = BorderStyle.None;
@@ -317,6 +328,8 @@ namespace RobobuilderLib
 
         private void panel2_click(object sender, EventArgs e)
         {
+            ColorFiltering colorFilter = colorFilterArr[cindx];
+
             min_upd = false;
             panel1.BorderStyle = BorderStyle.None;
             panel2.BorderStyle = BorderStyle.FixedSingle;
@@ -375,7 +388,7 @@ namespace RobobuilderLib
                 }
             }
 
-            setup_filter(cf.Red, cf.Green,cf.Blue);
+            setup_filter(cindx, cf.Red, cf.Green,cf.Blue);
 
             Console.WriteLine("CF = {0},{1},{2} to {3},{4},{5}",
                 cf.Red.Min, cf.Green.Min, cf.Blue.Min,
@@ -385,6 +398,94 @@ namespace RobobuilderLib
 
         }
 
+        private void listBox1_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (listBox1.SelectedIndex >= 0)
+            {
+                textBox1.Text = listBox1.Items[listBox1.SelectedIndex].ToString();
+                cindx = listBox1.SelectedIndex;
+                ColorFiltering colorFilter = colorFilterArr[cindx];
 
+                panel1.BackColor = System.Drawing.Color.FromArgb(colorFilter.Red.Min, colorFilter.Green.Min, colorFilter.Blue.Min);
+                panel2.BackColor = System.Drawing.Color.FromArgb(colorFilter.Red.Max, colorFilter.Green.Max, colorFilter.Blue.Max);
+
+                label2.Text = colorFilter.Red.Min.ToString();
+                label3.Text = colorFilter.Green.Min.ToString();
+                label4.Text = colorFilter.Blue.Min.ToString();
+                label5.Text = colorFilter.Red.Max.ToString();
+                label6.Text = colorFilter.Green.Max.ToString();
+                label7.Text = colorFilter.Blue.Max.ToString();
+
+            }
+            else
+            {
+                textBox1.Text = "";
+            }
+        }
+
+        private void textBox1_TextChanged(object sender, EventArgs e)
+        {
+            Console.WriteLine("chg = " + textBox1.Text);
+
+            if (listBox1.SelectedIndex >= 0)
+            {
+                listBox1.Items[listBox1.SelectedIndex] = textBox1.Text;
+                return;
+            }
+
+            for (int i = 0; i < ncf; i++)
+            {
+                if (listBox1.Items[i].ToString() == textBox1.Text)
+                    return;
+            }
+
+            if (ncf < 4)
+            {
+                listBox1.Items.Add(textBox1.Text);
+                setup_filter(ncf);
+            }
+        }
+
+        private void savebtn_Click(object sender, EventArgs e)
+        {
+            string f = "";
+            for (int i = 0; i < ncf; i++)
+            {
+                ColorFiltering colorFilter = colorFilterArr[i];
+
+                f += listBox1.Items[i].ToString();
+
+                f += ": " + colorFilter.Red.Min.ToString();
+                f += ": " + colorFilter.Green.Min.ToString();
+                f += ": " + colorFilter.Blue.Min.ToString();
+                f += ": " + colorFilter.Red.Max.ToString();
+                f += ": " + colorFilter.Green.Max.ToString();
+                f += ": " + colorFilter.Blue.Max.ToString();
+
+                f += "\r\n";
+            }
+            Console.Write("config=\n" + f);
+            System.IO.File.WriteAllText("filter.ini", f);
+        }
+
+        private void loadbtn_Click(object sender, EventArgs e)
+        {
+            string[] f = System.IO.File.ReadAllLines("filter.ini");
+            listBox1.Items.Clear();
+            ncf = 0;
+
+            foreach (string l in f)
+            {
+                Console.Write(ncf + "config=\n" + l);
+                string[] r = l.Split(':');
+                if (r.Length > 6)
+                {
+                    listBox1.Items.Add(r[0]);
+                    setup_filter(ncf, new IntRange(Convert.ToInt32(r[1]), Convert.ToInt32(r[4])),
+                                        new IntRange(Convert.ToInt32(r[2]), Convert.ToInt32(r[5])),
+                                        new IntRange(Convert.ToInt32(r[3]), Convert.ToInt32(r[6])));
+                }
+            } 
+        }
     }
 }
