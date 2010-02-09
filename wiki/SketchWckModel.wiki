@@ -1,0 +1,8 @@
+#summary Modeling the Robobuilder wck servo in Sketchup with sketchy physics
+
+= Introduction =
+
+Initial proof of concept
+
+= Details =
+
