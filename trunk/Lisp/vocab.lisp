@@ -9,9 +9,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
-(= verb '(wave open close extend retract swing in out learn remember showme exit))
-(= noun '(left right arm foot))
-
 (reference "C:\\Program Files\\Reference Assemblies\\Microsoft\\Framework\\v3.0\\System.Speech.dll")
 (using "System.Speech.Recognition")
 (using "System.Speech.Synthesis")
@@ -77,10 +74,9 @@
 )
 
 (= syntax '(
-(I AM WORRIED ABOUT +L)  ("WHY ARE YOU WORRIED ABOUT " L "?")
-(+ MOTHER +)             ("TELL ME MORE ABOUT YOUR FAMILY")  
-) 
-)
+(open +X hand)   ("Opening " X "hand")
+(close +X hand)  ("Closing " X "hand")
+))
 
 (def tmatch (x) 
   (= mf false)
@@ -95,24 +91,46 @@
 
 ;(tmatch "(I AM WORRIED ABOUT FRED)")
 
+(def initrecog (x)
+      (do 
+         (= rec (new "SpeechRecognitionEngine"))
+         (= g (new "Grammar" x))
+         (.loadgrammar rec g)
+         (.SetInputToDefaultAudioDevice rec)
+       )
+)
 
 
 (def vocab ()
   "Demo"
+  (if (not (bound 'rec))  (initrecog "Lisp\\vocab.xml"))
   (with (item 1) 
+     (say "Hello")
      (while (not (is item 0)) 
          (do 
-            (while (is (= inp (Console.ReadLine)) "" ) (pr ": "))) 
-            (= inpt (evalstring (+ "'" (.ToUpper inp))))
+			(= t (.Recognize rec))
+			(prn (.text t)) (= inpt (+ "'(" (.text t) ")"))
+	 
+            ;(while (is (= inp (Console.ReadLine)) "" ) (pr ": "))) 
+            ;(= inpt (evalstring (+ "'" (.ToUpper inp))))
 	          (if 
               (iso inpt 'BYE) 
                   (do (say "GOODBYE" )(err "Done"))
 
               (if (not (tmatch inpt))
-                    (say "TELL ME MORE")
+                    (say "Pardon?"))
               )
-            )
 	         (pr ": ") 
          )
      )
+  )
 )
+
+(initrecog "Lisp\\vocab.xml")
+(vocab)
+
+;scratch
+;
+; (.RecognizeAsync rec (RecognizeMode.Single))
+; (.SpeechRecognized rec  += new EventHandler<SpeechRecognizedEventArgs>(SpeechRecognized);
+; private void SpeechRecognized(object sender, RecognitionEventArgs e);

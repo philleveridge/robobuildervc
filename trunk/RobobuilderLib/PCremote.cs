@@ -112,7 +112,7 @@ namespace RobobuilderLib
         public string readVer()
         {
             //read firmware version number
-            string r = "";
+            string r = "0";
 
             if (serialPort1.IsOpen)
             {
@@ -143,7 +143,7 @@ namespace RobobuilderLib
         public string readDistance()
         {
             // read distance
-            string r = "";
+            string r = "0";
 
             if (serialPort1.IsOpen)
             {

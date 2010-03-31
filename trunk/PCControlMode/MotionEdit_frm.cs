@@ -336,8 +336,8 @@ namespace RobobuilderLib
                 dataGridView1.CurrentCell = dataGridView1.Rows[n].Cells[0];
                 dataGridView1.Refresh();
 
-                byte[] t = new byte[19];
-                for (int i = 0; i < 19; i++)
+                byte[] t = new byte[20];
+                for (int i = 0; i < 20; i++)
                     t[i] = (byte)r.S[i];
 
                 if (dcontrol != null) dcontrol.PlayPose(r.Time, r.Steps, t, ff);
@@ -371,15 +371,15 @@ namespace RobobuilderLib
             {
                 TextWriter tw = new StreamWriter(filename);
 
-                tw.WriteLine("#V=01,N={0},A=1", 19 );
-                tw.WriteLine("#T,N,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,X,Y,Z");
+                tw.WriteLine("#V=01,N={0},A=1", 20 );
+                tw.WriteLine("#T,N,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,X,Y,Z");
 
                 foreach (ServoPoseData r in motiondata)
                 {
                     tw.Write(r.Time + ",");
                     tw.Write(r.Steps + ",");
 
-                    for (int i = 0; i < 19; i++)
+                    for (int i = 0; i < 20; i++)
                         tw.Write(r.S[i] + ",");
 
                     tw.Write(r.X + ",");
@@ -451,7 +451,8 @@ namespace RobobuilderLib
                         t.S17 = 125;
                     if (m.no_servos < 19)
                         t.S18 = 127;
-
+                    if (m.no_servos < 19)
+                        t.S19 = 127;
                     t.X   = 0;
                     t.Y   = 0;
                     t.Z   = 0;
@@ -484,7 +485,7 @@ namespace RobobuilderLib
                         t.Time = Convert.ToInt32(r[0]);
                         t.Steps = Convert.ToInt32(r[1]);
 
-                        for (int i = 0; i < 19; i++)
+                        for (int i = 0; i < 20; i++)
                             t.S[i] = Convert.ToInt32(r[i+2]);
 
                         motiondata.Add(t);
@@ -519,7 +520,7 @@ namespace RobobuilderLib
             n.Time = 500;
             n.Steps = 10;
 
-            for (int i = 0; i < 19; i++) 
+            for (int i = 0; i < 20; i++) 
                 n.S[i] = servoPos[i].Value;
 
             motiondata[j] = n;
@@ -543,9 +544,9 @@ namespace RobobuilderLib
 
             ServoPoseData r = motiondata[j];
 
-            byte[] t = new byte[19];
+            byte[] t = new byte[20];
 
-            for (int i = 0; i < 19; i++) 
+            for (int i = 0; i < 20; i++) 
                 t[i] = (byte)r.S[i];
 
             if (dcontrol != null) 

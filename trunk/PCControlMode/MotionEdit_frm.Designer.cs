@@ -38,6 +38,27 @@
             this.loadFile = new System.Windows.Forms.Button();
             this.fnstring = new System.Windows.Forms.Label();
             this.dataGridView1 = new System.Windows.Forms.DataGridView();
+            this.updateRow = new System.Windows.Forms.Button();
+            this.playRow = new System.Windows.Forms.Button();
+            this.setBasic = new System.Windows.Forms.Button();
+            this.queryValues = new System.Windows.Forms.Button();
+            this.delRow = new System.Windows.Forms.Button();
+            this.autopose = new System.Windows.Forms.Button();
+            this.xV = new System.Windows.Forms.Label();
+            this.yV = new System.Windows.Forms.Label();
+            this.zV = new System.Windows.Forms.Label();
+            this.all_pass_chk = new System.Windows.Forms.CheckBox();
+            this.base_chk = new System.Windows.Forms.CheckBox();
+            this.label1 = new System.Windows.Forms.Label();
+            this.torq_list = new System.Windows.Forms.ListBox();
+            this.panel1 = new System.Windows.Forms.Panel();
+            this.button2 = new System.Windows.Forms.Button();
+            this.close = new System.Windows.Forms.Button();
+            this.label3 = new System.Windows.Forms.Label();
+            this.textBox2 = new System.Windows.Forms.TextBox();
+            this.textBox1 = new System.Windows.Forms.TextBox();
+            this.servoStatus1 = new RobobuilderLib.ServoStatus();
+            this.servoPoseDataBindingSource = new System.Windows.Forms.BindingSource(this.components);
             this.timeDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Steps = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.s0DataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -59,33 +80,13 @@
             this.S16 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.S17 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.S18 = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.S19 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.X = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Y = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Z = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.servoPoseDataBindingSource = new System.Windows.Forms.BindingSource(this.components);
-            this.updateRow = new System.Windows.Forms.Button();
-            this.playRow = new System.Windows.Forms.Button();
-            this.setBasic = new System.Windows.Forms.Button();
-            this.queryValues = new System.Windows.Forms.Button();
-            this.delRow = new System.Windows.Forms.Button();
-            this.autopose = new System.Windows.Forms.Button();
-            this.xV = new System.Windows.Forms.Label();
-            this.yV = new System.Windows.Forms.Label();
-            this.zV = new System.Windows.Forms.Label();
-            this.all_pass_chk = new System.Windows.Forms.CheckBox();
-            this.base_chk = new System.Windows.Forms.CheckBox();
-            this.label1 = new System.Windows.Forms.Label();
-            this.torq_list = new System.Windows.Forms.ListBox();
-            this.servoStatus1 = new RobobuilderLib.ServoStatus();
-            this.panel1 = new System.Windows.Forms.Panel();
-            this.button2 = new System.Windows.Forms.Button();
-            this.close = new System.Windows.Forms.Button();
-            this.label3 = new System.Windows.Forms.Label();
-            this.textBox2 = new System.Windows.Forms.TextBox();
-            this.textBox1 = new System.Windows.Forms.TextBox();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.servoPoseDataBindingSource)).BeginInit();
             this.panel1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.servoPoseDataBindingSource)).BeginInit();
             this.SuspendLayout();
             // 
             // closeBtn
@@ -192,6 +193,7 @@
             this.S16,
             this.S17,
             this.S18,
+            this.S19,
             this.X,
             this.Y,
             this.Z});
@@ -201,6 +203,208 @@
             this.dataGridView1.Name = "dataGridView1";
             this.dataGridView1.Size = new System.Drawing.Size(684, 199);
             this.dataGridView1.TabIndex = 71;
+            // 
+            // updateRow
+            // 
+            this.updateRow.Location = new System.Drawing.Point(96, 4);
+            this.updateRow.Name = "updateRow";
+            this.updateRow.Size = new System.Drawing.Size(22, 25);
+            this.updateRow.TabIndex = 72;
+            this.updateRow.Text = "U";
+            this.updateRow.UseVisualStyleBackColor = true;
+            this.updateRow.Click += new System.EventHandler(this.updateRow_Click);
+            // 
+            // playRow
+            // 
+            this.playRow.Location = new System.Drawing.Point(124, 4);
+            this.playRow.Name = "playRow";
+            this.playRow.Size = new System.Drawing.Size(22, 25);
+            this.playRow.TabIndex = 73;
+            this.playRow.Text = "P";
+            this.playRow.UseVisualStyleBackColor = true;
+            this.playRow.Click += new System.EventHandler(this.playRow_Click);
+            // 
+            // setBasic
+            // 
+            this.setBasic.Location = new System.Drawing.Point(12, 4);
+            this.setBasic.Name = "setBasic";
+            this.setBasic.Size = new System.Drawing.Size(44, 25);
+            this.setBasic.TabIndex = 74;
+            this.setBasic.Text = "Basic";
+            this.setBasic.UseVisualStyleBackColor = true;
+            this.setBasic.Click += new System.EventHandler(this.setBasic_Click);
+            // 
+            // queryValues
+            // 
+            this.queryValues.Location = new System.Drawing.Point(197, 5);
+            this.queryValues.Name = "queryValues";
+            this.queryValues.Size = new System.Drawing.Size(22, 25);
+            this.queryValues.TabIndex = 75;
+            this.queryValues.Text = "?";
+            this.queryValues.UseVisualStyleBackColor = true;
+            this.queryValues.Click += new System.EventHandler(this.queryValues_Click);
+            // 
+            // delRow
+            // 
+            this.delRow.Location = new System.Drawing.Point(152, 4);
+            this.delRow.Name = "delRow";
+            this.delRow.Size = new System.Drawing.Size(22, 25);
+            this.delRow.TabIndex = 76;
+            this.delRow.Text = "X";
+            this.delRow.UseVisualStyleBackColor = true;
+            this.delRow.Click += new System.EventHandler(this.delRow_Click);
+            // 
+            // autopose
+            // 
+            this.autopose.Location = new System.Drawing.Point(423, 30);
+            this.autopose.Name = "autopose";
+            this.autopose.Size = new System.Drawing.Size(45, 30);
+            this.autopose.TabIndex = 77;
+            this.autopose.Text = "Auto";
+            this.autopose.UseVisualStyleBackColor = true;
+            this.autopose.Click += new System.EventHandler(this.autopose_Click);
+            // 
+            // xV
+            // 
+            this.xV.AutoSize = true;
+            this.xV.Location = new System.Drawing.Point(387, 56);
+            this.xV.Name = "xV";
+            this.xV.Size = new System.Drawing.Size(20, 13);
+            this.xV.TabIndex = 78;
+            this.xV.Text = "X=";
+            // 
+            // yV
+            // 
+            this.yV.AutoSize = true;
+            this.yV.Location = new System.Drawing.Point(387, 79);
+            this.yV.Name = "yV";
+            this.yV.Size = new System.Drawing.Size(20, 13);
+            this.yV.TabIndex = 79;
+            this.yV.Text = "Y=";
+            // 
+            // zV
+            // 
+            this.zV.AutoSize = true;
+            this.zV.Location = new System.Drawing.Point(387, 104);
+            this.zV.Name = "zV";
+            this.zV.Size = new System.Drawing.Size(20, 13);
+            this.zV.TabIndex = 80;
+            this.zV.Text = "Z=";
+            // 
+            // all_pass_chk
+            // 
+            this.all_pass_chk.AutoSize = true;
+            this.all_pass_chk.Location = new System.Drawing.Point(422, 190);
+            this.all_pass_chk.Name = "all_pass_chk";
+            this.all_pass_chk.Size = new System.Drawing.Size(76, 17);
+            this.all_pass_chk.TabIndex = 81;
+            this.all_pass_chk.Text = "All passive";
+            this.all_pass_chk.UseVisualStyleBackColor = true;
+            this.all_pass_chk.CheckedChanged += new System.EventHandler(this.all_pass_chk_CheckedChanged);
+            // 
+            // base_chk
+            // 
+            this.base_chk.AutoSize = true;
+            this.base_chk.Location = new System.Drawing.Point(423, 165);
+            this.base_chk.Name = "base_chk";
+            this.base_chk.Size = new System.Drawing.Size(71, 17);
+            this.base_chk.TabIndex = 82;
+            this.base_chk.Text = "Use base";
+            this.base_chk.UseVisualStyleBackColor = true;
+            // 
+            // label1
+            // 
+            this.label1.Location = new System.Drawing.Point(550, 204);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(146, 38);
+            this.label1.TabIndex = 84;
+            this.label1.Text = "Info=";
+            // 
+            // torq_list
+            // 
+            this.torq_list.FormattingEnabled = true;
+            this.torq_list.Items.AddRange(new object[] {
+            "0 (max Torq)",
+            "1",
+            "2 (default Torq)",
+            "3",
+            "4 (Min Torq)"});
+            this.torq_list.Location = new System.Drawing.Point(423, 118);
+            this.torq_list.Name = "torq_list";
+            this.torq_list.Size = new System.Drawing.Size(92, 30);
+            this.torq_list.TabIndex = 85;
+            // 
+            // panel1
+            // 
+            this.panel1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(192)))), ((int)(((byte)(0)))));
+            this.panel1.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            this.panel1.Controls.Add(this.button2);
+            this.panel1.Controls.Add(this.close);
+            this.panel1.Controls.Add(this.label3);
+            this.panel1.Controls.Add(this.textBox2);
+            this.panel1.Controls.Add(this.textBox1);
+            this.panel1.Location = new System.Drawing.Point(21, 476);
+            this.panel1.Name = "panel1";
+            this.panel1.Size = new System.Drawing.Size(212, 64);
+            this.panel1.TabIndex = 86;
+            // 
+            // button2
+            // 
+            this.button2.Location = new System.Drawing.Point(151, 32);
+            this.button2.Name = "button2";
+            this.button2.Size = new System.Drawing.Size(44, 20);
+            this.button2.TabIndex = 4;
+            this.button2.Text = "button2";
+            this.button2.UseVisualStyleBackColor = true;
+            this.button2.Click += new System.EventHandler(this.button2_Click);
+            // 
+            // close
+            // 
+            this.close.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
+            this.close.FlatStyle = System.Windows.Forms.FlatStyle.System;
+            this.close.Location = new System.Drawing.Point(175, 1);
+            this.close.Name = "close";
+            this.close.Size = new System.Drawing.Size(22, 14);
+            this.close.TabIndex = 3;
+            this.close.Text = "X";
+            this.close.UseVisualStyleBackColor = true;
+            this.close.Click += new System.EventHandler(this.close_Click);
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(5, 2);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(59, 13);
+            this.label3.TabIndex = 2;
+            this.label3.Text = "Range (ID)";
+            // 
+            // textBox2
+            // 
+            this.textBox2.Location = new System.Drawing.Point(81, 32);
+            this.textBox2.Name = "textBox2";
+            this.textBox2.Size = new System.Drawing.Size(59, 20);
+            this.textBox2.TabIndex = 1;
+            this.textBox2.Text = "254";
+            // 
+            // textBox1
+            // 
+            this.textBox1.Location = new System.Drawing.Point(16, 32);
+            this.textBox1.Name = "textBox1";
+            this.textBox1.Size = new System.Drawing.Size(59, 20);
+            this.textBox1.TabIndex = 0;
+            this.textBox1.Text = "0";
+            // 
+            // servoStatus1
+            // 
+            this.servoStatus1.Location = new System.Drawing.Point(560, 6);
+            this.servoStatus1.Name = "servoStatus1";
+            this.servoStatus1.Size = new System.Drawing.Size(138, 209);
+            this.servoStatus1.TabIndex = 83;
+            // 
+            // servoPoseDataBindingSource
+            // 
+            this.servoPoseDataBindingSource.DataSource = typeof(RobobuilderLib.ServoPoseData);
             // 
             // timeDataGridViewTextBoxColumn
             // 
@@ -370,6 +574,12 @@
             this.S18.Name = "S18";
             this.S18.Width = 51;
             // 
+            // S19
+            // 
+            this.S19.DataPropertyName = "S19";
+            this.S19.HeaderText = "S19";
+            this.S19.Name = "S19";
+            // 
             // X
             // 
             this.X.DataPropertyName = "X";
@@ -389,208 +599,6 @@
             this.Z.HeaderText = "Z";
             this.Z.Name = "Z";
             this.Z.ReadOnly = true;
-            // 
-            // servoPoseDataBindingSource
-            // 
-            this.servoPoseDataBindingSource.DataSource = typeof(RobobuilderLib.ServoPoseData);
-            // 
-            // updateRow
-            // 
-            this.updateRow.Location = new System.Drawing.Point(96, 4);
-            this.updateRow.Name = "updateRow";
-            this.updateRow.Size = new System.Drawing.Size(22, 25);
-            this.updateRow.TabIndex = 72;
-            this.updateRow.Text = "U";
-            this.updateRow.UseVisualStyleBackColor = true;
-            this.updateRow.Click += new System.EventHandler(this.updateRow_Click);
-            // 
-            // playRow
-            // 
-            this.playRow.Location = new System.Drawing.Point(124, 4);
-            this.playRow.Name = "playRow";
-            this.playRow.Size = new System.Drawing.Size(22, 25);
-            this.playRow.TabIndex = 73;
-            this.playRow.Text = "P";
-            this.playRow.UseVisualStyleBackColor = true;
-            this.playRow.Click += new System.EventHandler(this.playRow_Click);
-            // 
-            // setBasic
-            // 
-            this.setBasic.Location = new System.Drawing.Point(12, 4);
-            this.setBasic.Name = "setBasic";
-            this.setBasic.Size = new System.Drawing.Size(44, 25);
-            this.setBasic.TabIndex = 74;
-            this.setBasic.Text = "Basic";
-            this.setBasic.UseVisualStyleBackColor = true;
-            this.setBasic.Click += new System.EventHandler(this.setBasic_Click);
-            // 
-            // queryValues
-            // 
-            this.queryValues.Location = new System.Drawing.Point(197, 5);
-            this.queryValues.Name = "queryValues";
-            this.queryValues.Size = new System.Drawing.Size(22, 25);
-            this.queryValues.TabIndex = 75;
-            this.queryValues.Text = "?";
-            this.queryValues.UseVisualStyleBackColor = true;
-            this.queryValues.Click += new System.EventHandler(this.queryValues_Click);
-            // 
-            // delRow
-            // 
-            this.delRow.Location = new System.Drawing.Point(152, 4);
-            this.delRow.Name = "delRow";
-            this.delRow.Size = new System.Drawing.Size(22, 25);
-            this.delRow.TabIndex = 76;
-            this.delRow.Text = "X";
-            this.delRow.UseVisualStyleBackColor = true;
-            this.delRow.Click += new System.EventHandler(this.delRow_Click);
-            // 
-            // autopose
-            // 
-            this.autopose.Location = new System.Drawing.Point(423, 30);
-            this.autopose.Name = "autopose";
-            this.autopose.Size = new System.Drawing.Size(45, 30);
-            this.autopose.TabIndex = 77;
-            this.autopose.Text = "Auto";
-            this.autopose.UseVisualStyleBackColor = true;
-            this.autopose.Click += new System.EventHandler(this.autopose_Click);
-            // 
-            // xV
-            // 
-            this.xV.AutoSize = true;
-            this.xV.Location = new System.Drawing.Point(387, 56);
-            this.xV.Name = "xV";
-            this.xV.Size = new System.Drawing.Size(20, 13);
-            this.xV.TabIndex = 78;
-            this.xV.Text = "X=";
-            // 
-            // yV
-            // 
-            this.yV.AutoSize = true;
-            this.yV.Location = new System.Drawing.Point(387, 79);
-            this.yV.Name = "yV";
-            this.yV.Size = new System.Drawing.Size(20, 13);
-            this.yV.TabIndex = 79;
-            this.yV.Text = "Y=";
-            // 
-            // zV
-            // 
-            this.zV.AutoSize = true;
-            this.zV.Location = new System.Drawing.Point(387, 104);
-            this.zV.Name = "zV";
-            this.zV.Size = new System.Drawing.Size(20, 13);
-            this.zV.TabIndex = 80;
-            this.zV.Text = "Z=";
-            // 
-            // all_pass_chk
-            // 
-            this.all_pass_chk.AutoSize = true;
-            this.all_pass_chk.Location = new System.Drawing.Point(422, 190);
-            this.all_pass_chk.Name = "all_pass_chk";
-            this.all_pass_chk.Size = new System.Drawing.Size(76, 17);
-            this.all_pass_chk.TabIndex = 81;
-            this.all_pass_chk.Text = "All passive";
-            this.all_pass_chk.UseVisualStyleBackColor = true;
-            this.all_pass_chk.CheckedChanged += new System.EventHandler(this.all_pass_chk_CheckedChanged);
-            // 
-            // base_chk
-            // 
-            this.base_chk.AutoSize = true;
-            this.base_chk.Location = new System.Drawing.Point(423, 165);
-            this.base_chk.Name = "base_chk";
-            this.base_chk.Size = new System.Drawing.Size(71, 17);
-            this.base_chk.TabIndex = 82;
-            this.base_chk.Text = "Use base";
-            this.base_chk.UseVisualStyleBackColor = true;
-            // 
-            // label1
-            // 
-            this.label1.Location = new System.Drawing.Point(550, 204);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(146, 38);
-            this.label1.TabIndex = 84;
-            this.label1.Text = "Info=";
-            // 
-            // torq_list
-            // 
-            this.torq_list.FormattingEnabled = true;
-            this.torq_list.Items.AddRange(new object[] {
-            "0 (max Torq)",
-            "1",
-            "2 (default Torq)",
-            "3",
-            "4 (Min Torq)"});
-            this.torq_list.Location = new System.Drawing.Point(423, 118);
-            this.torq_list.Name = "torq_list";
-            this.torq_list.Size = new System.Drawing.Size(92, 30);
-            this.torq_list.TabIndex = 85;
-            // 
-            // servoStatus1
-            // 
-            this.servoStatus1.Location = new System.Drawing.Point(560, 6);
-            this.servoStatus1.Name = "servoStatus1";
-            this.servoStatus1.Size = new System.Drawing.Size(138, 209);
-            this.servoStatus1.TabIndex = 83;
-            // 
-            // panel1
-            // 
-            this.panel1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(192)))), ((int)(((byte)(0)))));
-            this.panel1.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
-            this.panel1.Controls.Add(this.button2);
-            this.panel1.Controls.Add(this.close);
-            this.panel1.Controls.Add(this.label3);
-            this.panel1.Controls.Add(this.textBox2);
-            this.panel1.Controls.Add(this.textBox1);
-            this.panel1.Location = new System.Drawing.Point(21, 476);
-            this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(212, 64);
-            this.panel1.TabIndex = 86;
-            // 
-            // button2
-            // 
-            this.button2.Location = new System.Drawing.Point(151, 32);
-            this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(44, 20);
-            this.button2.TabIndex = 4;
-            this.button2.Text = "button2";
-            this.button2.UseVisualStyleBackColor = true;
-            this.button2.Click += new System.EventHandler(this.button2_Click);
-            // 
-            // close
-            // 
-            this.close.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
-            this.close.FlatStyle = System.Windows.Forms.FlatStyle.System;
-            this.close.Location = new System.Drawing.Point(175, 1);
-            this.close.Name = "close";
-            this.close.Size = new System.Drawing.Size(22, 14);
-            this.close.TabIndex = 3;
-            this.close.Text = "X";
-            this.close.UseVisualStyleBackColor = true;
-            this.close.Click += new System.EventHandler(this.close_Click);
-            // 
-            // label3
-            // 
-            this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(5, 2);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(59, 13);
-            this.label3.TabIndex = 2;
-            this.label3.Text = "Range (ID)";
-            // 
-            // textBox2
-            // 
-            this.textBox2.Location = new System.Drawing.Point(81, 32);
-            this.textBox2.Name = "textBox2";
-            this.textBox2.Size = new System.Drawing.Size(59, 20);
-            this.textBox2.TabIndex = 1;
-            this.textBox2.Text = "254";
-            // 
-            // textBox1
-            // 
-            this.textBox1.Location = new System.Drawing.Point(16, 32);
-            this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size(59, 20);
-            this.textBox1.TabIndex = 0;
-            this.textBox1.Text = "0";
             // 
             // MotionEdit_frm
             // 
@@ -625,9 +633,9 @@
             this.Name = "MotionEdit_frm";
             this.Text = "Motion editor";
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.servoPoseDataBindingSource)).EndInit();
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.servoPoseDataBindingSource)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -659,6 +667,12 @@
         private ServoStatus servoStatus1;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.ListBox torq_list;
+        private System.Windows.Forms.Panel panel1;
+        private System.Windows.Forms.Button button2;
+        private System.Windows.Forms.Button close;
+        private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.TextBox textBox2;
+        private System.Windows.Forms.TextBox textBox1;
         private System.Windows.Forms.DataGridViewTextBoxColumn timeDataGridViewTextBoxColumn;
         private System.Windows.Forms.DataGridViewTextBoxColumn Steps;
         private System.Windows.Forms.DataGridViewTextBoxColumn s0DataGridViewTextBoxColumn;
@@ -680,14 +694,9 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn S16;
         private System.Windows.Forms.DataGridViewTextBoxColumn S17;
         private System.Windows.Forms.DataGridViewTextBoxColumn S18;
+        private System.Windows.Forms.DataGridViewTextBoxColumn S19;
         private System.Windows.Forms.DataGridViewTextBoxColumn X;
         private System.Windows.Forms.DataGridViewTextBoxColumn Y;
         private System.Windows.Forms.DataGridViewTextBoxColumn Z;
-        private System.Windows.Forms.Panel panel1;
-        private System.Windows.Forms.Button button2;
-        private System.Windows.Forms.Button close;
-        private System.Windows.Forms.Label label3;
-        private System.Windows.Forms.TextBox textBox2;
-        private System.Windows.Forms.TextBox textBox1;
     }
 }

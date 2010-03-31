@@ -2,10 +2,7 @@
 using System.IO;
 using System.IO.Ports;
 using System.Windows.Forms;
-using System.Collections;
 using LSharp;
-using System.Speech.Synthesis;
-using System.Speech.Recognition;
 
 namespace RobobuilderLib
 {
@@ -28,8 +25,6 @@ namespace RobobuilderLib
         PCremote  remote;
         wckMotion wckm;
         Runtime   runtime;
-        SpeechSynthesizer       speak = new SpeechSynthesizer();
-        SpeechRecognitionEngine recog ;
 
         bool script_active = false;
 
@@ -45,8 +40,6 @@ namespace RobobuilderLib
         private void setupLisp()
         {
             runtime = new Runtime(System.Console.In, System.Console.Out, System.Console.Error);
-
-            runtime.GlobalEnvironment.Set(Symbol.FromName("speak"), speak);
             runtime.GlobalEnvironment.Set(Symbol.FromName("form"), this);
             runtime.GlobalEnvironment.Set(Symbol.FromName("pcr"), remote);
             if (remote != null) runtime.GlobalEnvironment.Set(Symbol.FromName("sport"), remote.serialPort1);
@@ -187,52 +180,10 @@ namespace RobobuilderLib
 
         private void play(string filename)
         {
-            // play
-            int n = 0;
-            bool ff = true;
-            bool stepflg = dbg_flg.Checked;
+            try {
 
-            try
-            {
-                TextReader tr = new StreamReader(filename);
-                string line = "";
+                if (wckm != null) wckm.PlayFile(filename);
 
-                while ((line = tr.ReadLine()) != null)
-                {
-                    n++;
-
-                    line = line.Trim();
-                    if (line.StartsWith("#")) // comment
-                    {
-                        Console.WriteLine(n + ": " + line);
-                        continue;
-                    }
-
-                    string[] r = line.Split(',');
-
-                    int l = r.Length;
-
-                    if (r.Length > 5)
-                    {
-                        byte[] t = new byte[r.Length - 5];  //add because includes XYZ now
-
-                        for (int i = 2; i < r.Length-3; i++)
-                        {
-                            if (r[i] != "")
-                                t[i - 2] = Convert.ToByte(r[i]);
-                        }
-
-                        wckm.PlayPose((int)(((double)Convert.ToInt32(r[0]))*k), Convert.ToInt32(r[1]), t, ff);
-                        if (ff) ff = false;
-
-                        if (stepflg)
-                        {
-                            MessageBox.Show("Next " + n);
-                        }
-                    }
-
-                }
-                tr.Close();
             }
             catch (Exception e1)
             {
@@ -284,48 +235,6 @@ namespace RobobuilderLib
                 Application.DoEvents();
                 if (script_active == false) break;
             }
-        }
-
-        private void initrecogniser(Object[] x)
-        {
-            System.Threading.Thread.CurrentThread.CurrentUICulture = new System.Globalization.CultureInfo("en-GB"); 
-
-            recog = new SpeechRecognitionEngine();
-
-            recog.SetInputToDefaultAudioDevice();
-
-            if (x != null && x.Length>0)
-            {
-
-                Choices vm = new Choices();  //"left", "right", "up", "down"
-                
-                foreach (string verb in x)
-                    vm.Add(verb);
-
-                Grammar g = new Grammar(new GrammarBuilder(vm));
-
-                recog.UnloadAllGrammars();
-
-                //Attach an event handler
-                //g.SpeechRecognized += new EventHandler<SpeechRecognizedEventArgs>(SpeechRecognized);
-
-                recog.LoadGrammar(g);
-            }
-
-            runtime.GlobalEnvironment.Set(Symbol.FromName("recog"), recog);
-            
-        }
-
-        private string SpeechRecognize()
-        {
-            return recog.Recognize().Text;
-        }
-
-        private void SpeechRecognized(object sender, RecognitionEventArgs e)
-        {
-            //not used
-            //recog.RecognizeAsync(RecognizeMode.Multiple);
-            MessageBox.Show(e.Result.Text);
         }
 
         private void button_Click(object sender, EventArgs e)

@@ -28,7 +28,7 @@
    (if (Console.keyavailable) 
      (if (is (.key (Console.ReadKey true)) (ConsoleKey.Q)) (err "Quit Pressed"))))
 
-;read and display distance
+; read and display distance
 ; updated to handle null values returned by readdistance 18/3/2010
 (def readDistance   () (with (x (readdistance)) (do (exit?) (if (or (is x "") (is x null)) (= x 0) )(prn "distance = " x))))
 

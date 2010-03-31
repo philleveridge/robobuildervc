@@ -3,13 +3,14 @@ using System.Collections.Generic;
 using System.Text;
 using System.IO;
 using System.IO.Ports;
+using System.Text.RegularExpressions;
 
 
 namespace RobobuilderLib
 {
     public class wckMotion
     {
-        public const int MAX_SERVOS = 19;
+        public const int MAX_SERVOS = 20;
 
         static public int[] ub_Huno = new int[] {
         /* ID
@@ -23,8 +24,8 @@ namespace RobobuilderLib
 
 
         static public byte[] basic_pos = new byte[] {
-                /*0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18 */
-                143,179,198,83,106,106,69,48,167,141,47,47,49,199,204,204,122,125,127 };
+                /*0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18 , 19 */
+                143,179,198,83,106,106,69,48,167,141,47,47,49,199,204,204,122,125,127,127 };
       
 
         /**********************************************
@@ -33,7 +34,7 @@ namespace RobobuilderLib
          * 
          * ********************************************/
 
-        int[] sids = new int[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18 };
+        int[] sids = new int[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19 };
         private SerialPort serialPort1;
         PCremote   pcR;
 
@@ -424,6 +425,8 @@ namespace RobobuilderLib
          * 
          *********************************************************************************************/
 
+        bool initpos = false;
+
         public void servoID_readservo(int num)
         {
             if (num == 0) num = sids.Length;
@@ -447,6 +450,7 @@ namespace RobobuilderLib
                     //sids[id] = -1; // not connected
                 }
             }
+            initpos = true;
         }
 
         private void delay_ms(int t1)
@@ -459,45 +463,98 @@ namespace RobobuilderLib
             PlayPose(duration, no_steps, basic_pos, true);
         }
 
+        public void PlayFile(string filename)
+        {
+            byte[] servo_pos;
+            int steps;
+            int duration;
+            int nos = 20;
+            int n = 0;
+
+            try
+            {
+                TextReader tr = new StreamReader(filename);
+                string line = "";
+
+                while ((line = tr.ReadLine()) != null)
+                {
+                    line = line.Trim();
+                    if (line.StartsWith("#")) // comment
+                    {
+                        Console.WriteLine(line);
+                        Match m = Regex.Match(line, @"#V=01,N=([0-9]+)");
+                        if (m.Success)
+                        {
+                            nos = Convert.ToInt32(m.Groups[0].Value);
+                            Console.WriteLine("nos = {0}", nos);
+                        }
+
+                        continue;
+                    }
+
+                    string[] r = line.Split(',');
+
+                    nos = r.Length - 2;
+
+                    if (nos > 0)
+                    {
+                        servo_pos = new byte[nos];
+                        n++;
+
+                        duration = Convert.ToInt32(r[0]);
+                        steps = Convert.ToInt32(r[1]);
+
+                        for (int i = 0; i < 20; i++)
+                            servo_pos[i] = (byte)Convert.ToInt32(r[i + 2]);
+
+                        PlayPose(duration, nos, servo_pos, (n == 1));
+                    }
+
+                }
+                tr.Close();
+            }
+            catch (Exception e1)
+            {
+                Console.WriteLine("Error - can't load file " + e1.Message);
+            }
+        }
+
         // NEW:: if byte = 255 = use current positon
         // NEW:: check limits / bounds before sending
 
         public void PlayPose(int duration, int no_steps, byte[] spod, bool first)
         {
-            byte[] temp = new byte[19]; // numbr of servos
+            int cnt = 0;
+            byte[] temp = new byte[MAX_SERVOS]; 
 
-            if (first) servoID_readservo(0); // read start positons
+            if (first || !initpos) 
+                servoID_readservo(0); // read start positons
 
             double[] intervals = new double[spod.Length];
 
             // bounds check
-            for (int n = 0; (n < spod.Length ); n++)
+            for (int n = 0; n < spod.Length ; n++)
             {
-                if (spod[n] == 0)
+                if (spod[n] == 255)
+                    intervals[n] = 0f;
+                else
                 {
-                    if (wckReadPos(n))
+                    if (n < lb_Huno.Length)
                     {
-                        spod[n] = respnse[1];
+                        if (spod[n] < lb_Huno[n]) spod[n] = (byte)lb_Huno[n];
+                        if (spod[n] > ub_Huno[n]) spod[n] = (byte)ub_Huno[n];
                     }
+                    intervals[n] = (double)(spod[n] - pos[n]) / no_steps;
+                    cnt++;
                 }
             }
 
-            // bounds check
-            for (int n = 0; (n < spod.Length && n < lb_Huno.Length); n++)
-            {
-                if (spod[n] < lb_Huno[n]) spod[n] = (byte)lb_Huno[n];
-                if (spod[n] > ub_Huno[n]) spod[n] = (byte)ub_Huno[n];
-            }
-
-            for (int n = 0; n < sids.Length; n++)
-            {
-                intervals[n] = (double)(spod[n] - pos[n]) / no_steps;
-            }
+            Console.WriteLine("Debug: diff = " + cnt);
 
             for (int s = 1; s <= no_steps; s++)
             {
                 //
-                for (int n = 0; n < 19; n++) // !!!!!!! only first 19 values are releveant - need to get this dynamially
+                for (int n = 0; n <= MAX_SERVOS; n++) 
                 {
                     temp[n] = (byte)(pos[n] + (double)s * intervals[n]);
                 }
