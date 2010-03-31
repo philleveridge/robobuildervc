@@ -223,6 +223,10 @@
       <Project>{2073C55A-E147-4A4B-893C-18ED07FD2B61}</Project>
       <Name>RBC</Name>
     </ProjectReference>
+    <ProjectReference Include="..\SpeechLib\SpeechLib.csproj">
+      <Project>{A1CC6095-EBC7-439B-97DD-DB0D8934D2BE}</Project>
+      <Name>SpeechLib</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

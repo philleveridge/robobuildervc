@@ -34,6 +34,7 @@
             this.label1 = new System.Windows.Forms.Label();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.panel1 = new System.Windows.Forms.Panel();
+            this.load_btn = new System.Windows.Forms.Button();
             this.output_txt = new System.Windows.Forms.Label();
             this.store_btn = new System.Windows.Forms.Button();
             this.run_btn = new System.Windows.Forms.Button();
@@ -42,7 +43,6 @@
             this.dbg_flg = new System.Windows.Forms.CheckBox();
             this.checkBox2 = new System.Windows.Forms.CheckBox();
             this.mssage_txt = new System.Windows.Forms.Label();
-            this.load_btn = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.panel1.SuspendLayout();
             this.SuspendLayout();
@@ -105,6 +105,16 @@
             this.panel1.TabIndex = 5;
             this.panel1.Visible = false;
             // 
+            // load_btn
+            // 
+            this.load_btn.Location = new System.Drawing.Point(242, 2);
+            this.load_btn.Name = "load_btn";
+            this.load_btn.Size = new System.Drawing.Size(43, 23);
+            this.load_btn.TabIndex = 10;
+            this.load_btn.Text = "Load";
+            this.load_btn.UseVisualStyleBackColor = true;
+            this.load_btn.Click += new System.EventHandler(this.load_btn_Click);
+            // 
             // output_txt
             // 
             this.output_txt.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
@@ -147,7 +157,7 @@
             this.script.Multiline = true;
             this.script.Name = "script";
             this.script.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.script.Size = new System.Drawing.Size(271, 241);
+            this.script.Size = new System.Drawing.Size(279, 241);
             this.script.TabIndex = 1;
             // 
             // dbg_flg
@@ -178,16 +188,6 @@
             this.mssage_txt.Name = "mssage_txt";
             this.mssage_txt.Size = new System.Drawing.Size(501, 19);
             this.mssage_txt.TabIndex = 38;
-            // 
-            // load_btn
-            // 
-            this.load_btn.Location = new System.Drawing.Point(242, 2);
-            this.load_btn.Name = "load_btn";
-            this.load_btn.Size = new System.Drawing.Size(43, 23);
-            this.load_btn.TabIndex = 10;
-            this.load_btn.Text = "Load";
-            this.load_btn.UseVisualStyleBackColor = true;
-            this.load_btn.Click += new System.EventHandler(this.load_btn_Click);
             // 
             // Preset_frm
             // 

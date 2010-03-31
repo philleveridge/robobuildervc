@@ -15,7 +15,8 @@
 
 
 (def playmotionfile (f)
-
+   (dcmodeOn)
+   (.playfile wk f)
 )
 
 
