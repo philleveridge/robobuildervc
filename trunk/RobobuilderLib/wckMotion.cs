@@ -356,7 +356,9 @@ namespace RobobuilderLib
         {
             byte d1, d3;
             d1 = (byte)((7 << 5) | (id % 31));
-            d3 = (byte)((byte)((ch0) ? 1 : 0) | (byte)((ch1) ? 3 : 0));
+            d3 = (byte)((byte)((ch0) ? 1 : 0) | (byte)((ch1) ? 2 : 0));
+            System.Diagnostics.Debug.WriteLine("Write IO debug Id " + id + "ch0=" + ch0 + ", ch1=" + ch1);
+
             return wckSetOper(d1, 0x64, d3, d3);
         }
 
