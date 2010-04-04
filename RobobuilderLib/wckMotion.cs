@@ -8,9 +8,122 @@ using System.Text.RegularExpressions;
 
 namespace RobobuilderLib
 {
+
+    public class trigger
+    {
+        public int Xmax, Xmin, Xval;    //accelerometer X axis
+        public int Ymax, Ymin, Yval;    //accelerometer Y axis
+        public int Zmax, Zmin, Zval;    //accelerometer Z axis
+        public int Pmax, Pmin, Pval;    //PSD sensor
+        public int Smax, Smin, Sval;    //Sound Level
+        public int Ival;                //IR remote
+
+        public bool AccTrig = false;   // trigger on acceleromter val <min or >max
+        public bool PSDTrig = false;   // trigger PSD val <min or >max
+        public bool SndTrig = false;   // trigger Snd level val <min or >max
+        public bool IRTrig = false;   // trigger IR being recieved
+        public bool status = false;   // this must be true to activate
+
+        public int timer  { get; set; }          //trigger timer (in ms)
+
+        public trigger()
+        {
+            timer = 250; //default value
+
+            set_accel(0, 0, 0, 0, 0, 0);
+            set_PSD  (0, 0);
+            set_SND  (0, 0);
+            set_IR   (0);
+            AccTrig = false;
+            PSDTrig = false;
+            SndTrig = false;
+            IRTrig  = false;
+        }
+
+        public bool test()
+        {
+            return
+                (AccTrig == true && (Xval < Xmin || Yval < Ymin || Zval < Zmin || Xval > Xmax || Yval > Ymax || Zval > Zmax))
+             || (PSDTrig == true && (Pval>Pmax || Pval<Pmin))
+             || (IRTrig  == true && Ival != 0)
+             || (SndTrig == true && (Sval>Smax || Sval<Smin));
+        }
+
+        public void set_trigger(bool acc, bool psd, bool snd, bool ir)
+        {
+            AccTrig = acc;
+            PSDTrig = psd;
+            SndTrig = snd;
+            IRTrig = ir;
+        }
+
+        public void set_accel(int minx, int miny, int minz, int maxx, int maxy, int maxz)
+        {
+            Xmax = maxx; Xmin = minx; Xval = 0;     //defaults : accelerometer X axis
+            Ymax = maxy; Ymin = miny; Yval = 0;     //defaults : accelerometer Y axis
+            Zmax = maxz; Zmin = minz; Zval = 0;     //defaults : accelerometer Z axis
+            AccTrig = true;
+        }
+
+        public void set_PSD(int minp, int maxp)
+        {
+            Pmax = maxp; Pmin = minp; Pval = 0;
+            PSDTrig = true;
+        }
+
+        public void set_SND(int mins, int maxs)
+        {
+            Smax = maxs; Smin = mins; Sval = 0;
+            SndTrig = true;
+        }
+
+        public void set_IR(int ir)
+        {
+            Ival =0;
+            IRTrig = true;
+        }
+
+        public void set_trigger(int n)
+        {
+            AccTrig = ((n | 1) == 1);
+            PSDTrig = ((n | 2) == 2);
+            SndTrig = ((n | 4) == 4);
+            IRTrig  = ((n | 8) == 8);
+        }
+
+        public void activate(bool f)
+        {
+            status = f;
+        }
+
+        public bool active()
+        {
+            return status;
+        }
+
+        public void print()
+        {
+            try
+            {
+                Console.WriteLine("Trigger status : {0}", (status) ? "On" : "Off");
+                Console.WriteLine("Timer          = {0 ms}", timer);
+                Console.WriteLine("X={0:0###} : {1:0###} : {2:0###} : {3}", Xmin, Xmax, Xval, ((AccTrig) ? "On" : "Off").ToString());
+                Console.WriteLine("Y={0:0###} : {1:0###} : {2:0###}", Ymin, Ymax, Yval);
+                Console.WriteLine("Z={0:0###} : {1:0###} : {2:0###}", Zmin, Zmax, Zval);
+                Console.WriteLine("P={0:0#}   : {1:0#}   : {2:0#}   : {3}", Pmin, Pmax, Pval, ((PSDTrig) ? "On" : "Off").ToString());
+                Console.WriteLine("S={0:0#}   : {1:0#}   : {2:0#}   : {3}", Smin, Smax, Sval, ((SndTrig) ? "On" : "Off").ToString());
+                Console.WriteLine("I={0:0#}                         : {1}", Ival, ((IRTrig) ? "On" : "Off").ToString());
+            }
+            catch (Exception e1)
+            {
+                Console.WriteLine("exception - " + e1.Message);
+            }
+        }
+    }
     public class wckMotion
     {
         public const int MAX_SERVOS = 20;
+        trigger trig;
 
         static public int[] ub_Huno = new int[] {
         /* ID
@@ -42,8 +155,11 @@ namespace RobobuilderLib
         public string Message;
         public byte[] pos;
 
+        public double kfactor = 1.0f;
+
         public wckMotion(PCremote r)
         {
+            trig = null;
             serialPort1 = r.serialPort1;
             pcR = r;
             pcR.setDCmode(true);
@@ -54,6 +170,12 @@ namespace RobobuilderLib
         {
             close();
         }
+
+        public void set_trigger(trigger t)
+        {
+            trig = t;
+        }
+
 
         public void servoStatus(int id, bool f)
         {
@@ -169,7 +291,7 @@ namespace RobobuilderLib
             buff[3 + i] = CheckSum;
 
             //now output buff[]
-            for (i = 0; i < buff.Length - 1; i++) Console.Write(buff[i] + ","); Console.WriteLine(buff[i]);
+            //Debug info :: for (i = 0; i < buff.Length - 1; i++) Console.Write(buff[i] + ","); Console.WriteLine(buff[i]);
 
             try
             {
@@ -465,13 +587,16 @@ namespace RobobuilderLib
             PlayPose(duration, no_steps, basic_pos, true);
         }
 
-        public void PlayFile(string filename)
+        int tcnt;
+
+        public bool PlayFile(string filename)
         {
             byte[] servo_pos;
             int steps;
             int duration;
-            int nos = 20;
+            int nos = 0;
             int n = 0;
+            tcnt = 0;
 
             try
             {
@@ -481,22 +606,32 @@ namespace RobobuilderLib
                 while ((line = tr.ReadLine()) != null)
                 {
                     line = line.Trim();
+                    //Console.WriteLine(line);
+
                     if (line.StartsWith("#")) // comment
                     {
                         Console.WriteLine(line);
+                        if (line.StartsWith("#V=01,,"))
+                            nos = 20;
+
                         Match m = Regex.Match(line, @"#V=01,N=([0-9]+)");
                         if (m.Success)
                         {
                             nos = Convert.ToInt32(m.Groups[0].Value);
                             Console.WriteLine("nos = {0}", nos);
                         }
-
                         continue;
                     }
 
                     string[] r = line.Split(',');
 
-                    nos = r.Length - 2;
+                    if (nos == 0)
+                    {
+                        if (r.Length > 20)
+                            nos = r.Length - 5; // assume XYZ have been appended
+                        else 
+                            nos = r.Length - 2;
+                    }
 
                     if (nos > 0)
                     {
@@ -506,10 +641,11 @@ namespace RobobuilderLib
                         duration = Convert.ToInt32(r[0]);
                         steps = Convert.ToInt32(r[1]);
 
-                        for (int i = 0; i < 20; i++)
+                        for (int i = 0; i < nos; i++)
                             servo_pos[i] = (byte)Convert.ToInt32(r[i + 2]);
 
-                        PlayPose(duration, nos, servo_pos, (n == 1));
+                        if (!PlayPose(duration, steps, servo_pos, (n == 1))) 
+                            return false;
                     }
 
                 }
@@ -518,21 +654,31 @@ namespace RobobuilderLib
             catch (Exception e1)
             {
                 Console.WriteLine("Error - can't load file " + e1.Message);
+                return false;
             }
+            return true;
         }
 
         // NEW:: if byte = 255 = use current positon
         // NEW:: check limits / bounds before sending
 
-        public void PlayPose(int duration, int no_steps, byte[] spod, bool first)
+        public bool PlayPose(int duration, int no_steps, byte[] spod, bool first)
         {
             int cnt = 0;
-            byte[] temp = new byte[MAX_SERVOS]; 
 
-            if (first || !initpos) 
+            byte[] temp = new byte[spod.Length];
+
+            if (first || !initpos)
+            {
                 servoID_readservo(0); // read start positons
+                tcnt = 0;
+            }
 
             double[] intervals = new double[spod.Length];
+
+            duration = (int)(0.5+(double)duration * kfactor);
+
+            if (kfactor != 1.0f) { Console.WriteLine("Kfcator set (0) = Duration= (1)", kfactor, duration); }
 
             // bounds check
             for (int n = 0; n < spod.Length ; n++)
@@ -551,28 +697,89 @@ namespace RobobuilderLib
                 }
             }
 
-            Console.WriteLine("Debug: diff = " + cnt);
+            //Console.WriteLine("Debug: diff = " + cnt);
 
             for (int s = 1; s <= no_steps; s++)
             {
                 //
-                for (int n = 0; n <= MAX_SERVOS; n++) 
+                for (int n = 0; n < spod.Length; n++) 
                 {
                     temp[n] = (byte)(pos[n] + (double)s * intervals[n]);
                 }
 
-                SyncPosSend(pos.Length - 1, 4, temp, 0);
+                SyncPosSend(temp.Length - 1, 4, temp, 0);
 
                 int td = duration / no_steps;
                 if (td<25) td=25;
 
-                delay_ms(td);
+                tcnt += td;
+
+                if (trig != null && trig.active() && tcnt > trig.timer)
+                {
+                    Console.WriteLine("Trigger timer event {0}", tcnt);
+
+                    tcnt -= trig.timer;
+
+                    DateTime n = DateTime.Now;
+
+
+                    pcR.setDCmode(false);
+                    if (trig.AccTrig)
+                    {
+                        int[] acc = pcR.readXYZ();
+
+                        trig.Xval = acc[0];
+                        trig.Yval = acc[1];
+                        trig.Zval = acc[2];
+                    }
+
+                    if (trig.PSDTrig)
+                    {
+                        int psd = pcR.readPSD();
+                        trig.Pval = psd;
+                    }
+
+                    if (trig.SndTrig)
+                    {
+                        //todo
+                    }
+
+                    if (trig.IRTrig)
+                    {
+                        //todo
+                    }
+
+                    pcR.setDCmode(true);
+
+                    int te = (DateTime.Now-n).Milliseconds;
+
+                    Console.WriteLine("Elsapsed = " + te);                 
+
+                    if (trig.test())
+                    {
+                        Console.WriteLine("PlayPose halted due to trigger");
+                        trig.print();
+                        return false;
+                    }
+
+                    if (te< td) 
+                    {
+                        td=td-te;  // subtract elsaped time
+                        delay_ms(td);
+                    }
+                }
+                else
+                {
+                    delay_ms(td);
+                }
             }
 
-            for (int n = 0; n < sids.Length; n++)
+            for (int n = 0; n < spod.Length; n++)
             {
                 pos[n] = spod[n];
             }
+
+            return true; // complete
         }
 
     }

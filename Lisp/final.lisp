@@ -19,13 +19,17 @@
            "System.Windows.Forms"
            "System.IO.Ports")
 
-(= sport 0) ;; serial port instance
-(= pcr   0) ;; pcremote instance
 
 (def connect (pn)
   "Initialise connection to robobuilder"
   (prn "connecting to " pn)
-  (= sport (new "SerialPort"))
+  
+  (if (not (bound 'sport)) 
+     (= sport (new "SerialPort"))
+  )
+  (if (.Isopen sport) 
+     (.Close sport)
+  )
   (.set_BaudRate sport 115200)
   (.set_PortName sport pn)
   (.set_WriteTimeout sport 500)

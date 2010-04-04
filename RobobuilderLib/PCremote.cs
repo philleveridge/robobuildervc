@@ -140,18 +140,24 @@ namespace RobobuilderLib
             return r;
         }
 
-        public string readDistance()
+        public int readPSD()
         {
             // read distance
-            string r = "0";
+            int r = 0;
 
             if (serialPort1.IsOpen)
             {
                 command_1B(0x16, 0x01);
                 if (displayResponse(true))
-                    r = (respnse[14] + (respnse[15]<<8)).ToString();
+                    r = respnse[14] + (respnse[15] << 8);
             }
             return r;
+        }
+
+        public string readDistance()
+        {
+            // read distance
+            return readPSD().ToString();
         }
 
         public int[] readXYZ()

@@ -243,7 +243,7 @@ namespace RobobuilderLib
         {
             // read Soundlevel - 
             button8.Enabled = false;
-            pcR.readsoundLevel(10000, 1, new callBack(addMessage));
+            pcR.readsoundLevel(10000, Convert.ToInt32(textBox2.Text), new callBack(addMessage));
             button8.Enabled = true;
         }
 
