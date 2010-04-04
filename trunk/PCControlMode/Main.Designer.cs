@@ -47,12 +47,13 @@
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.viewModelToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.balance = new System.Windows.Forms.ToolStripMenuItem();
             this.button1 = new System.Windows.Forms.Button();
             this.button2 = new System.Windows.Forms.Button();
             this.button3 = new System.Windows.Forms.Button();
             this.button4 = new System.Windows.Forms.Button();
             this.button8 = new System.Windows.Forms.Button();
-            this.balance = new System.Windows.Forms.ToolStripMenuItem();
+            this.textBox2 = new System.Windows.Forms.TextBox();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -216,6 +217,13 @@
             this.viewModelToolStripMenuItem.Text = "View Model";
             this.viewModelToolStripMenuItem.Click += new System.EventHandler(this.viewModelToolStripMenuItem_Click);
             // 
+            // balance
+            // 
+            this.balance.Name = "balance";
+            this.balance.Size = new System.Drawing.Size(60, 20);
+            this.balance.Text = "Balance";
+            this.balance.Click += new System.EventHandler(this.balance_Click);
+            // 
             // button1
             // 
             this.button1.Enabled = false;
@@ -264,7 +272,7 @@
             // button8
             // 
             this.button8.Enabled = false;
-            this.button8.Location = new System.Drawing.Point(175, 124);
+            this.button8.Location = new System.Drawing.Point(222, 124);
             this.button8.Name = "button8";
             this.button8.Size = new System.Drawing.Size(64, 29);
             this.button8.TabIndex = 67;
@@ -272,18 +280,20 @@
             this.button8.UseVisualStyleBackColor = true;
             this.button8.Click += new System.EventHandler(this.button8_Click);
             // 
-            // balance
+            // textBox2
             // 
-            this.balance.Name = "balance";
-            this.balance.Size = new System.Drawing.Size(60, 20);
-            this.balance.Text = "Balance";
-            this.balance.Click += new System.EventHandler(this.balance_Click);
+            this.textBox2.Location = new System.Drawing.Point(292, 129);
+            this.textBox2.Name = "textBox2";
+            this.textBox2.Size = new System.Drawing.Size(39, 20);
+            this.textBox2.TabIndex = 68;
+            this.textBox2.Text = "2";
             // 
             // Main
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(373, 271);
+            this.Controls.Add(this.textBox2);
             this.Controls.Add(this.button8);
             this.Controls.Add(this.button4);
             this.Controls.Add(this.button3);
@@ -336,6 +346,7 @@
         private System.Windows.Forms.Button button4;
         private System.Windows.Forms.Button button8;
         private System.Windows.Forms.ToolStripMenuItem balance;
+        private System.Windows.Forms.TextBox textBox2;
     }
 }
 

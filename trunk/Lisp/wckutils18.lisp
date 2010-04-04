@@ -7,11 +7,12 @@
 ;   requires pcremote
 ;
 ;  l3v3rz - Dec 2009
+;  update 1/4/2010 - Added wckWriteIO
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-
-;(load "Lisp\\Day7.lisp")(run_robobuilder)
+;example use
+;(load "final.lisp")(run_robobuilder)
 
 
 (def dcmodeOn ()
@@ -28,6 +29,13 @@
   "exit DC mode (amber light off)"
   (.setDCmode pcr false)
   (sleep 0.05)
+)
+
+
+(def wckwriteIO (n c0 c1)
+   "turn servo IO on/off"
+   (if (not (bound 'wck)) (dcmodeOn))
+   (.wckWriteIO wck n c0 c1)
 )
 
 (def getServoPos (n)
