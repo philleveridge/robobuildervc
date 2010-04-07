@@ -662,6 +662,14 @@ namespace RobobuilderLib
         // NEW:: if byte = 255 = use current positon
         // NEW:: check limits / bounds before sending
 
+        public bool PlayPose(int duration, int no_steps, Object[] spodobj, bool first)
+        {
+            byte[] s = new byte[spodobj.Length];
+            for (int i = 0; i < spodobj.Length; i++)
+                s[i] = (byte)spodobj[i];
+            return PlayPose(duration, no_steps, s, first);
+        }
+
         public bool PlayPose(int duration, int no_steps, byte[] spod, bool first)
         {
             int cnt = 0;
@@ -673,6 +681,9 @@ namespace RobobuilderLib
                 servoID_readservo(0); // read start positons
                 tcnt = 0;
             }
+
+            Byte[] x = new Byte[5];
+
 
             double[] intervals = new double[spod.Length];
 
