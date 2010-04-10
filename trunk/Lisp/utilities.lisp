@@ -231,7 +231,7 @@
 (def readcsv (filename)
   (with (f "" z ())
     (= f (System.IO.File.ReadAllLines filename))
-    (each line f 
+    (each line f     
       (if (not (is #\# (car line)) )
          (do (= z (cons (splitline line) z)))
        )
@@ -338,6 +338,22 @@
 ; example
 ;(subst 'a 'b '(a b a b c))
 ;> (a a a a c)
+
+
+(def toStringArray (pos1)
+   "Converts a list into an array of String[]"
+   (with (temp (new "String[]" (len pos1)))
+   (for i 0 (- (len pos1) 1) 
+         (.SetValue temp (nth pos1 i)  i)
+   )
+   temp
+   )
+)
+
+; example
+;> (tolist (toStringArray '("red" "yellow" "green" "blue")))
+;("red" "yellow" "green" "blue")
+
 
 
 
