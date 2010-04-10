@@ -10,9 +10,14 @@
 (load "Lisp\\wckutils18.lisp")
 (load "Lisp\\utilities.lisp")
 
-(def readAcc () (list (- (.next r 50) 25)  (- (.next r 50) 25) (- (.next r 50) 25) ))
 
-;(def readAcc () (.readXYZ pcr))
+(def readAcc () 
+    (if (not (bound 'r)) (= r (new "Random")))
+    (if (bound 'pcr) 
+         (.readXYZ pcr) 
+         (do (prn "sim data ")(list (- (.next r 50) 25)  (- (.next r 50) 25) (- (.next r 50) 25) ))
+     )
+)
 
 (= pose2 '(143 185 150 42 105 107 61 51 167 141 47 47 49 199 204 203 122 124 127))
 

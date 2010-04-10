@@ -7,12 +7,12 @@
 ;   requires pcremote
 ;
 ;  l3v3rz - Dec 2009
-;  update 1/4/2010 - Added wckWriteIO
+;  1/4/2010 Added PlayMition and PlayMotionFile
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;example use
-;(load "final.lisp")(run_robobuilder)
+
+;(load "Lisp\\final.lisp")(run_robobuilder)
 
 
 (def dcmodeOn ()
@@ -25,17 +25,16 @@
   (sleep 0.05)
 )
 
-(def dcmodeOff ()
-  "exit DC mode (amber light off)"
-  (.setDCmode pcr false)
-  (sleep 0.05)
-)
-
-
 (def wckwriteIO (n c0 c1)
    "turn servo IO on/off"
    (if (not (bound 'wck)) (dcmodeOn))
    (.wckWriteIO wck n c0 c1)
+)
+
+(def dcmodeOff ()
+  "exit DC mode (amber light off)"
+  (.setDCmode pcr false)
+  (sleep 0.05)
 )
 
 (def getServoPos (n)
@@ -60,6 +59,32 @@
   ;(prn "SetSyncMove " lastid " - " torq "- " )
   ;(prl position) 
   (.SyncPosSend wck lastid torq (toarray position) 0)
+)
+
+(def playmotionfile (f)
+   (dcmodeOn)
+   (.PlayFile wck f)
+)
+
+(def toByteArray (pos1)
+   "Converts a list into an array of Bytes[]"
+   (with (temp (new "Byte[]" (len pos1)))
+   (for i 0 (- (len pos1) 1) 
+     (do 
+         (.SetValue temp (coerce (nth pos1 i) "Byte") i)
+         ;(prn i ", " (nth pos1 i))
+     )
+   )
+   temp
+   )
+)
+
+(def playmotion (spos ff)
+  "Play a synchronous motion with inbetweens"
+  (with (d (car spos) fr (cadr spos) sp (cddr spos))
+    (.PlayPose wck d fr  (toByteArray sp) ff) 
+    ;(prn "d=" d "fr=" fr "sp=" sp)
+  )
 )
 
 (def getallServos(n)

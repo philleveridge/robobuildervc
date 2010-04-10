@@ -106,13 +106,13 @@ namespace RobobuilderLib
             try
             {
                 Console.WriteLine("Trigger status : {0}", (status) ? "On" : "Off");
-                Console.WriteLine("Timer          = {0 ms}", timer);
-                Console.WriteLine("X={0:0###} : {1:0###} : {2:0###} : {3}", Xmin, Xmax, Xval, ((AccTrig) ? "On" : "Off").ToString());
-                Console.WriteLine("Y={0:0###} : {1:0###} : {2:0###}", Ymin, Ymax, Yval);
-                Console.WriteLine("Z={0:0###} : {1:0###} : {2:0###}", Zmin, Zmax, Zval);
-                Console.WriteLine("P={0:0#}   : {1:0#}   : {2:0#}   : {3}", Pmin, Pmax, Pval, ((PSDTrig) ? "On" : "Off").ToString());
-                Console.WriteLine("S={0:0#}   : {1:0#}   : {2:0#}   : {3}", Smin, Smax, Sval, ((SndTrig) ? "On" : "Off").ToString());
-                Console.WriteLine("I={0:0#}                         : {1}", Ival, ((IRTrig) ? "On" : "Off").ToString());
+                Console.WriteLine("Timer          = {0 } ms", timer);
+                Console.WriteLine("X={0:###} : {1:###} : {2:###} : {3}", Xmin, Xmax, Xval, ((AccTrig) ? "On" : "Off").ToString());
+                Console.WriteLine("Y={0:###} : {1:###} : {2:###}", Ymin, Ymax, Yval);
+                Console.WriteLine("Z={0:###} : {1:###} : {2:###}", Zmin, Zmax, Zval);
+                Console.WriteLine("P={0:#}   : {1:#}   : {2:#}   : {3}", Pmin, Pmax, Pval, ((PSDTrig) ? "On" : "Off").ToString());
+                Console.WriteLine("S={0:#}   : {1:#}   : {2:#}   : {3}", Smin, Smax, Sval, ((SndTrig) ? "On" : "Off").ToString());
+                Console.WriteLine("I={0:#}   : {1}", Ival, ((IRTrig) ? "On" : "Off").ToString());
             }
             catch (Exception e1)
             {
@@ -171,11 +171,20 @@ namespace RobobuilderLib
             close();
         }
 
+        public void set_kfactor(double k)
+        {
+            kfactor =k;
+        }
+
         public void set_trigger(trigger t)
         {
             trig = t;
         }
 
+        public void reset_timer()
+        {
+            tcnt=0;
+        }
 
         public void servoStatus(int id, bool f)
         {
@@ -689,7 +698,7 @@ namespace RobobuilderLib
 
             duration = (int)(0.5+(double)duration * kfactor);
 
-            if (kfactor != 1.0f) { Console.WriteLine("Kfcator set (0) = Duration= (1)", kfactor, duration); }
+            if (kfactor != 1.0f) { Console.WriteLine("Kfactor set (0) = Duration= (1)", kfactor, duration); }
 
             // bounds check
             for (int n = 0; n < spod.Length ; n++)
@@ -725,14 +734,14 @@ namespace RobobuilderLib
 
                 tcnt += td;
 
+                Console.WriteLine("Debug:  timer count {0}", tcnt);
+
                 if (trig != null && trig.active() && tcnt > trig.timer)
                 {
-                    Console.WriteLine("Trigger timer event {0}", tcnt);
 
-                    tcnt -= trig.timer;
+                    tcnt =0;
 
                     DateTime n = DateTime.Now;
-
 
                     pcR.setDCmode(false);
                     if (trig.AccTrig)
@@ -742,12 +751,14 @@ namespace RobobuilderLib
                         trig.Xval = acc[0];
                         trig.Yval = acc[1];
                         trig.Zval = acc[2];
+                        Console.WriteLine("Dbg: Trigger acc event {0} {1} {2} ", acc[0], acc[1], acc[2]);
                     }
 
                     if (trig.PSDTrig)
                     {
                         int psd = pcR.readPSD();
                         trig.Pval = psd;
+                        Console.WriteLine("Dbg: Trigger psd event {0} ", psd);
                     }
 
                     if (trig.SndTrig)
