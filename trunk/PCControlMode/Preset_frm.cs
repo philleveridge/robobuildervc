@@ -42,7 +42,7 @@ namespace RobobuilderLib
             runtime = new Runtime(System.Console.In, System.Console.Out, System.Console.Error);
             runtime.GlobalEnvironment.Set(Symbol.FromName("form"), this);
             runtime.GlobalEnvironment.Set(Symbol.FromName("pcr"), remote);
-            if (remote != null) runtime.GlobalEnvironment.Set(Symbol.FromName("sport"), remote.serialPort1);
+            if (remote != null) runtime.GlobalEnvironment.Set(Symbol.FromName("sport"), remote.serialPort);
             runtime.GlobalEnvironment.Set(Symbol.FromName("wck"), wckm);
             runtime.EvalString("(load \"init.lisp\")");
             //Console.WriteLine(runtime.EvalString("(map show-doc environment)"));
@@ -54,7 +54,7 @@ namespace RobobuilderLib
             build_buttons();
             this.Show(); 
             
-            if (r != null && r.serialPort1 != null && r.serialPort1.IsOpen)
+            if (r != null && r.serialPort != null && r.serialPort.IsOpen)
             {
                 wckm = new wckMotion(r);
             }

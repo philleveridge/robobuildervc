@@ -16,15 +16,14 @@ namespace RobobuilderLib
         {
             try
             {
-                SerialPort p = new SerialPort(pn, 115200, Parity.None, 8, StopBits.One);
 
-                PCremote pcr = new PCremote(p);
+                PCremote pcr = new PCremote(pn);
 
-                p.Open();
+                pcr.serialPort.Open();
 
                 serialNumber = pcr.readSN();
 
-                p.Close();
+                pcr.Close();
 
                 return 1;
             }

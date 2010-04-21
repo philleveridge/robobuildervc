@@ -9,20 +9,44 @@ namespace RobobuilderLib
 
     public class PCremote
     {
-        public SerialPort serialPort1;
-        byte[] header;
+        public SerialPort serialPort;
+        byte[] header = new byte[] { 0xFF, 0xFF, 0xAA, 0x55, 0xAA, 0x55, 0x37, 0xBA };
         byte[] respnse = new byte[32];
         bool DCmode;
 
         public string message;
 
+        public PCremote(string comport)
+        {
+            SerialPort t = new SerialPort(comport, 115200);
+            t.Open();
+            setup(t);
+        }
+
         public PCremote(SerialPort s)
         {
-            serialPort1 = s;
-            header = new byte[] { 0xFF, 0xFF, 0xAA, 0x55, 0xAA, 0x55, 0x37, 0xBA };
+            setup(s);
+        }
+
+        ~PCremote()
+        {
+            Close();
+        }
+
+        public void Close()
+        {
+            setDCmode(false);
+            if (serialPort.IsOpen) serialPort.Close();
+        }
+
+        void setup(SerialPort s)
+        {
+            serialPort = s;
             message = "";
             DCmode = false;
-            if (serialPort1.IsOpen) serialPort1.Write(new byte[] { 0xFF, 0xE0, 0xFB, 0x1, 0x00, 0x1A }, 0, 6);
+            //send a forced exit DC mode just incase robot was left inthat state
+            if (serialPort.IsOpen) 
+                serialPort.Write(new byte[] { 0xFF, 0xE0, 0xFB, 0x1, 0x00, 0x1A }, 0, 6);
         }
 
         /**********************************************
@@ -34,8 +58,8 @@ namespace RobobuilderLib
 
         bool command_1B(byte type, byte cmd)
         {
-            serialPort1.Write(header, 0, 8);
-            serialPort1.Write(new byte[] { type,           //type (1)
+            serialPort.Write(header, 0, 8);
+            serialPort.Write(new byte[] { type,           //type (1)
                                 0x00,                      //platform (1)
                                 0x00, 0x00, 0x00, 0x01,    //command size (4)
                                 cmd,                       //command contents (1)
@@ -46,14 +70,14 @@ namespace RobobuilderLib
 
         bool command_nB(byte platform, byte type, byte[] buffer)
         {
-            serialPort1.Write(header, 0, 8);
-            serialPort1.Write(new byte[] { 
+            serialPort.Write(header, 0, 8);
+            serialPort.Write(new byte[] { 
                                 type,                                   //type (1)
                                 platform,                               //platform (1)
                                 0x00, 0x00, 0x00, (byte)buffer.Length,  //command size (4)
                             }, 0, 6);
 
-            serialPort1.Write(buffer, 0, buffer.Length);
+            serialPort.Write(buffer, 0, buffer.Length);
 
             byte[] cs = new byte[1];
 
@@ -61,7 +85,7 @@ namespace RobobuilderLib
             {
                 cs[0] ^= buffer[i];
             }
-            serialPort1.Write(cs, 0, 1);
+            serialPort.Write(cs, 0, 1);
             return true;
         }
 
@@ -74,7 +98,7 @@ namespace RobobuilderLib
 
                 while (b < 32 && b < (15 + l))
                 {
-                    respnse[b] = (byte)serialPort1.ReadByte();
+                    respnse[b] = (byte)serialPort.ReadByte();
 
                     if (b < header.Length && respnse[b] != header[b])
                     {
@@ -114,7 +138,7 @@ namespace RobobuilderLib
             //read firmware version number
             string r = "0";
 
-            if (serialPort1.IsOpen)
+            if (serialPort.IsOpen)
             {
                 command_1B(0x12, 0x01);
                 if (displayResponse(false))
@@ -123,12 +147,17 @@ namespace RobobuilderLib
             return r;
         }
 
+        public string serial_number()
+        {
+            return readSN();
+        }
+
         public string readSN()
         {
             // read serial number
             string r = "";
 
-            if (serialPort1.IsOpen)
+            if (serialPort.IsOpen)
             {
                 command_1B(0x0C, 0x01);
                 if (displayResponse(false))
@@ -145,7 +174,7 @@ namespace RobobuilderLib
             // read distance
             int r = 0;
 
-            if (serialPort1.IsOpen)
+            if (serialPort.IsOpen)
             {
                 command_1B(0x16, 0x01);
                 if (displayResponse(true))
@@ -160,6 +189,11 @@ namespace RobobuilderLib
             return readPSD().ToString();
         }
 
+        public int[] accelerometer()
+        {
+            return readXYZ();
+        }
+
         public int[] readXYZ()
         {
             Int16 x, y, z;
@@ -172,7 +206,7 @@ namespace RobobuilderLib
             string r = "";
             x = 0; y = 0; z = 0;
 
-            if (serialPort1.IsOpen)
+            if (serialPort.IsOpen)
             {
                 bool tf = DCmode; setDCmode(false);
                 command_1B(0x1A, 1); // reset motion memory
@@ -192,7 +226,7 @@ namespace RobobuilderLib
         {
             // avail mem
             string r = "";
-            if (serialPort1.IsOpen)
+            if (serialPort.IsOpen)
             {
                 command_1B(0x0F, 0x01);
                 if (displayResponse(false))
@@ -207,7 +241,7 @@ namespace RobobuilderLib
         {
             string r = "";
             //reset memory
-            if (serialPort1.IsOpen)
+            if (serialPort.IsOpen)
             {
                 command_1B(0x1F, 0x01); // reset motion memory
                 displayResponse(true);
@@ -222,13 +256,18 @@ namespace RobobuilderLib
         {
             //read zeros
             string r = "";
-            if (serialPort1.IsOpen)
+            if (serialPort.IsOpen)
             {
                 command_1B(0x0B, 0x01);
                 displayResponse(true);
             }
             return r;
         }
+
+        public string a()        { return runMotion(1); }
+        public string b()        { return runMotion(2); }
+        public string basic()    { return runMotion(7); }
+        public string run(int m) { return runMotion(m); }
 
         public string runMotion(int m)
         {
@@ -239,7 +278,7 @@ namespace RobobuilderLib
             }
 
             string r = "";
-            if (serialPort1.IsOpen)
+            if (serialPort.IsOpen)
             {
                 command_1B(20, (byte)m);
                 displayResponse(true);
@@ -257,7 +296,7 @@ namespace RobobuilderLib
                 return "Invalid Sound";
             }
 
-            if (serialPort1.IsOpen)
+            if (serialPort.IsOpen)
             {
                 command_1B(21, (byte)m);
                 displayResponse(true);
@@ -269,7 +308,7 @@ namespace RobobuilderLib
         {
             //get execution status for specific motion
             string r = "";
-            if (serialPort1.IsOpen)
+            if (serialPort.IsOpen)
             {
                 command_1B(30, (byte)m);
                 displayResponse(true);
@@ -286,7 +325,7 @@ namespace RobobuilderLib
                  0 ,1  ,2  ,3 ,4  ,5  ,6 ,7 ,8  ,9  ,10,11,12 ,13 ,14, 15, 16,17,18*/
             	125,202,162,66,108,124,48,88,184,142,90,40,125,161,210,127,4, 0, 0};
 
-            if (serialPort1.IsOpen)
+            if (serialPort.IsOpen)
             {
                 command_nB(0, 0x0E, MotionZeroPos);
                 displayResponse(true);
@@ -315,12 +354,12 @@ namespace RobobuilderLib
         {
             int n=0;
 
-            int tmp = serialPort1.ReadTimeout;
+            int tmp = serialPort.ReadTimeout;
             DateTime end = DateTime.Now + TimeSpan.FromMilliseconds((double)timeout_ms);
 
-            if (serialPort1.IsOpen)
+            if (serialPort.IsOpen)
             {
-                serialPort1.ReadTimeout = timeout_ms;
+                serialPort.ReadTimeout = timeout_ms;
 
                 command_1B(25, 0x01);
 
@@ -338,7 +377,7 @@ namespace RobobuilderLib
                 }
             }
 
-            serialPort1.ReadTimeout = tmp;
+            serialPort.ReadTimeout = tmp;
 
             return (RemoCon)n;
         }
@@ -352,11 +391,11 @@ namespace RobobuilderLib
         public int readButton(int timeout, callBack x)
         {
             int n = 0;
-            int tmp = serialPort1.ReadTimeout;
+            int tmp = serialPort.ReadTimeout;
 
             DateTime end = DateTime.Now + TimeSpan.FromMilliseconds((double)timeout);
 
-            if (serialPort1.IsOpen)
+            if (serialPort.IsOpen)
             {
                 command_1B(24, 0x01);
 
@@ -375,7 +414,7 @@ namespace RobobuilderLib
                         break;
                }
              }
-             serialPort1.ReadTimeout = tmp;
+             serialPort.ReadTimeout = tmp;
              return n;
         }
 
@@ -387,12 +426,12 @@ namespace RobobuilderLib
         public int readsoundLevel(int timeout, int level, callBack x)
         {
             int n = 0;
-            int tmp = serialPort1.ReadTimeout;
+            int tmp = serialPort.ReadTimeout;
 
             DateTime end = DateTime.Now + TimeSpan.FromMilliseconds((double)timeout);
 
 
-            if (serialPort1.IsOpen)
+            if (serialPort.IsOpen)
             {
                 command_nB(1, 23, new byte[] { (byte)(level%256), (byte)(level/256) });
 
@@ -409,7 +448,7 @@ namespace RobobuilderLib
                         break;
                 }
             }
-            serialPort1.ReadTimeout = tmp;
+            serialPort.ReadTimeout = tmp;
             return n;
         }
 
@@ -420,7 +459,7 @@ namespace RobobuilderLib
             if (f)
             {
                 // DC mode
-                if (serialPort1.IsOpen)
+                if (serialPort.IsOpen)
                 {
                     command_1B(0x10, 0x01);
                     displayResponse(false);
@@ -429,7 +468,7 @@ namespace RobobuilderLib
             else
             {
                 // end DC mode
-                if (serialPort1.IsOpen) serialPort1.Write(new byte[] { 0xFF, 0xE0, 0xFB, 0x1, 0x00, 0x1A }, 0, 6);
+                if (serialPort.IsOpen) serialPort.Write(new byte[] { 0xFF, 0xE0, 0xFB, 0x1, 0x00, 0x1A }, 0, 6);
             }
         }
 
@@ -439,11 +478,5 @@ namespace RobobuilderLib
         {
             return false;
         }
-
-        public string run_basic()
-        {
-            return "Err - invalid mode";
-        }
-
     }
 }
