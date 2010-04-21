@@ -42,7 +42,7 @@ namespace RobobuilderLib
             remote = r;
 
 
-            if (r != null && r.serialPort1 != null && r.serialPort1.IsOpen)
+            if (r != null && r.serialPort != null && r.serialPort.IsOpen)
             {
                 dcontrol = new wckMotion(r);
                 test_servos();

@@ -24,7 +24,8 @@ namespace RobobuilderLib
         public bool IRTrig = false;   // trigger IR being recieved
         public bool status = false;   // this must be true to activate
 
-        public int timer  { get; set; }          //trigger timer (in ms)
+        public bool dbg   { get; set; }  // this must be true for debug info
+        public int timer  { get; set; }  //trigger timer (in ms)
 
         public trigger()
         {
@@ -38,6 +39,7 @@ namespace RobobuilderLib
             PSDTrig = false;
             SndTrig = false;
             IRTrig  = false;
+            dbg     = false;
         }
 
         public bool test()
@@ -139,7 +141,7 @@ namespace RobobuilderLib
         static public byte[] basic_pos = new byte[] {
                 /*0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18 , 19 */
                 143,179,198,83,106,106,69,48,167,141,47,47,49,199,204,204,122,125,127,127 };
-      
+
 
         /**********************************************
          * 
@@ -148,7 +150,7 @@ namespace RobobuilderLib
          * ********************************************/
 
         int[] sids = new int[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19 };
-        private SerialPort serialPort1;
+        private SerialPort serialPort;
         PCremote   pcR;
 
         public byte[] respnse = new byte[32];
@@ -156,11 +158,12 @@ namespace RobobuilderLib
         public byte[] pos;
 
         public double kfactor = 1.0f;
+        int tcnt;
 
         public wckMotion(PCremote r)
         {
             trig = null;
-            serialPort1 = r.serialPort1;
+            serialPort = r.serialPort;
             pcR = r;
             pcR.setDCmode(true);
             delay_ms(100);
@@ -206,9 +209,9 @@ namespace RobobuilderLib
 
             try
             {
-                serialPort1.Write(buff, 0, 4);
-                respnse[0] = (byte)serialPort1.ReadByte();
-                respnse[1] = (byte)serialPort1.ReadByte();
+                serialPort.Write(buff, 0, 4);
+                respnse[0] = (byte)serialPort.ReadByte();
+                respnse[1] = (byte)serialPort.ReadByte();
                 Message = "Passive " + id + " = " + respnse[0] + ":" + respnse[1];
                 System.Diagnostics.Debug.WriteLine(Message); // debug
                 return true;
@@ -231,9 +234,9 @@ namespace RobobuilderLib
 
             try
             {
-                serialPort1.Write(buff, 0, 4);
-                respnse[0] = (byte)serialPort1.ReadByte();
-                respnse[1] = (byte)serialPort1.ReadByte();
+                serialPort.Write(buff, 0, 4);
+                respnse[0] = (byte)serialPort.ReadByte();
+                respnse[1] = (byte)serialPort.ReadByte();
                 Message = "ReadPos " + id + " = " + respnse[0] + ":" + respnse[1];
                 System.Diagnostics.Debug.WriteLine(Message); // debug
                 return true;
@@ -255,9 +258,9 @@ namespace RobobuilderLib
 
             try
             {
-                serialPort1.Write(buff, 0, 4);
-                respnse[0] = (byte)serialPort1.ReadByte();
-                respnse[1] = (byte)serialPort1.ReadByte();
+                serialPort.Write(buff, 0, 4);
+                respnse[0] = (byte)serialPort.ReadByte();
+                respnse[1] = (byte)serialPort.ReadByte();
                 Message = "MovePos " + id + " = " + respnse[0] + ":" + respnse[1];
 
                 return true;
@@ -304,7 +307,7 @@ namespace RobobuilderLib
 
             try
             {
-                serialPort1.Write(buff, 0, buff.Length);
+                serialPort.Write(buff, 0, buff.Length);
                 Message = "MoveSyncPos";
 
                 return;
@@ -326,9 +329,9 @@ namespace RobobuilderLib
 
             try
             {
-                serialPort1.Write(buff, 0, 4);
-                respnse[0] = (byte)serialPort1.ReadByte();
-                respnse[1] = (byte)serialPort1.ReadByte();
+                serialPort.Write(buff, 0, 4);
+                respnse[0] = (byte)serialPort.ReadByte();
+                respnse[1] = (byte)serialPort.ReadByte();
                 Message = "Break = " + respnse[0] + ":" + respnse[1];
                 return true;
             }
@@ -355,9 +358,9 @@ namespace RobobuilderLib
 
             try
             {
-                serialPort1.Write(buff, 0, 6);
-                respnse[0] = (byte)serialPort1.ReadByte();
-                respnse[1] = (byte)serialPort1.ReadByte();
+                serialPort.Write(buff, 0, 6);
+                respnse[0] = (byte)serialPort.ReadByte();
+                respnse[1] = (byte)serialPort.ReadByte();
                 Message = "Set Oper = " + respnse[0] + ":" + respnse[1];
                 return true;
             }
@@ -588,6 +591,7 @@ namespace RobobuilderLib
 
         private void delay_ms(int t1)
         {
+            Console.WriteLine("dly=" + t1);
             System.Threading.Thread.Sleep(t1);
         }
 
@@ -595,8 +599,6 @@ namespace RobobuilderLib
         {
             PlayPose(duration, no_steps, basic_pos, true);
         }
-
-        int tcnt;
 
         public bool PlayFile(string filename)
         {
@@ -687,12 +689,11 @@ namespace RobobuilderLib
 
             if (first || !initpos)
             {
-                servoID_readservo(0); // read start positons
+                if (trig != null && trig.dbg) Console.WriteLine("Debug:  read servo positions {0}", tcnt);
+
+                servoID_readservo(spod.Length); // read start positons
                 tcnt = 0;
             }
-
-            Byte[] x = new Byte[5];
-
 
             double[] intervals = new double[spod.Length];
 
@@ -734,11 +735,9 @@ namespace RobobuilderLib
 
                 tcnt += td;
 
-                Console.WriteLine("Debug:  timer count {0}", tcnt);
 
                 if (trig != null && trig.active() && tcnt > trig.timer)
                 {
-
                     tcnt =0;
 
                     DateTime n = DateTime.Now;
@@ -751,14 +750,14 @@ namespace RobobuilderLib
                         trig.Xval = acc[0];
                         trig.Yval = acc[1];
                         trig.Zval = acc[2];
-                        Console.WriteLine("Dbg: Trigger acc event {0} {1} {2} ", acc[0], acc[1], acc[2]);
+                        if (trig.dbg) Console.WriteLine("Dbg: Trigger acc event {0} {1} {2} ", acc[0], acc[1], acc[2]);
                     }
 
                     if (trig.PSDTrig)
                     {
                         int psd = pcR.readPSD();
                         trig.Pval = psd;
-                        Console.WriteLine("Dbg: Trigger psd event {0} ", psd);
+                        if (trig.dbg) Console.WriteLine("Dbg: Trigger psd event {0} ", psd);
                     }
 
                     if (trig.SndTrig)
@@ -773,16 +772,19 @@ namespace RobobuilderLib
 
                     pcR.setDCmode(true);
 
-                    int te = (DateTime.Now-n).Milliseconds;
-
-                    Console.WriteLine("Elsapsed = " + te);                 
-
                     if (trig.test())
                     {
-                        Console.WriteLine("PlayPose halted due to trigger");
-                        trig.print();
+                        if (trig.dbg)
+                        {
+                            Console.WriteLine("PlayPose halted due to trigger");
+                            trig.print();
+                        }
                         return false;
                     }
+
+                    int te = (DateTime.Now - n).Milliseconds;
+
+                    if (trig.dbg) Console.WriteLine("Elsapsed = " + te);    
 
                     if (te< td) 
                     {

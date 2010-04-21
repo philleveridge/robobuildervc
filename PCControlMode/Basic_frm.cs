@@ -61,25 +61,30 @@ namespace RobobuilderLib
         {
             if (run_btn.Text != "Run")
             {
-                pcr.serialPort1.Write("\u0027");
+                pcr.serialPort.Write("\u0027");
             }
             else
             {
                 if (pcr != null)
                 {
                     run_btn.Text = "Break";
-                    output.Text = pcr.run_basic();
+
+                        string r = "";
+                        // robot must be put into experimental mode first!
+                        //write2serial("eC1", false);
+                        //output.Text = pcr.serialPort.ReadExisting();
+                        //Console.WriteLine("Debug: - " + r);
 
                     do
                     {
-                        string t = pcr.serialPort1.ReadExisting();
+                        string t = pcr.serialPort.ReadExisting();
                         output.AppendText(t);
                         if (output.Text.Contains("End of program")) break;
                         if (output.Text.Contains("User Break")) break;
                         Application.DoEvents();
                         System.Threading.Thread.Sleep(1000);
                     }
-                    while (pcr.serialPort1.BytesToRead > 0);
+                    while (pcr.serialPort.BytesToRead > 0);
 
                     run_btn.Text = "Run";
                 }

@@ -13,6 +13,8 @@ namespace RobobuilderLib
 
         public byte[] buff;
 
+        public bool dbg = false;
+
         public binxfer(SerialPort s)
         {
             sp1 = s;
@@ -27,6 +29,7 @@ namespace RobobuilderLib
             buff[1] = Convert.ToByte(mt);
             buff[2] = (byte)((buff[0] | buff[1]) & 0x7f);   // checksum
             sp1.Write(buff, 0, 3);
+            if (dbg) Console.WriteLine("DBG: sendb={0}", BitConverter.ToString(buff));
         }
 
         public void send_msg_move(byte[] buffer, int bfsz)
@@ -48,7 +51,8 @@ namespace RobobuilderLib
             sp1.Write(header, 0, 4);
             sp1.Write(buffer, 0, bfsz);
             sp1.Write(header, 4, 1);
-
+            
+            if (dbg) Console.WriteLine("DBG: sendm={0}", BitConverter.ToString(buffer));
         }
 
         public void send_msg_raw(char mt, string abytes)
@@ -69,9 +73,33 @@ namespace RobobuilderLib
             b[n + 1] = (byte)(cs & 0x7f);
 
             sp1.Write(header, 0, 2);
+
+            if (dbg) Console.WriteLine("DBG: send={0}", BitConverter.ToString(b));
             sp1.Write(b, 0, n + 2);
+
         }
 
+        public byte readByte()
+        {
+            byte b = (byte)sp1.ReadByte();
+            if (dbg) Console.WriteLine("DBG: byte={0}", b);
+            return b;
+        }
+
+        public int bytesToRead()
+        {
+            int n = sp1.BytesToRead;
+            if (n>0 && dbg) Console.WriteLine("DBG: num={0}", n); 
+            return n;
+        }
+
+        public int readBytes(byte[] buff, int n)
+        {
+            int r = sp1.Read(buff, 0, n);
+            if (dbg) Console.WriteLine("DBG: bytes={0}", BitConverter.ToString(buff));
+            return r;
+        }
+        
         public bool recv_packet()
         {
             int i;
@@ -81,8 +109,7 @@ namespace RobobuilderLib
 
             try
             {
-
-                while ((b=(byte)sp1.ReadByte()) != MAGIC_RESPONSE) 
+                while ((b=readByte()) != MAGIC_RESPONSE) 
                    ignore += b; // ignore till start of message
             }
             catch (Exception e)
@@ -91,21 +118,20 @@ namespace RobobuilderLib
                 return false;
             }
 
-            Console.WriteLine("ignore = [" + ignore + "]");
-
-            byte mt = (byte)sp1.ReadByte();
+            byte mt = readByte();
+            byte cs;
 
             switch (mt)
             {
                 case (byte)'q':
                     // 43 packets
-                    int n=sp1.ReadByte();
+                    int n = readByte();
                     n = n * 2 + 11;
                     buff = new byte[n];
-                    while (sp1.BytesToRead < n) ;
-                       sp1.Read(buff, 0, n);
+                    while (bytesToRead() < n) ;
+                    readBytes(buff, n);
 
-                    byte cs = (byte)'q';
+                    cs = (byte)'q';
                     for (i = 0; i < n-1; i++) 
                            cs ^= buff[i];
                     good_packet = ((cs &0x7f) == buff[n-1]);
@@ -114,18 +140,40 @@ namespace RobobuilderLib
                 case (byte)'X':
                     // 5 packets
                     buff = new byte[3];
-                    while (sp1.BytesToRead < 3) ;
-                    sp1.Read(buff, 0, 3);
+                    while (bytesToRead() < 3) ;
+                    readBytes(buff, 3);
                     good_packet = (((mt | buff[0] | buff[1]) &0x7f) == buff[2]);
                     break;
                 case (byte)'v':
                 case (byte)'m':
-                case (byte)'Z':   
+                case (byte)'Z':
+                // 4 bytes packets
+                    buff = new byte[2];
+                    while (bytesToRead() < 2) ;
+                    readBytes(buff, 2);
+                    good_packet = ((mt | buff[0]) == buff[1]);
+                    break;
+                case (byte)'Q':
+                    buff = new byte[8];
+                    while (bytesToRead() < 8) ;
+                    readBytes(buff, 8);
+                    cs = mt;
+                    for (i = 0; i < 7; i++)
+                        cs ^= buff[i];
+                    good_packet = ((cs & 0x7f) == buff[7]);
+                    break;
+                case (byte)'D':
                     // 4 bytes packets
                     buff = new byte[2];
-                    while (sp1.BytesToRead < 2) ;
-                    sp1.Read(buff, 0, 2);
-                    good_packet = ((mt | buff[0]) == buff[1]);
+                    while (bytesToRead() < 2) ;
+                    readBytes(buff, 2);
+                    good_packet = ((mt ^ buff[0]) == buff[1]);
+                    break;
+                case (byte)'I':
+                    buff = new byte[3];
+                    while (bytesToRead() < 3) ;
+                    readBytes(buff, 3);
+                    good_packet = ((mt ^ buff[0] ^ buff[1]& 0x7f) == buff[2]); 
                     break;
                 default:    // un-known error
                     return false;
