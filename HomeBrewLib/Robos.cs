@@ -84,6 +84,39 @@ namespace RobobuilderLib
             }
         }
 
+        public string readPSD(int n)
+        {
+            char mt='P';
+            switch (n)
+            {
+                case 0:
+                    mt = 'Y'; break;
+                case 1:
+                    mt = 'y'; break;
+                case 2:
+                    mt = 'P'; break;
+            }
+            try
+            {
+                btf.send_msg_basic(mt); 
+                if (btf.recv_packet()) // check version
+                {
+                    return btf.buff[0].ToString();
+                }
+                else
+                {
+                    Console.WriteLine("Error in bin mode rcv");
+                    return "err";
+                }
+            }
+            catch (Exception e1)
+            {
+                Console.WriteLine("comm failed" + e1.Message);
+                return "";
+            }
+
+        }
+
         public string readVer()         
         {
             string v;
