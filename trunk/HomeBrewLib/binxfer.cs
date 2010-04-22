@@ -76,7 +76,6 @@ namespace RobobuilderLib
 
             if (dbg) Console.WriteLine("DBG: send={0}", BitConverter.ToString(b));
             sp1.Write(b, 0, n + 2);
-
         }
 
         public byte readByte()
@@ -147,6 +146,7 @@ namespace RobobuilderLib
                 case (byte)'v':
                 case (byte)'m':
                 case (byte)'z':
+                case (byte)'P':
                 // 4 bytes packets
                     buff = new byte[2];
                     while (bytesToRead() < 2) ;
