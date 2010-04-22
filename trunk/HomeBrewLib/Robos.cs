@@ -64,7 +64,8 @@ namespace RobobuilderLib
             if (serialPort.IsOpen)
             {
                 //put into bin mode
-                Console.WriteLine("PC connection - " + write2serial("b", true));
+                //Console.WriteLine("PC connection - " + write2serial("b", true));
+                serialPort.Write("b");
                 btf = new binxfer(serialPort);
                 btf.dbg = dbg;
                 if (dbg) Console.WriteLine("Enter Bin mode");
@@ -134,7 +135,6 @@ namespace RobobuilderLib
                 if (x > 127) x = x - 256;
                 if (y > 127) y = y - 256;
                 if (z > 127) z = z - 256;
-                if (dbg) Console.WriteLine("qr={0} {1} {2} {3}", psd, x, y, z); 
                 return true;
             }
             else
@@ -171,26 +171,42 @@ namespace RobobuilderLib
 
         public int[] readXYZ()
         {
-            Int16 x, y, z;
+            int x, y, z;
             readXYZ(out x, out y, out z);
             return (new int[3] { (int)x, (int)y, (int)z });
         }
 
-        public string readXYZ(out Int16 a, out Int16 b, out Int16 c)
+        public string readXYZ(out int x, out int y, out int z)
         {
-            int p, x, y, z;
-            if (quickread(out p, out x, out y, out z))
+            x = y = z = 0;
+            try
             {
-                a = (Int16)x; b = (Int16)y; c = (Int16)z;
-                string s = String.Format("X={0}, Y={1}, Z={2}", x,y,z);
-                if (dbg) Console.WriteLine(s);
-                return s;
+                btf.send_msg_basic('A');
+
+                if (btf.recv_packet())
+                {
+                    x = (int)(btf.buff[0]);
+                    y = (int)(btf.buff[2]);
+                    z = (int)(btf.buff[4]);
+
+                    if (x > 127) x = x - 256;
+                    if (y > 127) y = y - 256;
+                    if (z > 127) z = z - 256;
+
+                    string s = String.Format("X={0}, Y={1}, Z={2}", x, y, z);
+                    return s;
+                }
+                else
+                {
+                    return "X=0, Y=0, Z=0";
+                }
             }
-            else
+            catch (Exception e1)
             {
-                a = b = c = 0;
+                Console.WriteLine("comm failed" + e1.Message);
                 return "X=0, Y=0, Z=0";
             }
+
         }
 
         public int readButton(int timeout, callBack x)

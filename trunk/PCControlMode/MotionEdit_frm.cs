@@ -68,11 +68,11 @@ namespace RobobuilderLib
 
         private void setup()
         {
-            servoPos = new System.Windows.Forms.HScrollBar[20];
-            servoID = new System.Windows.Forms.TextBox[20];
-            readID = new System.Windows.Forms.CheckBox[20];
+            servoPos = new System.Windows.Forms.HScrollBar[wckMotion.MAX_SERVOS];
+            servoID = new System.Windows.Forms.TextBox[wckMotion.MAX_SERVOS];
+            readID = new System.Windows.Forms.CheckBox[wckMotion.MAX_SERVOS];
 
-            int cw = 10;
+            int cw = 11;
 
             for (int i = 0; i < wckMotion.MAX_SERVOS; i++)
             {
@@ -168,6 +168,8 @@ namespace RobobuilderLib
 
         private void test_servos()
         {
+            remote.setDCmode(true);
+            System.Threading.Thread.Sleep(50);
             for (int id = 0; id < wckMotion.MAX_SERVOS; id++)
             {
                 if (dcontrol.wckReadPos(id))                 //readPOS (servoID)
@@ -297,7 +299,7 @@ namespace RobobuilderLib
 
         private void record_Click(object sender, EventArgs e)
         {
-            Int16 x,y,z;
+            int x,y,z;
             servoID_readservo();
 
             ServoPoseData n = new ServoPoseData();
@@ -618,7 +620,7 @@ namespace RobobuilderLib
 
         private void rAcc_Click(object sender, EventArgs e)
         {
-            Int16 x, y, z;
+            int x, y, z;
             // read acceleromter
             Console.WriteLine(remote.readXYZ(out x, out y, out z));
             xV.Text = "X=" + x.ToString();
@@ -689,10 +691,11 @@ namespace RobobuilderLib
         public int S17 { get { return S[17]; } set { S[17] = value; } }
         public int S18 { get { return S[18]; } set { S[18] = value; } }
         public int S19 { get { return S[19]; } set { S[19] = value; } }
-        public int[] S = new int[20];
-        public Int16 X { get; set; }
-        public Int16 Y { get; set; }
-        public Int16 Z { get; set; }
+        public int S20 { get { return S[19]; } set { S[19] = value; } }
+        public int[] S = new int[21];
+        public int X { get; set; }
+        public int Y { get; set; }
+        public int Z { get; set; }
     }
 
 }

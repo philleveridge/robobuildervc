@@ -10,7 +10,7 @@ namespace RobobuilderLib
 {
     public partial class ServoStatus : UserControl
     {
-        const int MAX_SERVOS = 20;
+        const int MAX_SERVOS = 21;
 
         private Label[] servos = new Label[MAX_SERVOS];
         bool[] status = new bool[MAX_SERVOS];
@@ -39,6 +39,7 @@ namespace RobobuilderLib
                     new System.Drawing.Point(42, 47), // 17
                     new System.Drawing.Point(97, 77), // 18 
                     new System.Drawing.Point(17, 77), // 19
+                    new System.Drawing.Point(60, 0) //  20
         };
 
         public ServoStatus()
