@@ -196,12 +196,12 @@ namespace RobobuilderLib
 
         public int[] readXYZ()
         {
-            Int16 x, y, z;
+            int x, y, z;
             readXYZ(out x, out y, out z) ;   
             return (new int[3] {(int)x, (int)y, (int)z});
         }
 
-        public string readXYZ(out Int16 x, out Int16 y, out Int16 z)
+        public string readXYZ(out int x, out int y, out int z)
         {
             string r = "";
             x = 0; y = 0; z = 0;

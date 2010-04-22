@@ -124,7 +124,7 @@ namespace RobobuilderLib
     }
     public class wckMotion
     {
-        public const int MAX_SERVOS = 20;
+        public const int MAX_SERVOS = 21;
         trigger trig;
 
         static public int[] ub_Huno = new int[] {
@@ -149,7 +149,7 @@ namespace RobobuilderLib
          * 
          * ********************************************/
 
-        int[] sids = new int[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19 };
+        int[] sids = new int[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20 };
         private SerialPort serialPort;
         PCremote   pcR;
 
@@ -578,6 +578,11 @@ namespace RobobuilderLib
                     if (respnse[1] < 255)
                     {
                         pos[id] = respnse[1];
+                    }
+                    else
+                    {
+                        pos[id] = 0;
+                        System.Diagnostics.Debug.WriteLine(String.Format("Id {0} = {1}", id, respnse[1]));
                     }
                 }
                 else

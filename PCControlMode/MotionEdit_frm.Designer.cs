@@ -38,6 +38,7 @@
             this.loadFile = new System.Windows.Forms.Button();
             this.fnstring = new System.Windows.Forms.Label();
             this.dataGridView1 = new System.Windows.Forms.DataGridView();
+            this.servoPoseDataBindingSource = new System.Windows.Forms.BindingSource(this.components);
             this.updateRow = new System.Windows.Forms.Button();
             this.playRow = new System.Windows.Forms.Button();
             this.setBasic = new System.Windows.Forms.Button();
@@ -58,7 +59,6 @@
             this.textBox2 = new System.Windows.Forms.TextBox();
             this.textBox1 = new System.Windows.Forms.TextBox();
             this.servoStatus1 = new RobobuilderLib.ServoStatus();
-            this.servoPoseDataBindingSource = new System.Windows.Forms.BindingSource(this.components);
             this.timeDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Steps = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.s0DataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -81,12 +81,13 @@
             this.S17 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.S18 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.S19 = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.S20 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.X = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Y = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Z = new System.Windows.Forms.DataGridViewTextBoxColumn();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
-            this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.servoPoseDataBindingSource)).BeginInit();
+            this.panel1.SuspendLayout();
             this.SuspendLayout();
             // 
             // closeBtn
@@ -194,15 +195,20 @@
             this.S17,
             this.S18,
             this.S19,
+            this.S20,
             this.X,
             this.Y,
             this.Z});
             this.dataGridView1.DataBindings.Add(new System.Windows.Forms.Binding("Tag", this.servoPoseDataBindingSource, "Time", true, System.Windows.Forms.DataSourceUpdateMode.OnValidation, null, "N0"));
             this.dataGridView1.DataSource = this.servoPoseDataBindingSource;
-            this.dataGridView1.Location = new System.Drawing.Point(14, 247);
+            this.dataGridView1.Location = new System.Drawing.Point(12, 266);
             this.dataGridView1.Name = "dataGridView1";
             this.dataGridView1.Size = new System.Drawing.Size(684, 199);
             this.dataGridView1.TabIndex = 71;
+            // 
+            // servoPoseDataBindingSource
+            // 
+            this.servoPoseDataBindingSource.DataSource = typeof(RobobuilderLib.ServoPoseData);
             // 
             // updateRow
             // 
@@ -402,10 +408,6 @@
             this.servoStatus1.Size = new System.Drawing.Size(138, 209);
             this.servoStatus1.TabIndex = 83;
             // 
-            // servoPoseDataBindingSource
-            // 
-            this.servoPoseDataBindingSource.DataSource = typeof(RobobuilderLib.ServoPoseData);
-            // 
             // timeDataGridViewTextBoxColumn
             // 
             this.timeDataGridViewTextBoxColumn.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
@@ -580,6 +582,12 @@
             this.S19.HeaderText = "S19";
             this.S19.Name = "S19";
             // 
+            // S20
+            // 
+            this.S20.DataPropertyName = "S20";
+            this.S20.HeaderText = "S20";
+            this.S20.Name = "S20";
+            // 
             // X
             // 
             this.X.DataPropertyName = "X";
@@ -605,7 +613,7 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoSize = true;
-            this.ClientSize = new System.Drawing.Size(708, 457);
+            this.ClientSize = new System.Drawing.Size(708, 477);
             this.Controls.Add(this.panel1);
             this.Controls.Add(this.torq_list);
             this.Controls.Add(this.label1);
@@ -633,9 +641,9 @@
             this.Name = "MotionEdit_frm";
             this.Text = "Motion editor";
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.servoPoseDataBindingSource)).EndInit();
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.servoPoseDataBindingSource)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -695,6 +703,7 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn S17;
         private System.Windows.Forms.DataGridViewTextBoxColumn S18;
         private System.Windows.Forms.DataGridViewTextBoxColumn S19;
+        private System.Windows.Forms.DataGridViewTextBoxColumn S20;
         private System.Windows.Forms.DataGridViewTextBoxColumn X;
         private System.Windows.Forms.DataGridViewTextBoxColumn Y;
         private System.Windows.Forms.DataGridViewTextBoxColumn Z;

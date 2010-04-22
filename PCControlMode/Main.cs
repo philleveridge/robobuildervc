@@ -207,7 +207,7 @@ namespace RobobuilderLib
         private void button1_Click_1(object sender, EventArgs e)
         {
             //read XYZ
-            Int16 x,y,z;
+            int x,y,z;
             textBox1.AppendText(pcR.readXYZ(out x, out y, out z) + "\r\n");
         }
         

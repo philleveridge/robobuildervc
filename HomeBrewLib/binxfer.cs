@@ -26,8 +26,8 @@ namespace RobobuilderLib
         {
             byte[] buff = new byte[3];
             buff[0] = MAGIC_REQUEST;
-            buff[1] = Convert.ToByte(mt);
-            buff[2] = (byte)((buff[0] | buff[1]) & 0x7f);   // checksum
+            buff[1] = (byte)mt;
+            buff[2] = (byte)((buff[0] ^ buff[1]) & 0x7f);   // checksum
             sp1.Write(buff, 0, 3);
             if (dbg) Console.WriteLine("DBG: sendb={0}", BitConverter.ToString(buff));
         }
@@ -37,14 +37,14 @@ namespace RobobuilderLib
             byte cs = (byte)bfsz;
             byte[] header = new byte[5];
             header[0] = MAGIC_REQUEST;
-            header[1] = Convert.ToByte('m');
+            header[1] = (byte)'m';
 
             header[2] = (byte)(bfsz & 0xFF);
             header[3] = (byte)((bfsz >> 8) & 0xFF);
 
             for (int j = 0; j < bfsz; j++)
             {
-                cs |= buffer[j];
+                cs ^= buffer[j];
             }
             header[4] = (byte)(cs & 0x7f);
 
@@ -61,14 +61,14 @@ namespace RobobuilderLib
             int cs = n;
             byte[] header = new byte[2];
             header[0] = MAGIC_REQUEST;
-            header[1] = Convert.ToByte(mt);
+            header[1] = (byte)mt;
 
             byte[] b = new byte[n+2];
             b[0] = (byte)(n & 0xFF);
             for (int j = 0; j < n; j++)
             {
                 b[j+1] = (byte)Convert.ToInt16(abytes.Substring(j * 2, 2), 16);
-                cs |= b[j+1];
+                cs ^= b[j+1];
             }
             b[n + 1] = (byte)(cs & 0x7f);
 
@@ -142,16 +142,20 @@ namespace RobobuilderLib
                     buff = new byte[3];
                     while (bytesToRead() < 3) ;
                     readBytes(buff, 3);
-                    good_packet = (((mt | buff[0] | buff[1]) &0x7f) == buff[2]);
+                    good_packet = (((mt ^ buff[0] ^ buff[1]) &0x7f) == buff[2]);
                     break;
                 case (byte)'v':
                 case (byte)'m':
-                case (byte)'Z':
+                case (byte)'z':
                 // 4 bytes packets
                     buff = new byte[2];
                     while (bytesToRead() < 2) ;
                     readBytes(buff, 2);
-                    good_packet = ((mt | buff[0]) == buff[1]);
+                    good_packet = ((mt ^ buff[0]) == buff[1]);
+                    if (mt == 'z')
+                    {
+                        Console.WriteLine("Protocol error {0}", buff[0]);
+                    }
                     break;
                 case (byte)'Q':
                     buff = new byte[8];
@@ -169,15 +173,26 @@ namespace RobobuilderLib
                     readBytes(buff, 2);
                     good_packet = ((mt ^ buff[0]) == buff[1]);
                     break;
+                case (byte)'A':
+                    // 4 bytes packets
+                    buff = new byte[7];
+                    while (bytesToRead() < 7) ;
+                    readBytes(buff, 7);
+                    cs = mt;
+                    for (i = 0; i < 6; i++)
+                        cs ^= buff[i];
+                    good_packet = ((cs & 0x7f) == buff[6]);
+                    break;
                 case (byte)'I':
                     buff = new byte[3];
                     while (bytesToRead() < 3) ;
                     readBytes(buff, 3);
-                    good_packet = ((mt ^ buff[0] ^ buff[1]& 0x7f) == buff[2]); 
+                    good_packet = (((mt ^ buff[0] ^ buff[1]) & 0x7f) == buff[2]); 
                     break;
                 default:    // un-known error
                     return false;
             }
+
             return good_packet;
         }
     }
