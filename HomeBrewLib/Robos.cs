@@ -64,7 +64,6 @@ namespace RobobuilderLib
             if (serialPort.IsOpen)
             {
                 //put into bin mode
-                //Console.WriteLine("PC connection - " + write2serial("b", true));
                 serialPort.Write("b");
                 btf = new binxfer(serialPort);
                 btf.dbg = dbg;
@@ -80,6 +79,7 @@ namespace RobobuilderLib
         {
             if (serialPort.IsOpen)
             {
+                btf.send_msg_basic('p');  //exit binary mode
                 serialPort.Close();
             }
         }
@@ -114,7 +114,6 @@ namespace RobobuilderLib
                 Console.WriteLine("comm failed" + e1.Message);
                 return "";
             }
-
         }
 
         public string readVer()         
@@ -162,9 +161,9 @@ namespace RobobuilderLib
             if (btf.recv_packet())
             {
                 psd = (int)(btf.buff[0]);
-                x = (int)(btf.buff[1]);
-                y = (int)(btf.buff[3]);
-                z = (int)(btf.buff[5]);
+                x   = (int)(btf.buff[1]);
+                y   = (int)(btf.buff[3]);
+                z   = (int)(btf.buff[5]);
                 if (x > 127) x = x - 256;
                 if (y > 127) y = y - 256;
                 if (z > 127) z = z - 256;
@@ -448,22 +447,43 @@ namespace RobobuilderLib
 
         public void SyncPosSend(int LastID, int SpeedLevel, byte[] TargetArray, int Index)
         {
-            string sps = SyncPosSend(19, TargetArray);
-            pcR.btf.send_msg_raw('x', sps); // read status servo 'id'
+            //string sps = SyncPosSend(19, TargetArray);
+
+            int i = 0;
+            byte CheckSum = 0;
+            byte[] buff = new byte[5 + LastID];
+
+            buff[0] = 0xFF;
+            buff[1] = (byte)((SpeedLevel << 5) | 0x1f);
+            buff[2] = (byte)(LastID + 1);
+
+            while (true)
+            {
+                if (i > LastID) break;
+                buff[3 + i] = TargetArray[Index * (LastID + 1) + i];
+                CheckSum ^= (byte)(TargetArray[Index * (LastID + 1) + i]);
+                i++;
+            }
+            CheckSum = (byte)(CheckSum & 0x7f);
+            buff[3 + i] = CheckSum;
+
+            //now output buff[]
+
+            pcR.btf.send_msg_raw_bin('x', buff); // read status servo 'id'
             if (!pcR.btf.recv_packet())
             {
                 Console.WriteLine("Synch pos send failed");
             }
         }
 
+        /*
         string SyncPosSend(int NUM_OF_WCKS, byte[] buffer)
         {
+
             byte t = (2 << 5) | 31;
             int c = 0;
             string outBuffer = "FF";
             outBuffer += t.ToString("X2");
-
-            Console.Write(t + ","); //debug
 
             t = (byte)(NUM_OF_WCKS & 0x1F);
             outBuffer += t.ToString("X2");
@@ -476,7 +496,6 @@ namespace RobobuilderLib
                 if (lt > 254) lt = 254;
                 if (lt < 1) lt = 1;
                 outBuffer += lt.ToString("X2");
-                Console.Write(lt + ","); //debug
 
                 t = (byte)((uint)t ^ lt);
             }
@@ -484,6 +503,7 @@ namespace RobobuilderLib
             outBuffer += t.ToString("X2");
             return outBuffer;
         }
+        */
 
         public bool wckPassive(int id)
         {
@@ -597,6 +617,7 @@ namespace RobobuilderLib
 
         private void delay_ms(int t1)
         {
+            Console.WriteLine("dly=" + t1);
             System.Threading.Thread.Sleep(t1);
         }
 
@@ -626,7 +647,7 @@ namespace RobobuilderLib
 
                     if (line.StartsWith("#")) // comment
                     {
-                        Console.WriteLine(line);
+                        if (pcR.dbg) Console.WriteLine(line);
                         if (line.StartsWith("#V=01,,"))
                             nos = 20;
 
@@ -634,7 +655,7 @@ namespace RobobuilderLib
                         if (m.Success)
                         {
                             nos = Convert.ToInt32(m.Groups[0].Value);
-                            Console.WriteLine("nos = {0}", nos);
+                            if (pcR.dbg) Console.WriteLine("nos = {0}", nos);
                         }
                         continue;
                     }
@@ -734,7 +755,12 @@ namespace RobobuilderLib
                     temp[n] = (byte)(pos[n] + (double)s * intervals[n]);
                 }
 
+                long z = DateTime.Now.Ticks;
+
                 SyncPosSend(temp.Length - 1, 4, temp, 0);
+
+                if (pcR.dbg) { Console.WriteLine("Dbg: Timed = {0}", (DateTime.Now.Ticks - z) / TimeSpan.TicksPerMillisecond); }
+
 
                 int td = duration / no_steps;
                 if (td<25) td=25;
@@ -800,7 +826,7 @@ namespace RobobuilderLib
                 }
                 else
                 {
-                    delay_ms(td);
+                    delay_ms(td-8);
                 }
             }
 

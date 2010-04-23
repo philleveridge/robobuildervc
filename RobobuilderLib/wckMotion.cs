@@ -596,7 +596,7 @@ namespace RobobuilderLib
 
         private void delay_ms(int t1)
         {
-            Console.WriteLine("dly=" + t1);
+            if (trig != null && trig.dbg) Console.WriteLine("dly=" + t1);
             System.Threading.Thread.Sleep(t1);
         }
 
@@ -626,7 +626,7 @@ namespace RobobuilderLib
 
                     if (line.StartsWith("#")) // comment
                     {
-                        Console.WriteLine(line);
+                        if (trig != null && trig.dbg)  Console.WriteLine(line);
                         if (line.StartsWith("#V=01,,"))
                             nos = 20;
 
@@ -634,7 +634,7 @@ namespace RobobuilderLib
                         if (m.Success)
                         {
                             nos = Convert.ToInt32(m.Groups[0].Value);
-                            Console.WriteLine("nos = {0}", nos);
+                            if (trig != null && trig.dbg) Console.WriteLine("nos = {0}", nos);
                         }
                         continue;
                     }
@@ -733,7 +733,9 @@ namespace RobobuilderLib
                     temp[n] = (byte)(pos[n] + (double)s * intervals[n]);
                 }
 
+                long z = DateTime.Now.Ticks;
                 SyncPosSend(temp.Length - 1, 4, temp, 0);
+                if (trig !=null && trig.dbg) { Console.WriteLine("Dbg: Timed = {0}", (DateTime.Now.Ticks - z)/TimeSpan.TicksPerMillisecond); }
 
                 int td = duration / no_steps;
                 if (td<25) td=25;

@@ -19,6 +19,8 @@ namespace RobobuilderLib
         public PCremote(string comport)
         {
             SerialPort t = new SerialPort(comport, 115200);
+            t.WriteTimeout = 500;
+            t.ReadTimeout = 500;
             t.Open();
             setup(t);
         }
