@@ -78,6 +78,27 @@ namespace RobobuilderLib
             sp1.Write(b, 0, n + 2);
         }
 
+        public void send_msg_raw_bin(char mt, byte[] bytes)
+        {
+            byte n = (byte)bytes.Length;
+            byte cs = n;
+            byte[] header = new byte[3];
+            header[0] = MAGIC_REQUEST;
+            header[1] = (byte)mt;
+            header[2] = n;
+
+            for (int j = 0; j < n; j++)
+            {
+                cs ^= bytes[j];
+            }
+            cs = (byte)(cs & 0x7f);
+
+            sp1.Write(header, 0, 3);
+            if (dbg) Console.WriteLine("DBG: sendrb={0} {1}", BitConverter.ToString(header), BitConverter.ToString(bytes));
+            sp1.Write(bytes, 0, n);
+            sp1.Write(new byte[] {cs}, 0, 1);
+        }
+
         public byte readByte()
         {
             byte b = (byte)sp1.ReadByte();
@@ -98,6 +119,19 @@ namespace RobobuilderLib
             if (dbg) Console.WriteLine("DBG: bytes={0}", BitConverter.ToString(buff));
             return r;
         }
+
+        private bool test_packet(byte mt, int n)
+        {
+            // read n bytes (including cs and test
+            buff = new byte[n];
+            while (bytesToRead() < n) ;
+            readBytes(buff, n);
+
+            byte cs = mt;
+            for (int i = 0; i < n-1; i++)
+                cs ^= buff[i];
+            return ((cs & 0x7f) == buff[n-1]);
+        }
         
         public bool recv_packet()
         {
@@ -113,7 +147,7 @@ namespace RobobuilderLib
             }
             catch (Exception e)
             {
-                Console.WriteLine("Read error" + e + "ignore = [" + ignore + "]");
+                Console.WriteLine("Read error " + e + " ignore = [" + ignore + "]");
                 return false;
             }
 
@@ -137,57 +171,25 @@ namespace RobobuilderLib
                     break;
                 case (byte)'x':
                 case (byte)'X':
-                    // 5 packets
-                    buff = new byte[3];
-                    while (bytesToRead() < 3) ;
-                    readBytes(buff, 3);
-                    good_packet = (((mt ^ buff[0] ^ buff[1]) &0x7f) == buff[2]);
+                case (byte)'I':
+                    good_packet = test_packet(mt, 3);
                     break;
                 case (byte)'v':
                 case (byte)'m':
                 case (byte)'z':
                 case (byte)'P':
-                // 4 bytes packets
-                    buff = new byte[2];
-                    while (bytesToRead() < 2) ;
-                    readBytes(buff, 2);
-                    good_packet = ((mt ^ buff[0]) == buff[1]);
+                case (byte)'D':
+                    good_packet = test_packet(mt, 2);
                     if (mt == 'z')
                     {
                         Console.WriteLine("Protocol error {0}", buff[0]);
                     }
                     break;
                 case (byte)'Q':
-                    buff = new byte[8];
-                    while (bytesToRead() < 8) ;
-                    readBytes(buff, 8);
-                    cs = mt;
-                    for (i = 0; i < 7; i++)
-                        cs ^= buff[i];
-                    good_packet = ((cs & 0x7f) == buff[7]);
-                    break;
-                case (byte)'D':
-                    // 4 bytes packets
-                    buff = new byte[2];
-                    while (bytesToRead() < 2) ;
-                    readBytes(buff, 2);
-                    good_packet = ((mt ^ buff[0]) == buff[1]);
+                    good_packet = test_packet(mt, 8);
                     break;
                 case (byte)'A':
-                    // 4 bytes packets
-                    buff = new byte[7];
-                    while (bytesToRead() < 7) ;
-                    readBytes(buff, 7);
-                    cs = mt;
-                    for (i = 0; i < 6; i++)
-                        cs ^= buff[i];
-                    good_packet = ((cs & 0x7f) == buff[6]);
-                    break;
-                case (byte)'I':
-                    buff = new byte[3];
-                    while (bytesToRead() < 3) ;
-                    readBytes(buff, 3);
-                    good_packet = (((mt ^ buff[0] ^ buff[1]) & 0x7f) == buff[2]); 
+                    good_packet = test_packet(mt, 7);
                     break;
                 default:    // un-known error
                     return false;

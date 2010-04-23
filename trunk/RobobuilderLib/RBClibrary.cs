@@ -8,29 +8,33 @@ namespace RobobuilderLib
     {
         public string serialNumber = "";
 
-        public RBC()
+        static void Main()
         {
-        }
+            Console.WriteLine("RobobuilderLib test client");
 
-        public int connect(string pn)
-        {
             try
             {
+                PCremote r = new PCremote("COM3");
 
-                PCremote pcr = new PCremote(pn);
+                Console.WriteLine("Ver={0}", r.readVer());
 
-                pcr.serialPort.Open();
+                int[] n = r.readXYZ();
+                Console.WriteLine("Acc={0},{1},{2}", n[0], n[1], n[2]);
 
-                serialNumber = pcr.readSN();
+                Console.WriteLine("PSD={0}", r.readPSD());
 
-                pcr.Close();
+                wckMotion w = new wckMotion(r);
+     
+                w.PlayFile("walk2.csv");
 
-                return 1;
             }
-            catch (Exception e1)
+            catch (Exception e)
             {
-                return 0;
+                Console.WriteLine("Test failed = " + e.Message);
             }
+
+            Console.WriteLine("Finished - press a key"); while (!Console.KeyAvailable) ;
+
         }
     }
 }
