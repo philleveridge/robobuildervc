@@ -491,8 +491,6 @@ namespace RobobuilderLib
             byte d1, d3;
             d1 = (byte)((7 << 5) | (id % 31));
             d3 = (byte)((byte)((ch0) ? 1 : 0) | (byte)((ch1) ? 2 : 0));
-            System.Diagnostics.Debug.WriteLine("Write IO debug Id " + id + "ch0=" + ch0 + ", ch1=" + ch1);
-
             return wckSetOper(d1, 0x64, d3, d3);
         }
 
@@ -596,7 +594,7 @@ namespace RobobuilderLib
 
         private void delay_ms(int t1)
         {
-            if (trig != null && trig.dbg) Console.WriteLine("dly=" + t1);
+            if (pcR.dbg) Console.WriteLine("dly=" + t1);
             System.Threading.Thread.Sleep(t1);
         }
 
@@ -633,8 +631,8 @@ namespace RobobuilderLib
                         Match m = Regex.Match(line, @"#V=01,N=([0-9]+)");
                         if (m.Success)
                         {
-                            nos = Convert.ToInt32(m.Groups[0].Value);
-                            if (trig != null && trig.dbg) Console.WriteLine("nos = {0}", nos);
+                            nos = Convert.ToInt32(m.Groups[1].Value);
+                            if (pcR.dbg) Console.WriteLine("nos = {0}", nos);
                         }
                         continue;
                     }
@@ -694,7 +692,7 @@ namespace RobobuilderLib
 
             if (first || !initpos)
             {
-                if (trig != null && trig.dbg) Console.WriteLine("Debug:  read servo positions {0}", tcnt);
+                if (pcR.dbg) Console.WriteLine("Debug:  read servo positions {0}", tcnt);
 
                 servoID_readservo(spod.Length); // read start positons
                 tcnt = 0;
@@ -735,7 +733,7 @@ namespace RobobuilderLib
 
                 long z = DateTime.Now.Ticks;
                 SyncPosSend(temp.Length - 1, 4, temp, 0);
-                if (trig !=null && trig.dbg) { Console.WriteLine("Dbg: Timed = {0}", (DateTime.Now.Ticks - z)/TimeSpan.TicksPerMillisecond); }
+                if (pcR.dbg) { Console.WriteLine("Dbg: Timed = {0}", (DateTime.Now.Ticks - z) / TimeSpan.TicksPerMillisecond); }
 
                 int td = duration / no_steps;
                 if (td<25) td=25;

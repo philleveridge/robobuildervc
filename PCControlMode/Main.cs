@@ -31,7 +31,7 @@ namespace RobobuilderLib
             bal = new balance_frm();
             bc = new Basic_frm();
 
-            serialPort1.PortName = "COM3";
+            serialPort1.PortName = "COM40";
             serialPort1.BaudRate = 115200;
             serialPort1.ReadTimeout = 1000;
             serialPort1.WriteTimeout = 1000;
@@ -155,7 +155,8 @@ namespace RobobuilderLib
                 connect.Text = "Close";
                 listBox1.Enabled = false;
                 set_buttons(true);
-                textBox1.Text = "";
+
+                textBox1.Text = "Connected on " + serialPort1.PortName;
             }
         }
 

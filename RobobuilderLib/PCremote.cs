@@ -14,6 +14,8 @@ namespace RobobuilderLib
         byte[] respnse = new byte[32];
         bool DCmode;
 
+        public bool dbg = false;
+
         public string message;
 
         public PCremote(string comport)
@@ -33,6 +35,11 @@ namespace RobobuilderLib
         ~PCremote()
         {
             Close();
+        }
+
+        public void setdbg(bool x)
+        {
+            dbg = x;
         }
 
         public void Close()
