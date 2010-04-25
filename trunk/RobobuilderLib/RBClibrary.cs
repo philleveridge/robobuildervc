@@ -6,15 +6,25 @@ namespace RobobuilderLib
 {
     public class RBC
     {
-        public string serialNumber = "";
+        /*
+         * test harness for the library
+         * 
+         */
 
-        static void Main()
+        static void Main(string[] argv)
         {
-            Console.WriteLine("RobobuilderLib test client");
+            string fn = "";
+            string pn = "COM40";
+
+            if (argv.Length > 0) pn = argv[0];
+            if (argv.Length > 1) fn = argv[1];
+
+
+            Console.WriteLine("RobobuilderLib test client {0} - {1}", pn, fn);
 
             try
             {
-                PCremote r = new PCremote("COM3");
+                PCremote r = new PCremote(pn);
 
                 Console.WriteLine("Ver={0}", r.readVer());
 
@@ -24,8 +34,11 @@ namespace RobobuilderLib
                 Console.WriteLine("PSD={0}", r.readPSD());
 
                 wckMotion w = new wckMotion(r);
-     
-                w.PlayFile("walk2.csv");
+
+                if (fn != "")
+                    w.PlayFile(fn);
+                else
+                    w.PlayPose(1000, 10, new byte[] {143, 179, 198,  83, 106, 106,  69,  48, 167, 141,  47,  47,  49, 199, 204, 204, 122, 125, 127 }, true);
 
             }
             catch (Exception e)

@@ -52,7 +52,7 @@ namespace RobobuilderLib
                 if (viewport == null)
                 {
                     MessageBox.Show("Must connect first");
-                    //return;
+                    return;
                 }
             }
             this.Show();
