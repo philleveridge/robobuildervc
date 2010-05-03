@@ -99,6 +99,9 @@
 ; (anim 50 0.5 10)
 ; (.show form1)(drawlist g history "Blue")
 
+(def alert (x)    "Display alert box!" (MessageBox.Show x))
+(def message (x)  "Display message"    (.Message form x))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ; Real time graphic demo - using acceleromter
@@ -355,8 +358,6 @@
 ;("red" "yellow" "green" "blue")
 
 
-
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ; Vector utilities
@@ -382,7 +383,18 @@
   "normalise a vecor i.e. sqrt(a.a)"
   (sqrt (dot-product a a)))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;
+; Macros utilities
+;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(mac repeat (n & body) `(for x 1 ,n ,@body))
 
+(mac For (x start finish step & body)  `(with (,x ,start) (while 
+  (or (and (> ,step 0) (< ,x ,finish )) (and (< ,step 0) (< ,finish ,x))) 
+   (do ,@body (= ,x (+ ,x ,step))))))
+   
+   
 
 

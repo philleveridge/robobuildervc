@@ -226,10 +226,15 @@ namespace RobobuilderLib
 
         public bool wckReadPos(int id)
         {
+            return wckReadPos(id, 0);
+        }
+
+        public bool wckReadPos(int id, int d1)
+        {
             byte[] buff = new byte[4];
             buff[0] = 0xFF;
             buff[1] = (byte)(5 << 5 | (id % 31));
-            buff[2] = 0; // arbitary
+            buff[2] = (byte) d1; // arbitary
             buff[3] = (byte)((buff[1] ^ buff[2]) & 0x7f);
 
             try

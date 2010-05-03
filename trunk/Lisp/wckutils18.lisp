@@ -168,7 +168,7 @@
 ;eg (smove '(6 3 2) '(3 1 1) 5 0.1)
 
 
-(def playmotion (c x)
+(def playsMotion (c x)
   "Play a motion list"
   (= ip (car x))
 
@@ -205,7 +205,6 @@
 
 
 (= basic   '( 125 179 199  88 108 126  72  49 163 141  51  47  49 199 205 205 ))
-
 (= initpos '( 125 179 199  88 108 126  72  49 163 141  51  47  49 199 205 205 ))
 (= Data0   '( 125 179 199  88 108 126  72  49 163 141  51  47  49 199 205 205 ))	
 (= Scene1  '( 107 164 233 106  95 108  80  29 155 129  56  62  40 166 206 208 ))
@@ -223,7 +222,7 @@
   (dcmodeOn) 
   (= cur (getallServos 15))
   (smove cur basic 10 0.1)
-  (playmotion cur punchleft)
+  (playsMotion cur punchleft)
 )
 
 ;(demo)
@@ -283,4 +282,9 @@
   )
 )
 ;eg (ldiff 0.1)
+
+(def headfwd () (setServoPos 20 145 4))
+(def headlft () (setServoPos 20 85  4))
+(def headrgt () (setServoPos 20 205 4))
+
 

@@ -1,168 +1,203 @@
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;
-;
-;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;
 
+(def mapcar (x y z) (if (or y) (cons (x (car y) (car z)) (mapcar x (cdr y) (cdr z)))))
 
-(load "Lisp\\final.lisp")
-(load "Lisp\\wckutils18.lisp")
-(load "Lisp\\utilities.lisp")
-
-
-(def readAcc () 
-    (if (not (bound 'r)) (= r (new "Random")))
-    (if (bound 'pcr) 
-         (.readXYZ pcr) 
-         (do (prn "sim data ")(list (- (.next r 50) 25)  (- (.next r 50) 25) (- (.next r 50) 25) ))
-     )
-)
-
-(= pose2 '(143 185 150 42 105 107 61 51 167 141 47 47 49 199 204 203 122 124 127))
-
-(= boo '(  ((0 0  5)  (0 0  4 0 0 0 0 -4 0 0 0 0 0 0 0 0 0 0 0))             
-           ((0 0  2)  (0 0  2 0 0 0 0 -2 0 0 0 0 0 0 0 0 0 0 0))
-           ((0 0 -5)  (0 0 -2 0 0 0 0  2 0 0 0 0 0 0 0 0 0 0 0))
+(def setl (x y q z) 
+      (if (or (is x 0) (> x 0)) 
+          (cons (if (is x y) z (is x q) (- 0 z) 0) (setl (- x 1) y q z))
  ))
  
-(def add   (x y) (if (and x y) (cons (+ (car x) (car y)) (add  (cdr x) (cdr y)))))
-(def diff  (x y) (if (and x y) (cons (- (car x) (car y)) (diff (cdr x) (cdr y)))))
+  
+;> (reverse (setl 10 2 7 4))
+;(0 0 4 0 0 0 0 -4 0 0 0)
 
 
-;> (add (car (cdr (car foo))) pose2)
-;(143 185 152 42 105 107 61 49 167 141 47 47 49 199 204 203 122 124 127)
-
-
-(def vmatch ( a b) 
-    (with (min (norm (diff (caar a) b)) res (cadr (car a)))
-    (each item (cdr a) 
-       (if (> min (= t (norm (diff (car item) b))))  
-          (do (= min t) (= res (cadr item) ))
-       )
-   ) 
-  ;(prn min "," res)
-  res))
-    
-;(vmatch boo '(0 0 2))
-
-;(add pose2 (vmatch boo '(2 3 4)))
-
-
-(def byte?   (x) (and x (number? x) (< 0 x) (< x 255)))
-
-(def getch () (.keychar (Console.ReadKey true)))
-
-(def pause () 
-  (with (ch "")
-    (prn "Paused - press 'p' to continue")
-    ( while (not (member? (= ch (getch)) "pq")) (pr "."))
-    (if (is #\q ch) (err "Quit"))
+(= Z2    '(( ( 14  20) (0 0  0 0 0 0 0  0 0 0  4 0 0  -4 0 0 ))             
+           ( ( 10  15) (0 0  0 0 0 0 0  0 0 0  2 0 0  -2 0 0 ))
+           ( ( 5   11) (0 0  0 0 0 0 0  0 0 0  1 0 0  -1 0 0 ))
+           ( (-11 -5)  (0 0  0 0 0 0 0  0 0 0 -1 0 0  1 0 0 ))
+           ( (-14 -10) (0 0  0 0 0 0 0  0 0 0 -2 0 0  2 0 0 ))
+           ( (-20 -13) (0 0  0 0 0 0 0  0 0 0 -4 0 0  4 0 0 )))
+)
+ 
+(= Z4    '(( ( 14  20)  (0 0  0  3 0  0 0  0 0 -3 ))             
+           ( ( 10  15)  (0 0  0  2 0  0 0  0 0 -2 ))
+           ( ( 5   11)  (0 0  0  1 0  0 0  0 0 -1 ))
+           ( (-11 -5)   (0 0  0 -1 0  0 0  0 0  1 ))
+           ( (-14 -10)  (0 0  0 -2 0  0 0  0 0  2 ))
+           ( (-20 -13)  (0 0  0 -3 0  0 0  0 0  3 )))
+)
+ 
+ 
+ 
+(def rmatch (n l) 
+ (if (or l) 
+   (do 
+     (= min (car (caar l))) 
+     (= max (cadr (caar l)))
+     (= r   (cadr (car l) ) )
+     ;(prn "test " min " < " n " > " max)
+     (if (and (< min n) (> max n)) r (rmatch n (cdr l)))
+    )
   )
 )
 
-(def dcmodeOn ()
-  "Enter DC mode (amber light on)"
-  (if (not (.isopen sport)) (.open sport))
-  (if (bound 'wck) 
-    (.setDCmode pcr true)
-    (= wck (new "RobobuilderLib.wckMotion" pcr))
-  )
-  (sleep 0.05)
-)
-
-(def dcmodeOff ()
-  "exit DC mode (amber light off)"
-  (.setDCmode pcr false)
-  (sleep 0.05)
-)
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;> (zmatch -4 Ztest)
+;(0 0 -2 0 0 0 0 2 0 0 0 0 0 0 0 0 0 0 0)
 
 
-(= dx 5)
-(= dy 5)
-(= dz 5)
-
-(= fwd 4)
-
-(= foo '((0 0 1) (0 0 2 0 0 0 0 -2 0 0 0 0 0 0 0 0 0 0 0)))
-
-
-(def getXYZ () 
- (dcmodeOff)
- (= xyz (.readXYZ pcr))
- (= x (car xyz)) (= y (cadr xyz)) (= z (car (cddr xyz)))
-)
 
 (def calibrateXYZ () 
-   (getXYZ)
+ (= xyz (readAcc))
+ (= x (car xyz)) (= y (cadr xyz)) (= z (car (cddr xyz)))
    (= gx x)
    (= gy y)
    (= gz z)
-   (prn "Calibrated" gx " " gy " " gz)
+   (prn "Calibrated: " gx " " gy " " gz)
 )
 
-(def testzf (a) (> (- gz a) dz))
+(def swin ()
+  (= p1 (new "Pen" (Color.FromName "Black")))
+  (.set_DashStyle p1 (System.Drawing.Drawing2D.DashStyle.DashDot))
+  
+  (= p2 (new "Pen" (Color.FromName "Red")))
 
-(def testzb (a) (> (- a gz) dz))
-
-
-(def leanfwd (delta )
- (prn "lean " delta)
- (dcmodeOn)
- (= p2 (getServoPos 2))
- (= p7 (getServoPos 7))
- (setServoPos 2 (coerce (- p2 delta) "Int32") 2)
- (setServoPos 7 (coerce (+ p7 delta) "Int32") 2)
+    (createwindow "Balance Demo" 250 250)
+    (.show form1)
 )
 
-; basic pose
-(def basicpose () 
-  (dcmodeOn)
-  (smove (getallServos 18) basic18 10 0.1)
-)
+(def pwin (coord n rt)
+   (with (x (coerce (- (mod (* n 10) 280) 140) "Int32") y (coerce (* 4 coord) "Int32") h nil txt "")
+   
+     (= text (+ "(Acc=" (str y) " Rate=" (String.Format "{0:#.#}" rt) " ms)" ))
+     (plot text x y)
 
-(= bmenu '( 1 "Connect to Robobuilder" 
-            2 "Display Accel" 
-            3 "CalibrateXYZ" 
-            4 "basicPose" 
-            0 "Exit"))
-      
-(= fmenu '(plotaccel calibarateXYZ basicpose baltest))
-
-(def balance ()
-  "Balance"
- (while (> (= t (ask "Select" "No such option" bmenu) ) 0)
-   (if (is t 1) ( do (run_robobuilder "com3") (basicpose))
-       (is t 2) ( plotaccel 5)
-       (is t 3) ( calibrateXYZ)
-       (is t 4) ( basicpose )
-       (is t 5) ( baltest )
+     (drawlist g '((-125  40) (125  40)) (if (> y  40) p2 p1)) ; limit
+     (drawlist g '((-125 -40) (125 -40)) (if (< y -40) p2 p1)) ; limit     
+     (= history (cons (list x y ) history))     
+     (= h (list (car history) (cadr history) (car (cdr (cdr history)))))
+     (drawlist g h "Blue")
    )
-   (prn "Serial " (serial?) "Remote " (remote?))
- )
 )
 
+(def getZ ()
+   "DCMP - quicker if we just want Z"
+   (.wckReadPos wck 30 1) ; get y & Z
+   (with (z (nth (.respnse wck) 1))
+   (= z (if (> z 127) (- z 256) z))
+   )
+)
+
+(def getXYZ () 
+ (= xyz (readAcc))
+ (= x (car xyz)) (= y (cadr xyz)) (= z (car (cddr xyz)))
+ ;(prn x "," y "," z)
+ (list (- x gx) (- y gy) (- z gz))
+)
+
+(def checkInput () 
+  "test for key input"
+  (= res "")
+  (if (Console.keyavailable) 
+    (do 
+      (= ky (.key (Console.ReadKey true)))
+      (if (is ky (ConsoleKey.Q))           (err "Quit Pressed"))
+      (if (is ky (ConsoleKey.LeftArrow))   (do (prn "<-") (= res "n1")))
+      (if (is ky (ConsoleKey.RightArrow))  (do (prn "->") (= res "N1")))
+     )
+   )
+   res 
+)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(def bt3 ()
+"dcm plus mode - high speed"
+(if (not (bound 'DCMODEPLUS)) (err "load DCMP.lisp"))
+(standup)
+
+(swin)
+(= nc 0)
+
+ (= p10 (getServoPos 10))
+ (= p13 (getServoPos 13))  
+      
+(while (not (Console.keyavailable))
+
+   (.wckReadPos wck 30 1) ; get y & Z
+   (= z (nth (.respnse wck) 1))
+   (= z (if (> z 127) (- z 256) z))
+   
+   (pwin z (= nc (+ nc 1)))
+     
+   (= dz (rmatch z Z2))
+   (if (or dz) 
+    (do
+
+      (= n10 (coerce (+ p10 (nth dz 10)) "Int32"))
+      (= n13 (coerce (+ p13 (nth dz 13)) "Int32"))
+
+      (prn "loop: " p13 ", " p10 "," z "," n13 ", " n10)
+      ;(prl dz)
+      (setServoPos 10 n10 4)
+      (setServoPos 13 n13 4)
+      
+      (= p10 n10)
+      (= p13 n13)
+     )
+    )
+ )
+ (.close form1)
+ (standup)
+)
+
+
+(def bt4 ()
+"dcm plus mode - high speed"
+  (if (not (bound 'DCMODEPLUS)) (err "load DCMP.lisp"))
+  (standup)
+  (calibrateXYZ)
+  (= nc 0)
+  (= base (getallServos 15))
+  (pause)
+
+  (swin)
+  (= st (.ticks (DateTime.Now)))
+  (= rt 0)
+  
+  (try    
+  (while (not (Console.keyavailable))
+
+   (if (is (mod nc 10) 0) 
+   (do
+     (= ft (- (.ticks (DateTime.Now)) st))
+     (= st (.ticks (DateTime.Now)))
+     (= rt (/ ft (* 10 (TimeSpan.tickspermillisecond))))
+   ))
+
+   (= c1 (getZ))
+   
+   (pwin c1 (= nc (+ nc 1)) rt)
+     
+   (= dz (rmatch c1 Z2))
+   (if (or dz) 
+    (do
+      (= nxt (mapcar + base dz))
  
+      (try (.SyncPosSend wck 15 4 (toarray nxt) 0) (do (pr "overflow") (prl nxt)) null)
+
+      (= base nxt)
+     )
+     ;(prn "loop " c1)
+    )
+ )
+ (prn "Exception caught")
+ null
+ )
+ (.close form1)
+ (standup)
+)
 
 
- 
 
-
- ;(calibrateXYZ)
- ;(pause)
-
- ;(for i 0 30
- ; (do 
- ;  (getXYZ)
- ;  (prn i " loop z=" z)
- ;  (if  
- ;     (testzb z)  (leanfwd fwd)
- ;     (testzf z)  (leanfwd (- 0 fwd))
- ;  )
- ;  (sleep 0.4)
- ;  )
- ;)
 
 

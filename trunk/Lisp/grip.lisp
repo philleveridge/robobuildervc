@@ -18,32 +18,7 @@
 (def number? (x) "check if x number" (and x (or (isa x (typeof "Int32")) (isa x (typeof "Double")))))
 (def byte?   (x) "check if x byte"   (and x (number? x) (< 0 x) (< x 255)))
 
-(def dcmodeOn ()
-  "Enter DC mode (amber light on)"
-  (if (not (.isopen sport)) (.open sport))
-  (if (bound 'wck) 
-    (.setDCmode pcr true)
-    (= wck (new "RobobuilderLib.wckMotion" pcr))
-  )
-  (sleep 0.05)
-)
 
-(def dcmodeOff ()
-  "exit DC mode (amber light off)"
-  (.setDCmode pcr false)
-  (sleep 0.05)
-)
-
-(def alert (x)    "Display alert box!" (MessageBox.Show x))
-(def message (x)  "Display message"    (.Message form x))
-
-(mac repeat (n & body) `(for x 1 ,n ,@body))
-
-(mac For (x start finish step & body)  `(with (,x ,start) (while 
-  (or (and (> ,step 0) (< ,x ,finish )) (and (< ,step 0) (< ,finish ,x))) 
-   (do ,@body (= ,x (+ ,x ,step))))))
-   
-   
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;   
 ;(= spos 80)
 ;(def getServoPos (x) spos)
