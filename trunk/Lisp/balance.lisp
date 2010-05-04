@@ -11,6 +11,12 @@
 ;(0 0 4 0 0 0 0 -4 0 0 0)
 
 
+;( 
+; (min1 max1) (list 1 of servo postions increments)
+; (min2 max2) (list 2 of servo postions increments) 
+;    etc .... 
+;)
+
 (= Z2    '(( ( 14  20) (0 0  0 0 0 0 0  0 0 0  4 0 0  -4 0 0 ))             
            ( ( 10  15) (0 0  0 0 0 0 0  0 0 0  2 0 0  -2 0 0 ))
            ( ( 5   11) (0 0  0 0 0 0 0  0 0 0  1 0 0  -1 0 0 ))
@@ -26,8 +32,8 @@
            ( (-14 -10)  (0 0  0 -2 0  0 0  0 0  2 ))
            ( (-20 -13)  (0 0  0 -3 0  0 0  0 0  3 )))
 )
- 
- 
+; 
+; range search - look for a match for n in list l
  
 (def rmatch (n l) 
  (if (or l) 
@@ -41,10 +47,8 @@
   )
 )
 
-;> (zmatch -4 Ztest)
-;(0 0 -2 0 0 0 0 2 0 0 0 0 0 0 0 0 0 0 0)
-
-
+;> (rmatch -8 Z2)
+;(0 0  0 0 0 0 0  0 0 0 -1 0 0  1 0 0 )
 
 (def calibrateXYZ () 
  (= xyz (readAcc))
@@ -87,70 +91,13 @@
    )
 )
 
-(def getXYZ () 
- (= xyz (readAcc))
- (= x (car xyz)) (= y (cadr xyz)) (= z (car (cddr xyz)))
- ;(prn x "," y "," z)
- (list (- x gx) (- y gy) (- z gz))
-)
-
-(def checkInput () 
-  "test for key input"
-  (= res "")
-  (if (Console.keyavailable) 
-    (do 
-      (= ky (.key (Console.ReadKey true)))
-      (if (is ky (ConsoleKey.Q))           (err "Quit Pressed"))
-      (if (is ky (ConsoleKey.LeftArrow))   (do (prn "<-") (= res "n1")))
-      (if (is ky (ConsoleKey.RightArrow))  (do (prn "->") (= res "N1")))
-     )
-   )
-   res 
-)
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-(def bt3 ()
-"dcm plus mode - high speed"
-(if (not (bound 'DCMODEPLUS)) (err "load DCMP.lisp"))
-(standup)
-
-(swin)
-(= nc 0)
-
- (= p10 (getServoPos 10))
- (= p13 (getServoPos 13))  
-      
-(while (not (Console.keyavailable))
-
-   (.wckReadPos wck 30 1) ; get y & Z
-   (= z (nth (.respnse wck) 1))
-   (= z (if (> z 127) (- z 256) z))
-   
-   (pwin z (= nc (+ nc 1)))
-     
-   (= dz (rmatch z Z2))
-   (if (or dz) 
-    (do
-
-      (= n10 (coerce (+ p10 (nth dz 10)) "Int32"))
-      (= n13 (coerce (+ p13 (nth dz 13)) "Int32"))
-
-      (prn "loop: " p13 ", " p10 "," z "," n13 ", " n10)
-      ;(prl dz)
-      (setServoPos 10 n10 4)
-      (setServoPos 13 n13 4)
-      
-      (= p10 n10)
-      (= p13 n13)
-     )
-    )
- )
- (.close form1)
- (standup)
-)
-
-
+;
+; bt4 - (balance test mk 4!)
+; DISPLAY if true will show graphical Z accelerometer value
+;    .. BUT .. its slows it down by 50ms per cycle
+;    so set FALSE for performance
+;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (= DISPLAY false)
@@ -197,7 +144,7 @@
   (prn "Exception caught")     
   null
  )
- (.close form1)
+ (if DISPLAY (.close form1))
  (standup)
 )
 
