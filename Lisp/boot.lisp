@@ -8,6 +8,10 @@
 
 (def rb () (connect "COM5") (standup) "ok")
 
+(def dtest () 
+   (while (not (console.keyavailable)) 
+       (do (.wckReadPos wck 30 5) (prn (.PadLeft "*" (nth (.respnse wck) 0) #\-)  ))))
+
 (prn "RobobuilderLib version : " (.version (.GetName (reference "RobobuilderLib"))))
 
 (def trace (f) 

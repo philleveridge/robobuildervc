@@ -13,6 +13,7 @@
 
 (def dcmodeOff ()
   "exit DC mode (amber light off)"
+  null
 )
 
 

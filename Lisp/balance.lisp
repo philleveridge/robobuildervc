@@ -153,6 +153,8 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(= DISPLAY false)
+
 (def bt4 ()
 "dcm plus mode - high speed"
   (if (not (bound 'DCMODEPLUS)) (err "load DCMP.lisp"))
@@ -162,7 +164,7 @@
   (= base (getallServos 15))
   (pause)
 
-  (swin)
+  (if DISPLAY (swin))
   (= st (.ticks (DateTime.Now)))
   (= rt 0)
   
@@ -174,12 +176,12 @@
      (= ft (- (.ticks (DateTime.Now)) st))
      (= st (.ticks (DateTime.Now)))
      (= rt (/ ft (* 10 (TimeSpan.tickspermillisecond))))
-     (prn "Rate = " rt)
+     (if (not DISPLAY) (prn "Rate = " rt))
    ))
 
    (= c1 (- (getZ) gz))           ; get change in Z 
    
-   (pwin c1 (= nc (+ nc 1)) rt)   ; display value and rate in window
+   (if DISPLAY (pwin c1 (= nc (+ nc 1)) rt))   ; display value and rate in window
      
    (= dz (rmatch c1 Z2))          ; check if range match and return servo position update array
    (if (or dz)                    ; if null - no change required
