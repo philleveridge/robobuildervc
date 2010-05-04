@@ -151,6 +151,8 @@
 )
 
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 (def bt4 ()
 "dcm plus mode - high speed"
   (if (not (bound 'DCMODEPLUS)) (err "load DCMP.lisp"))
@@ -167,31 +169,31 @@
   (try    
   (while (not (Console.keyavailable))
 
-   (if (is (mod nc 10) 0) 
+   (if (is (mod nc 10) 0)         ; time each 10 iterations
    (do
      (= ft (- (.ticks (DateTime.Now)) st))
      (= st (.ticks (DateTime.Now)))
      (= rt (/ ft (* 10 (TimeSpan.tickspermillisecond))))
+     (prn "Rate = " rt)
    ))
 
-   (= c1 (getZ))
+   (= c1 (- (getZ) gz))           ; get change in Z 
    
-   (pwin c1 (= nc (+ nc 1)) rt)
+   (pwin c1 (= nc (+ nc 1)) rt)   ; display value and rate in window
      
-   (= dz (rmatch c1 Z2))
-   (if (or dz) 
+   (= dz (rmatch c1 Z2))          ; check if range match and return servo position update array
+   (if (or dz)                    ; if null - no change required
     (do
-      (= nxt (mapcar + base dz))
+      (= nxt (mapcar + base dz))  ; add array to base
  
       (try (.SyncPosSend wck 15 4 (toarray nxt) 0) (do (pr "overflow") (prl nxt)) null)
 
-      (= base nxt)
+      (= base nxt)                ; update base potion
      )
-     ;(prn "loop " c1)
     )
- )
- (prn "Exception caught")
- null
+  )
+  (prn "Exception caught")     
+  null
  )
  (.close form1)
  (standup)
