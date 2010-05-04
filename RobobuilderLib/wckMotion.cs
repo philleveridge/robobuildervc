@@ -752,21 +752,38 @@ namespace RobobuilderLib
 
                     DateTime n = DateTime.Now;
 
-                    pcR.setDCmode(false);
                     if (trig.AccTrig)
                     {
-                        int[] acc = pcR.readXYZ();
+                        if (wckReadPos(30, 1))
+                        {
+                            trig.Yval = respnse[0];
+                            trig.Zval = respnse[1];
 
-                        trig.Xval = acc[0];
-                        trig.Yval = acc[1];
-                        trig.Zval = acc[2];
-                        if (trig.dbg) Console.WriteLine("Dbg: Trigger acc event {0} {1} {2} ", acc[0], acc[1], acc[2]);
+                            if (wckReadPos(30, 2))
+                            {
+                                trig.Xval = respnse[0];
+                            }
+                        }
+                        else
+                        {
+                            Console.WriteLine("Failed - is this requires DCMP");
+                        }
+
+                        if (trig.dbg) Console.WriteLine("Dbg: Trigger acc event {0} {1} {2} ", trig.Xval, trig.Yval, trig.Zval);
                     }
 
                     if (trig.PSDTrig)
                     {
-                        int psd = pcR.readPSD();
-                        trig.Pval = psd;
+                        int psd=0;
+                        if (wckReadPos(30, 5))
+                        {
+                            psd = respnse[0]; 
+                            trig.Pval = psd;
+                        }
+                        else
+                        {
+                            Console.WriteLine("Failed - is this requires DCMP");
+                        }
                         if (trig.dbg) Console.WriteLine("Dbg: Trigger psd event {0} ", psd);
                     }
 
@@ -779,8 +796,6 @@ namespace RobobuilderLib
                     {
                         //todo
                     }
-
-                    pcR.setDCmode(true);
 
                     if (trig.test())
                     {
