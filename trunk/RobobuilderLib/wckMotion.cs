@@ -24,8 +24,10 @@ namespace RobobuilderLib
         public bool IRTrig = false;   // trigger IR being recieved
         public bool status = false;   // this must be true to activate
 
-        public bool dbg   { get; set; }  // this must be true for debug info
-        public int timer  { get; set; }  //trigger timer (in ms)
+        public bool dbg  { get; set; }  // this must be true for debug info
+        public bool DCMP { get; set; }  // this must be true for DCMP high speed mode (custom firmware)
+
+        public int timer { get; set; }  //trigger timer (in ms)
 
         public trigger()
         {
@@ -40,6 +42,7 @@ namespace RobobuilderLib
             SndTrig = false;
             IRTrig  = false;
             dbg     = false;
+            DCMP    = false;
         }
 
         public bool test()
@@ -745,28 +748,40 @@ namespace RobobuilderLib
 
                 tcnt += td;
 
-
                 if (trig != null && trig.active() && tcnt > trig.timer)
                 {
                     tcnt =0;
 
                     DateTime n = DateTime.Now;
 
+                    if (!trig.DCMP) 
+                        pcR.setDCmode(false);
+
                     if (trig.AccTrig)
                     {
-                        if (wckReadPos(30, 1))
+                        if (trig.DCMP)
                         {
-                            trig.Yval = respnse[0];
-                            trig.Zval = respnse[1];
-
-                            if (wckReadPos(30, 2))
+                            if (wckReadPos(30, 1))
                             {
-                                trig.Xval = respnse[0];
+                                trig.Yval = respnse[0];
+                                trig.Zval = respnse[1];
+
+                                if (wckReadPos(30, 2))
+                                {
+                                    trig.Xval = respnse[0];
+                                }
+                            }
+                            else
+                            {
+                                Console.WriteLine("Failed - is this requires DCMP");
                             }
                         }
                         else
                         {
-                            Console.WriteLine("Failed - is this requires DCMP");
+                            int[] acc = pcR.readXYZ();
+                            trig.Xval = acc[0];
+                            trig.Yval = acc[1];
+                            trig.Zval = acc[2];
                         }
 
                         if (trig.dbg) Console.WriteLine("Dbg: Trigger acc event {0} {1} {2} ", trig.Xval, trig.Yval, trig.Zval);
@@ -775,14 +790,23 @@ namespace RobobuilderLib
                     if (trig.PSDTrig)
                     {
                         int psd=0;
-                        if (wckReadPos(30, 5))
+                        if (trig.DCMP)
                         {
-                            psd = respnse[0]; 
-                            trig.Pval = psd;
+                            if (wckReadPos(30, 5))
+                            {
+                                psd = respnse[0];
+                                trig.Pval = psd;
+                            }
+                            else
+                            {
+                                Console.WriteLine("Failed ");
+                            }
                         }
                         else
                         {
-                            Console.WriteLine("Failed - is this requires DCMP");
+
+                            psd = pcR.readPSD();
+                            trig.Pval = psd;
                         }
                         if (trig.dbg) Console.WriteLine("Dbg: Trigger psd event {0} ", psd);
                     }
@@ -796,6 +820,11 @@ namespace RobobuilderLib
                     {
                         //todo
                     }
+
+                    if (!trig.DCMP) 
+                        pcR.setDCmode(true);
+
+                    // may need a sleep here
 
                     if (trig.test())
                     {
