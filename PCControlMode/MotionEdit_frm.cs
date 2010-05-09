@@ -26,6 +26,7 @@ namespace RobobuilderLib
         PCremote remote;
 
         public Display3D_frm viewport;
+        public bool DCMP = false;
 
         public MotionEdit_frm()
         {
@@ -448,13 +449,13 @@ namespace RobobuilderLib
                     }
 
                     if (m.no_servos < 17)
-                        t.S16 =  125;
+                        t.S16 =  255;
                     if (m.no_servos < 18)
-                        t.S17 = 125;
+                        t.S17 = 255;
                     if (m.no_servos < 19)
-                        t.S18 = 127;
+                        t.S18 = 255;
                     if (m.no_servos < 19)
-                        t.S19 = 127;
+                        t.S19 = 255;
                     t.X   = 0;
                     t.Y   = 0;
                     t.Z   = 0;
@@ -622,7 +623,14 @@ namespace RobobuilderLib
         {
             int x, y, z;
             // read acceleromter
-            Console.WriteLine(remote.readXYZ(out x, out y, out z));
+            if (DCMP)
+            {
+                //need new read
+                x = y = z = 0;
+            }
+            else
+                Console.WriteLine(remote.readXYZ(out x, out y, out z));
+
             xV.Text = "X=" + x.ToString();
             yV.Text = "Y=" + y.ToString();
             zV.Text = "Z=" + z.ToString();
