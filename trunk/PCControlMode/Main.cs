@@ -132,24 +132,30 @@ namespace RobobuilderLib
 
                 // start up on connect
 
-                string v = pcR.readVer();
-                if (v == "")
+                if (dcmp_cb.Checked) // DCMP  firmware
                 {
-                    serialPort1.Close();
-                    label1.Text = "Failed to connect";
-                    textBox1.AppendText(pcR.message);
-                    pcR = null;
-                    return;
+                    label1.Text = "DCMP mode";
                 }
-
-                string sn = pcR.readSN();
-                label1.Text = "Firmware=" + v + ", S/N=" + sn;
-
-                // check Firmware - and if Homebrew enable Basic
-                if (sn !="" && sn.Substring(0,2)=="HB") 
+                else
                 {
-                    button3.Visible = true;
-                    toolStripMenuItem1.Visible = true;
+                    string v = pcR.readVer();
+                    if (v == "")
+                    {
+                        serialPort1.Close();
+                        label1.Text = "Failed to connect";
+                        textBox1.AppendText(pcR.message);
+                        pcR = null;
+                        return;
+                    }
+
+                    string sn = pcR.readSN();
+                    label1.Text = "Firmware=" + v + ", S/N=" + sn;
+
+                    // check Firmware - and if Homebrew enable Basic
+                    if (sn != "" && sn.Substring(0, 2) == "HB")
+                    {
+                        toolStripMenuItem1.Visible = true;
+                    }
                 }
 
                 connect.Text = "Close";
@@ -186,12 +192,18 @@ namespace RobobuilderLib
 
         private void button1_Click(object sender, EventArgs e)
         {
-            textBox1.AppendText("Ver=" + pcR.readVer() +"\r\n");
+            if  (dcmp_cb.Checked)
+                textBox1.AppendText("DCMP mode\r\n");
+            else
+                textBox1.AppendText("Ver=" + pcR.readVer() +"\r\n");
         }
 
         private void button2_Click(object sender, EventArgs e)
         {
-            textBox1.AppendText("S/N="+pcR.readSN()+"\r\n");
+            if (dcmp_cb.Checked)
+                textBox1.AppendText("DCMP mode\r\n");
+            else 
+                textBox1.AppendText("S/N=" + pcR.readSN() + "\r\n");
         }
 
         private void button5_Click(object sender, EventArgs e)
@@ -202,7 +214,10 @@ namespace RobobuilderLib
 
         private void button6_Click(object sender, EventArgs e)
         {
-            textBox1.AppendText("Reset mem - " + pcR.resetMem());
+            if (dcmp_cb.Checked)
+                textBox1.AppendText("DCMP mode\r\n");
+            else 
+                textBox1.AppendText("Reset mem - " + pcR.resetMem());
         }
 
         private void button1_Click_1(object sender, EventArgs e)
@@ -215,13 +230,19 @@ namespace RobobuilderLib
         private void button7_Click(object sender, EventArgs e)
         {
             // avail mem
-            textBox1.AppendText(pcR.availMem() + "\r\n");
+            if (dcmp_cb.Checked)
+                textBox1.AppendText("DCMP mode\r\n");
+            else
+                textBox1.AppendText(pcR.availMem() + "\r\n");
         }
 
         private void button9_Click(object sender, EventArgs e)
         {
             //read zeros
-            textBox1.AppendText(pcR.readZeros() +"\r\n");
+            if (dcmp_cb.Checked)
+                textBox1.AppendText("DCMP mode\r\n");
+            else
+                textBox1.AppendText(pcR.readZeros() + "\r\n");
         }
 
         private void button2_Click_1(object sender, EventArgs e)
@@ -292,6 +313,7 @@ namespace RobobuilderLib
 
         private void motionEditToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            medit.DCMP = dcmp_cb.Checked;
             medit.connect(pcR);
         }
 
@@ -337,44 +359,6 @@ namespace RobobuilderLib
             bc.Show();
         }
 
-        private void button3_Click(object sender, EventArgs e)
-        {
-            // homebrew test
-
-            wckMotion test = new wckMotion(pcR);
-
-            if (test.wckReadPos(0))
-            {
-                textBox1.AppendText("Test =" + test.respnse[0].ToString() + test.respnse[1].ToString() + "\r\n");
-            }
-            else
-            {
-                textBox1.AppendText("Test Failed\r\n");
-            }
-
-#if HOMEBREW
-
-            pcR.btf.send_msg_basic('q');
-            if (pcR.btf.recv_packet())
-            {
-                textBox1.AppendText("Query Test\r\n" +
-                     "0=" + pcR.btf.buff[0].ToString() + " " + pcR.btf.buff[1].ToString() + "\r\n" +
-                     "1=" + pcR.btf.buff[2].ToString() + " " + pcR.btf.buff[3].ToString() + "\r\n" +
-                     "2=" + pcR.btf.buff[4].ToString() + " " + pcR.btf.buff[5].ToString() + "\r\n" +
-                     "3=" + pcR.btf.buff[6].ToString() + " " + pcR.btf.buff[7].ToString() + "\r\n" +
-                     "4=" + pcR.btf.buff[8].ToString() + " " + pcR.btf.buff[9].ToString() + "\r\n" +
-                     "5=" + pcR.btf.buff[10].ToString() + " " + pcR.btf.buff[11].ToString() + "\r\n"
-                    );
-            }
-            else
-            {
-                textBox1.AppendText("Test Failed\r\n");
-            }
-#endif
-
-            test.close();
-            test = null;
-        }
 
         private void balance_Click(object sender, EventArgs e)
         {
