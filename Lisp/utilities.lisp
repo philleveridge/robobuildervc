@@ -195,6 +195,20 @@
       )
 )
 
+;(drawlistc g '((0 0 "Red") (20 20 "Green") (30 120 "Green") (140 20 "Green") (50 50 "Red")))
+(def drawlistc (g l) 
+      (= from (car  l))
+      (= to   (cadr l))
+      
+      (if (and from to)
+        (do    
+              (= c    (car (cddr l))) 
+        (drawline g (car from) (cadr from) (car to) (cadr to) (car (cddr to)))
+        (drawlistc g (cdr l))
+        )
+      )
+)
+
 (def drawline (g fx fy tx ty c) 
       (if (isa c (typeof "String"))
          (= lp (new "Pen" (Color.FromName c)))  
