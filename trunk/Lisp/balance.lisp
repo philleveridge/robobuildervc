@@ -1,21 +1,37 @@
 
-(def mapcar (x y z) (if (or y) (cons (x (car y) (car z)) (mapcar x (cdr y) (cdr z)))))
+(def mapcar  (x y z)   (if (or y) (cons (x (car y) (car z))         (mapcar  x (cdr y) (cdr z)        ))) )
+(def mapcar2 (x a b c) (if (or a) (cons (x (car a) (car b) (car c)) (mapcar2 x (cdr a) (cdr b) (cdr c)))) )
 
-(def setl (x y q z) 
-      (if (or (is x 0) (> x 0)) 
-          (cons (if (is x y) z (is x q) (- 0 z) 0) (setl (- x 1) y q z))
- ))
- 
-  
-;> (reverse (setl 10 2 7 4))
-;(0 0 4 0 0 0 0 -4 0 0 0)
+(= basic18 '(143 179 198  83 106 106  69  48 167 141  47  47  49 199 192 204 122 125 127 ))	
+
+;            0    1  2   3   4   5   6   7   8   9   10  11  12  13  14  15
+(= ub_Huno '(174 228 254 130 185 254 180 126 208 208 254 224 198 254 200 254))
+(= lb_Huno '(  1  70 124  40  41  73  22   1 120  57   1  46   1   1  25  40))
 
 
-;( 
-; (min1 max1) (list 1 of servo postions increments)
-; (min2 max2) (list 2 of servo postions increments) 
-;    etc .... 
-;)
+(def dptest ()
+   (setServoPos 13 200 2) (setServoPos 10 50 2)   
+   (while (not (console.keyavailable))
+       (do (.wckReadPos wck 30 5)
+         (= pos (nth (.respnse wck) 0))
+          (prn (.PadLeft "*" pos #\-)) 
+         (setServoPos 13 (coerce (- 250 pos) "Byte") 2)
+         (setServoPos 10 (coerce (+ 0 pos) "Byte") 2)
+
+      )
+
+   )
+) 
+
+
+
+(def bcheck ( a b c) (if (> b a) b (< c a) c a))
+
+
+
+;( (min1 max1) (list 1 of servo postions increments)
+;  (min2 max2) (list 2 of servo postions increments) 
+;  etc .... )
 
 (= Z2    '(( ( 14  20) (0 0  0 0 0 0 0  0 0 0  4 0 0  -4 0 0 ))             
            ( ( 10  15) (0 0  0 0 0 0 0  0 0 0  2 0 0  -2 0 0 ))
@@ -32,6 +48,13 @@
            ( (-14 -10)  (0 0  0 -2 0  0 0  0 0  2 ))
            ( (-20 -13)  (0 0  0 -3 0  0 0  0 0  3 )))
 )
+
+(= Zx    '(( ( 6  15)  (0 0  0  0  0 0  0 0 0 0 0 -2 0 0 -2 0 ))
+           ( ( 3   7)  (0 0  0  0  0 0  0 0 0 0 0 -1 0 0 -1 0 ))
+           ( (-7  -3)  (0 0  0  0  0 0  0 0 0 0 0  1 0 0  1 0 ))
+           ( (-15 -6)  (0 0  0  0  0 0  0 0 0 0 0  2 0 0  2 0 ))       
+))
+
 ; 
 ; range search - look for a match for n in list l
  
@@ -91,6 +114,18 @@
    )
 )
 
+(def getZX ()
+   "DCMP - quicker if we just want Z"
+   (.wckReadPos wck 30 2) ; get y & Z
+   (with (x (nth (.respnse wck) 0) z (nth (.respnse wck) 1))
+   (= z (if (> z 127) (- z 256) z))
+   (= x (if (> x 127) (- x 256) x))
+   ;(prn "x=" (- x gx) ", z=" (- z gz))
+   (list (- x gx) (- z gz))
+   )
+)
+
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ; bt4 - (balance test mk 4!)
@@ -118,17 +153,17 @@
   (try    
   (while (not (Console.keyavailable))
 
-   (if (is (mod nc 10) 0)         ; time each 10 iterations
+   (if (is (mod (= nc (+ nc 1)) 10) 0)        ; time each 10 iterations
    (do
      (= ft (- (.ticks (DateTime.Now)) st))
      (= st (.ticks (DateTime.Now)))
      (= rt (/ ft (* 10 (TimeSpan.tickspermillisecond))))
-     (if (not DISPLAY) (prn "Rate = " rt))
+     (if (not DISPLAY) (prn (String.Format "Rate = {0:#.#}" rt)))
    ))
 
    (= c1 (- (getZ) gz))           ; get change in Z 
    
-   (if DISPLAY (pwin c1 (= nc (+ nc 1)) rt))   ; display value and rate in window
+   (if DISPLAY (pwin c1 nc rt))   ; display value and rate in window
      
    (= dz (rmatch c1 Z2))          ; check if range match and return servo position update array
    (if (or dz)                    ; if null - no change required
@@ -149,6 +184,80 @@
 )
 
 
+
+;
+;
+;
+(def spos (p)
+  (= p (mapcar2 bcheck p lb_Huno ub_Huno))
+  (try (.SyncPosSend wck 15 4 (toarray p) 0) 
+      (do (pr "overflow") (prl p))          ;catch
+      ()                                    ;finally
+  )
+  p
+)
+
+;
+; balance function
+; 
+(def btfn (base xp zp)
+  (with 
+   ( dz  (rmatch zp Z2)       ; check if range match and return servo position update array 
+     dx  (rmatch xp Zx)
+     nxt () 
+   )                    
+     
+   (if (or dz)  (= nxt dz))  
+   (if (or dx)  (= nxt (mapcar + dx nxt )))
+   
+   (if (or nxt)
+    (do
+      ;(pr "d(zx)=" )(prl nxt)
+      (= nxt   (mapcar + base nxt))       ; add array to base    
+     )
+     base
+   )
+  )
+)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;
+; bt5 - (balance test mk 5!)
+;   Now looks at both X & Z parameters
+;   new bound checking routines
+;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(def bt5 ()
+"dcm plus mode - high speed"
+  (if (not (bound 'DCMODEPLUS)) (err "load DCMP.lisp"))
+  (standup)
+  (calibrateXYZ)
+  (= nc 0)
+  (= base (getallServos 15))
+  (pause)
+
+  (= st (.ticks (DateTime.Now)))
+  (= rt 0)
+  
+  (try    
+  (while (not (Console.keyavailable))
+
+   (if (is (mod (= nc (+ nc 1)) 10) 0)             ; time each 10 iterations
+   (do
+     (= rt (/ (- (.ticks (DateTime.Now)) st) (* 10 (TimeSpan.tickspermillisecond))))
+     (if (not DISPLAY) (prn (String.Format "Rate = {0:#.#}" rt)))
+     (= st (.ticks (DateTime.Now)))
+   ))
+
+   (= c1 (getZX) )                    ; get change (X z)      
+   (= base (spos (btfn base (car c1) (cadr c1))))
+  )
+  (prn "Exception caught")     
+  null
+ )
+ (standup)
+)
 
 
 

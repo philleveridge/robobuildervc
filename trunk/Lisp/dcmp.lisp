@@ -13,9 +13,7 @@
 
 (def dcmodeOff ()
   "exit DC mode (amber light off)"
-  null
 )
-
 
 (def readdistance ()
   "Read distance"
@@ -23,9 +21,17 @@
       (.open sport))
       
   (with (d 0) 
-    (.wckReadPos wck 30 5) ; get y & Z
+    (.wckReadPos wck 30 5) ; power psd up and read sensor
     (= d (nth (.respnse wck) 0))
   )
+)
+
+(def psdon ()
+    (.wckReadPos wck 30 3) ; power psd up
+)
+
+(def psdoff ()
+    (.wckReadPos wck 30 4) ; power psd down
 )
 
 (def readAcc ()
@@ -45,7 +51,6 @@
   )
 )
 
-
 (def checkver () 
   "Check version of robobuilder firmware"
   (prn "Not available in DCMP")
@@ -59,3 +64,12 @@
   "Play motion id"
   (prn "Not available in DCMP")
 )
+
+
+(def dtest () 
+   (while (not (console.keyavailable)) 
+       (do (.wckReadPos wck 30 5) (prn (.PadLeft "*" (nth (.respnse wck) 0) #\-)  ))
+   )
+   (psdoff)
+)
+       
