@@ -31,7 +31,7 @@ namespace RobobuilderLib
             bal = new balance_frm();
             bc = new Basic_frm();
 
-            serialPort1.PortName = "COM40";
+            serialPort1.PortName = "COM5";
             serialPort1.BaudRate = 115200;
             serialPort1.ReadTimeout = 1000;
             serialPort1.WriteTimeout = 1000;

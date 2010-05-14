@@ -9,122 +9,6 @@ using System.Text.RegularExpressions;
 namespace RobobuilderLib
 {
 
-    public class trigger
-    {
-        public int Xmax, Xmin, Xval;    //accelerometer X axis
-        public int Ymax, Ymin, Yval;    //accelerometer Y axis
-        public int Zmax, Zmin, Zval;    //accelerometer Z axis
-        public int Pmax, Pmin, Pval;    //PSD sensor
-        public int Smax, Smin, Sval;    //Sound Level
-        public int Ival;                //IR remote
-
-        public bool AccTrig = false;   // trigger on acceleromter val <min or >max
-        public bool PSDTrig = false;   // trigger PSD val <min or >max
-        public bool SndTrig = false;   // trigger Snd level val <min or >max
-        public bool IRTrig = false;   // trigger IR being recieved
-        public bool status = false;   // this must be true to activate
-
-        public bool dbg  { get; set; }  // this must be true for debug info
-        public bool DCMP { get; set; }  // this must be true for DCMP high speed mode (custom firmware)
-
-        public int timer { get; set; }  //trigger timer (in ms)
-
-        public trigger()
-        {
-            timer = 250; //default value
-
-            set_accel(0, 0, 0, 0, 0, 0);
-            set_PSD  (0, 0);
-            set_SND  (0, 0);
-            set_IR   (0);
-            AccTrig = false;
-            PSDTrig = false;
-            SndTrig = false;
-            IRTrig  = false;
-            dbg     = false;
-            DCMP    = false;
-        }
-
-        public bool test()
-        {
-            return
-                (AccTrig == true && (Xval < Xmin || Yval < Ymin || Zval < Zmin || Xval > Xmax || Yval > Ymax || Zval > Zmax))
-             || (PSDTrig == true && (Pval>Pmax || Pval<Pmin))
-             || (IRTrig  == true && Ival != 0)
-             || (SndTrig == true && (Sval>Smax || Sval<Smin));
-        }
-
-        public void set_trigger(bool acc, bool psd, bool snd, bool ir)
-        {
-            AccTrig = acc;
-            PSDTrig = psd;
-            SndTrig = snd;
-            IRTrig = ir;
-        }
-
-        public void set_accel(int minx, int miny, int minz, int maxx, int maxy, int maxz)
-        {
-            Xmax = maxx; Xmin = minx; Xval = 0;     //defaults : accelerometer X axis
-            Ymax = maxy; Ymin = miny; Yval = 0;     //defaults : accelerometer Y axis
-            Zmax = maxz; Zmin = minz; Zval = 0;     //defaults : accelerometer Z axis
-            AccTrig = true;
-        }
-
-        public void set_PSD(int minp, int maxp)
-        {
-            Pmax = maxp; Pmin = minp; Pval = 0;
-            PSDTrig = true;
-        }
-
-        public void set_SND(int mins, int maxs)
-        {
-            Smax = maxs; Smin = mins; Sval = 0;
-            SndTrig = true;
-        }
-
-        public void set_IR(int ir)
-        {
-            Ival =0;
-            IRTrig = true;
-        }
-
-        public void set_trigger(int n)
-        {
-            AccTrig = ((n | 1) == 1);
-            PSDTrig = ((n | 2) == 2);
-            SndTrig = ((n | 4) == 4);
-            IRTrig  = ((n | 8) == 8);
-        }
-
-        public void activate(bool f)
-        {
-            status = f;
-        }
-
-        public bool active()
-        {
-            return status;
-        }
-
-        public void print()
-        {
-            try
-            {
-                Console.WriteLine("Trigger status : {0}", (status) ? "On" : "Off");
-                Console.WriteLine("Timer          = {0 } ms", timer);
-                Console.WriteLine("X={0:###} : {1:###} : {2:###} : {3}", Xmin, Xmax, Xval, ((AccTrig) ? "On" : "Off").ToString());
-                Console.WriteLine("Y={0:###} : {1:###} : {2:###}", Ymin, Ymax, Yval);
-                Console.WriteLine("Z={0:###} : {1:###} : {2:###}", Zmin, Zmax, Zval);
-                Console.WriteLine("P={0:#}   : {1:#}   : {2:#}   : {3}", Pmin, Pmax, Pval, ((PSDTrig) ? "On" : "Off").ToString());
-                Console.WriteLine("S={0:#}   : {1:#}   : {2:#}   : {3}", Smin, Smax, Sval, ((SndTrig) ? "On" : "Off").ToString());
-                Console.WriteLine("I={0:#}   : {1}", Ival, ((IRTrig) ? "On" : "Off").ToString());
-            }
-            catch (Exception e1)
-            {
-                Console.WriteLine("exception - " + e1.Message);
-            }
-        }
-    }
     public class wckMotion
     {
         public const int MAX_SERVOS = 21;
@@ -140,11 +24,14 @@ namespace RobobuilderLib
           0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14, 15 */
           1, 70,124, 40, 41, 73, 22,  1,120, 57,  1, 23,  1,  1, 25, 40};
 
+        static public byte[] basic18 = new byte[] { 
+            143, 179, 198, 83, 106, 106, 69, 48, 167, 141, 47, 47, 49, 199, 192, 204, 122, 125, 255 };
+        static public byte[] basic16 = new byte[] { 
+            125, 179, 199, 88, 108, 126, 72, 49, 163, 141, 51, 47, 49, 199, 205, 205 };
 
-        static public byte[] basic_pos = new byte[] {
-                /*0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18 , 19 */
-                143,179,198,83,106,106,69,48,167,141,47,47,49,199,204,204,122,125,255,255 };
+        static public byte[] basic_pos = basic18;
 
+        public bool DCMP { get; set; }  // this must be true for DCMP high speed mode (custom firmware)
 
         /**********************************************
          * 
@@ -163,8 +50,19 @@ namespace RobobuilderLib
         public double kfactor = 1.0f;
         int tcnt;
 
+        public wckMotion(string port, bool df)
+        {
+            DCMP = df;
+            pcR = new PCremote(port);
+            trig = null;
+            serialPort = pcR.serialPort;
+            pcR.setDCmode(true);
+            if (!DCMP) delay_ms(100);
+        }
+
         public wckMotion(PCremote r)
         {
+            DCMP = false;
             trig = null;
             serialPort = r.serialPort;
             pcR = r;
@@ -185,6 +83,7 @@ namespace RobobuilderLib
         public void set_trigger(trigger t)
         {
             trig = t;
+            DCMP = t.DCMP; // trigger DCMP mode overides current mode
         }
 
         public void reset_timer()
