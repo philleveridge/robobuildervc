@@ -38,15 +38,14 @@
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
-    <Reference Include="System.Data.DataSetExtensions">
-      <RequiredTargetFramework>3.5</RequiredTargetFramework>
-    </Reference>
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
-    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="dbase.cs" />
+    <Compile Include="trigger.cs" />
+    <Compile Include="vectors.cs" />
     <Compile Include="PCremote.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RBClibrary.cs" />

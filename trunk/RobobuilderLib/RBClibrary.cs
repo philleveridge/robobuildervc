@@ -14,7 +14,7 @@ namespace RobobuilderLib
         static void Main(string[] argv)
         {
             string fn = "";
-            string pn = "COM40";
+            string pn = "COM5";
 
             if (argv.Length > 0) pn = argv[0];
             if (argv.Length > 1) fn = argv[1];
@@ -38,7 +38,7 @@ namespace RobobuilderLib
                 if (fn != "")
                     w.PlayFile(fn);
                 else
-                    w.PlayPose(1000, 10, new byte[] {143, 179, 198,  83, 106, 106,  69,  48, 167, 141,  47,  47,  49, 199, 204, 204, 122, 125, 127 }, true);
+                    w.PlayPose(1000, 10, wckMotion.basic18, true);
 
             }
             catch (Exception e)

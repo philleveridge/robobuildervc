@@ -8,7 +8,6 @@ using System.Windows.Forms;
 
 namespace RobobuilderLib
 {
-
     public partial class balance_frm : Form
     {
         List<int>         h1 = new List<int>();
@@ -139,11 +138,12 @@ namespace RobobuilderLib
             }
             else
             {
+                // need to check for DCMP
                 // read real data
                 pcr.setDCmode(false);
                 xyz = pcr.readXYZ();
                 pcr.setDCmode(true);
-                System.Threading.Thread.Sleep(100);
+                System.Threading.Thread.Sleep(100);  // TODO ::: remove if in DCMP mode
 
                 wck.servoID_readservo(Autonomy.MAXSERVOS);
                 cp = vectors.convInt(wck.pos);
