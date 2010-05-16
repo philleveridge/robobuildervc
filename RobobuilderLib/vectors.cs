@@ -21,7 +21,7 @@ namespace RobobuilderLib
             int[] r = new int[a.Length];
             for (int i = 0; i < a.Length; i++)
             {
-                r[i] = (int)a[i];
+                r[i] = Convert.ToInt32(a[i]);
             }
             return r;
         }
@@ -31,7 +31,17 @@ namespace RobobuilderLib
             int[] r = new int[a.Length];
             for (int i = 0; i < a.Length; i++)
             {
-                r[i] = (int)a[i];
+                r[i] = Convert.ToInt32(a[i]);
+            }
+            return r;
+        }
+
+        static public double[] convDouble(Object[] a)
+        {
+            double[] r = new double[a.Length];
+            for (int i = 0; i < a.Length; i++)
+            {
+                r[i] = Convert.ToDouble(a[i]);
             }
             return r;
         }
@@ -101,6 +111,32 @@ namespace RobobuilderLib
             return r;
         }
 
+        static public int[] add(int[] a, byte[] b)
+        {
+            if (a == null) return null;
+
+            int[] r = new int[a.Length];
+            for (int i = 0; i < a.Length; i++)
+            {
+                if (b == null) r[i] = a[i];
+                else if (i < b.Length) r[i] = a[i] + b[i];
+            }
+            return r;
+        }
+
+        static public double[] add(double[] a, double[] b)
+        {
+            if (a == null) return null;
+
+            double[] r = new double[a.Length];
+            for (int i = 0; i < a.Length; i++)
+            {
+                if (b == null) r[i] = a[i];
+                else if (i < b.Length) r[i] = a[i] + b[i];
+            }
+            return r;
+        }
+
         static public int[] append(int[] a, int[] b)
         {
             int[] r = new int[a.Length + b.Length];
@@ -129,6 +165,20 @@ namespace RobobuilderLib
             return r;
         }
 
+        static public double[] sub(double[] a, double[] b)
+        {
+            if (a == null) return null;
+
+            double[] r = new double[a.Length];
+            for (int i = 0; i < a.Length; i++)
+            {
+                if (b == null) r[i] = a[i];
+                else
+                    if (i < b.Length) r[i] = a[i] - b[i];
+            }
+            return r;
+        }
+
         static public int dotprod(int[] a, int[] b)
         {
             int r = 0;
@@ -139,7 +189,22 @@ namespace RobobuilderLib
             return r;
         }
 
+        static public double dotprod(double[] a, double[] b)
+        {
+            double r = 0;
+            for (int i = 0; i < a.Length; i++)
+            {
+                if (i < b.Length) r += (a[i] * b[i]);
+            }
+            return r;
+        }
+
         static public double normal(int[] a)
+        {
+            return Math.Sqrt((double)dotprod(a, a));
+        }
+
+        static public double normal(double[] a)
         {
             return Math.Sqrt((double)dotprod(a, a));
         }
@@ -160,6 +225,18 @@ namespace RobobuilderLib
             }
             return res;
         }
+
+        static public byte[] bcheck(int[] p, byte[] min, byte[] max)
+        {
+            byte[] r = new byte[p.Length];
+            for (int i = 0; i < p.Length; i++)
+            {
+                if (i < min.Length && i < max.Length)
+                    r[i] = (byte)((p[i] > max[i]) ? max[i] : ((p[i] < min[i]) ? min[i] : p[i]));
+            }
+            return r;
+        }
+
 
         // *****************************************************************************************
         // test data / routines
@@ -192,6 +269,245 @@ namespace RobobuilderLib
             Console.WriteLine("M(a)=" + vectors.str(vectors.match(testv, a)));
             Console.WriteLine("M(b)=" + vectors.str(vectors.match(testv, b)));
         }
+    }
+
+    public class matrix
+    {
+        double[,] mat;
+        int cols = 0;
+        int rows = 0;
+
+        public matrix(int c, int r)
+        {
+            mat = new double[c, r];
+            cols = c;
+            rows = r;
+        }
+
+        public matrix(int c, int r, double[] a)
+        {
+            mat = new double[c, r];
+            cols = c;
+            rows = r;
+            set(a);
+        }
+
+        public matrix(int c, int r, object[] a)
+        {
+            mat = new double[c, r];
+            cols = c;
+            rows = r;
+            set(a);
+        }
+
+        public matrix(int s)
+        {
+            mat = new double[s, s];
+            cols = s;
+            rows = s;
+            for (int i = 0; i < s; i++) mat[i, i] = 1.0;
+        }
+
+        public double get(int c, int r)
+        {
+            return mat[c, r];
+        }
+
+        public int getc()
+        {
+            return cols;
+        }
+
+        public int getr()
+        {
+            return rows;
+        }
+
+        public double[] getrow(int r)
+        {
+            if (r < 0 || r >= rows) return null;
+
+            double[] a = new double[rows];
+            for (int i = 0; i < rows; i++)
+                a[i] = mat[i, r];
+            return a;
+        }
+
+        public double[] getcol(int c)
+        {
+            if (c < 0 || c >= cols) return null;
+
+            double[] a = new double[cols];
+            for (int i = 0; i < cols; i++)
+                a[i] = mat[c, i];
+            return a;
+        }
+
+        public double[] getAll()
+        {
+            double[] a = new double[cols*rows];
+            for (int i = 0; i < rows; i++)
+                for (int j = 0; j < cols; j++) 
+                    a[i] = mat[j, i];
+            return a;
+        }
+
+        public bool set(double[] n)
+        {
+            if (n.Length != (cols * rows))
+            {
+                Console.WriteLine("Error - length={0} R={1}, C={2}", n.Length, rows, cols);
+                return false;
+            }
+            for (int i = 0; i < rows; i++)
+                for (int j = 0; j < cols; j++)
+                    mat[j, i] = n[i * cols + j];
+            return true;
+        }
+
+        public bool set(Object[] n)
+        {
+            if (n.Length != (cols * rows))
+            {
+                Console.WriteLine("Error - length={0} R={1}, C={2}", n.Length, rows, cols);
+                return false;
+            }
+            for (int i = 0; i < rows; i++)
+                for (int j = 0; j < cols; j++)
+                    mat[j, i] = Convert.ToDouble(n[i*cols + j]);
+            return true;
+        }
+
+        public void set(int c, int r, double v)
+        {
+            if (!(c < 0 || c >= cols || r < 0 || r >= rows))
+                mat[c, r] = v;
+        }
+
+        public void print()
+        {
+            for (int i = 0; i < rows; i++)
+            {
+                for (int j = 0; j < cols; j++)
+                    Console.Write("{0:0.#} ", mat[j, i]);
+                Console.WriteLine("");
+            }
+        }
+
+        public bool add(matrix x)
+        {
+            if (x.getc() != cols || x.getr() != rows)
+                return false;
+
+            for (int i = 0; i < rows; i++)
+                for (int j = 0; j < cols; j++)
+                    mat[j, i] += x.get(j, i);
+
+            return true;
+        }
+
+        public bool subtract(matrix x)
+        {
+            if (x.getc() != cols || x.getr() != rows)
+                return false;
+
+            for (int i = 0; i < rows; i++)
+                for (int j = 0; j < cols; j++)
+                    mat[j, i] -= x.get(j, i);
+
+            return true;
+        }
+
+        public bool zeroI()
+        {
+            if (cols != rows)
+                return false;
+            for (int s = 0; s < cols; s++) 
+                mat[s, s] = 0;
+            return true;
+        }
+
+        public matrix multiply(matrix x)
+        {
+            int xc = x.getc();
+            int xr = x.getr();
+
+            if (xr != cols )
+                return null;
+
+            matrix r = new matrix(rows, xc);
+
+            for (int i=0; i<rows; i++)
+                for (int j=0; j<xc; j++)
+                {
+                    double f = 0;
+
+                    for (int k = 0; k < cols; k++)
+                    {
+                        f += (mat[k,i] * x.get(j,k));
+                    }
+
+                    r.set(j, i, f);
+                }
+
+            return r;
+        }
+
+        public void scale(double sf)
+        {
+            for (int i = 0; i < rows; i++)
+                for (int j = 0; j < cols; j++)
+                    mat[j, i] *= sf;
+        }
+
+        static public double[] bipolar(bool[] a)
+        {
+            double[] r = new double[a.Length];
+            for (int i = 0; i < a.Length; i++)
+                r[i] = a[i] ? 1.0 : -1.0;
+            return r;
+        }
+
+        static public double[] bipolar(object[] a)
+        {
+            double[] r = new double[a.Length];
+            for (int i = 0; i < a.Length; i++)
+                r[i] = (Convert.ToInt32(a[i])==1) ? 1.0 : -1.0;
+            return r;
+        }
+
+        static public bool[] revbipolar(double[] a)
+        {
+            bool[] r = new bool[a.Length];
+            for (int i = 0; i < a.Length; i++)
+                r[i] = (a[i] >0);
+            return r;
+        }
+
+        public matrix transpose()
+        {
+            matrix r = new matrix(rows, cols);
+
+            for (int i = 0; i < rows; i++)
+                for (int j = 0; j < cols; j++)
+                    r.set(i,j, mat[j, i]);
+            return r;
+        }
+
+        static public void test()
+        {
+            matrix matA = new matrix ( 2, 3);
+            matA.set (new object[] { 1.0, 4.0, 2.0, 5.0, 3.0, 6.0});
+            matA.print();
+
+
+            matrix matB = new matrix ( 3, 2);
+            matB .set (new object[] { 7.0, 8.0, 9.0, 10.0, 11.0, 12.0});
+            matB.print();
+
+            matA.multiply(matB).print();
+        }
+
     }
 
 }
