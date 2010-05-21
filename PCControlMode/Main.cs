@@ -58,7 +58,6 @@ namespace RobobuilderLib
                 {
                     line = line.Trim();
                     string[] nvp = line.Split('=');
-                    string[] v;
                     switch (nvp[0])
                     {
                         case "BUTTONS":
@@ -85,7 +84,7 @@ namespace RobobuilderLib
             }
             catch (Exception e1)
             {
-                Console.WriteLine("?Can't open default.ini");
+                Console.WriteLine("?Can't open default.ini - " + e1.Message);
             }
             presets.presets_flg = false; // now exit will ask if any further changes
         }
@@ -101,7 +100,7 @@ namespace RobobuilderLib
             }
             catch (Exception e1)
             {
-                Console.WriteLine("?Can't write to default.ini");
+                Console.WriteLine("?Can't write to default.ini - " + e1.Message);
             }
         }
 

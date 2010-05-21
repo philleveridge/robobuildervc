@@ -1,4 +1,8 @@
 (prn  "Boot loader")
+
+(= rbl (reference "C:\\Users\\Phil\\Desktop\\Robobuilder\\Code development\\robobuildervc\\RobobuilderLib\\bin\\Release\\RobobuilderLib.exe"))
+(using "RobobuilderLib")
+
 (= PATH '( "" "Lisp\\" ))
 
 (def include (s & one)
@@ -29,7 +33,10 @@
 (include "wckutils18.lisp")
 (include "utilities.lisp")
 
-(prn "RobobuilderLib version : " (.version (.GetName (reference "RobobuilderLib"))))
+(prn "RobobuilderLib version : " (.version (.GetName rbl)))
+
+
+;(def toByteArray (x) (RobobuilderLib.vectors.convByte (toarray x))) ; from version RBL 1.9.9.7
 
 (def trace (f) 
   "tracing on or off." 

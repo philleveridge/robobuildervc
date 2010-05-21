@@ -123,7 +123,6 @@ namespace RobobuilderLib
                 Message = "Failed" + e1.Message;
                 return false;
             }
-
         }
 
         public bool wckReadPos(int id)
@@ -511,6 +510,40 @@ namespace RobobuilderLib
         }
 
         public bool PlayFile(string filename)
+        { 
+            return PlayFile(filename, 0, 0);
+        }
+
+        public bool PlayMatrix(matrix m)
+        {
+            return PlayMatrix(m, 0, 0);
+        }
+
+        public bool PlayMatrix(matrix m, int s, int f)
+        { 
+            // assume row 0=duration, row 1= no steps
+            int n = 0;
+            if (f == 0) f = m.getr();
+
+            for (int i = s; i < f; i++)
+            {
+                double[] row = m.getrow(0);
+                int duration = (int)row[0];
+                int steps    = (int)row[1];
+
+                byte[] servo_pos = new byte[m.getc()-2];
+                for (int j = 0; j < servo_pos.Length; j++)
+                {
+                    servo_pos[j] = (byte)row[j+2];
+                }
+                if (!PlayPose(duration, steps, servo_pos, (n == 1)))
+                    return false;
+                n = 1;
+            }
+            return true;
+        }
+
+        public bool PlayFile(string filename, int startrow, int endrow)
         {
             byte[] servo_pos;
             int steps;
@@ -518,6 +551,7 @@ namespace RobobuilderLib
             int nos = 0;
             int n = 0;
             tcnt = 0;
+            int linecount = 0;
 
             try
             {
@@ -527,7 +561,11 @@ namespace RobobuilderLib
                 while ((line = tr.ReadLine()) != null)
                 {
                     line = line.Trim();
-                    //Console.WriteLine(line);
+                    linecount++;
+                    Console.WriteLine("{0} - {1}", linecount, line);
+
+                    if (!(linecount>=startrow && ( linecount<=endrow || endrow==0)))
+                        continue;
 
                     if (line.StartsWith("#")) // comment
                     {
@@ -636,11 +674,17 @@ namespace RobobuilderLib
                 for (int n = 0; n < spod.Length; n++) 
                 {
                     temp[n] = (byte)(pos[n] + (double)s * intervals[n]);
+                    if (trig != null && trig.active() && trig.delta != null && n<trig.delta.Length)
+                    {
+                        temp[n] = (byte)((double)temp[n] + trig.delta[n]);
+                    }
                 }
 
+                //timed --- start
                 long z = DateTime.Now.Ticks;
                 SyncPosSend(temp.Length - 1, 4, temp, 0);
                 if (pcR.dbg) { Console.WriteLine("Dbg: Timed = {0}", (DateTime.Now.Ticks - z) / TimeSpan.TicksPerMillisecond); }
+                //timed --- end
 
                 int td = duration / no_steps;
                 if (td<25) td=25;

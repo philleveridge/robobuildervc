@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 
 namespace RobobuilderLib
 {
@@ -12,6 +13,30 @@ namespace RobobuilderLib
             for (int i = 1; i < a.Length; i++)
             {
                 s += String.Format(", {0}", a[i]);
+            }
+            return s;
+        }
+
+        static public string str(byte[] a)
+        {
+            if (a == null) return "null";
+
+            string s = String.Format("{0}", a[0]);
+            for (int i = 1; i < a.Length; i++)
+            {
+                s += String.Format(", {0}", a[i]);
+            }
+            return s;
+        }
+
+        static public string str(double[] a)
+        {
+            if (a == null) return "null";
+
+            string s = String.Format("{0}", a[0]);
+            for (int i = 1; i < a.Length; i++)
+            {
+                s += String.Format(", {0:0.##}", a[i]);
             }
             return s;
         }
@@ -36,6 +61,38 @@ namespace RobobuilderLib
             return r;
         }
 
+        static public int[] convInt(Double[] a)
+        {
+            int[] r = new int[a.Length];
+            for (int i = 0; i < a.Length; i++)
+            {
+                r[i] = Convert.ToInt32(a[i]);
+            }
+            return r;
+        }
+
+        static public double[] random(int n, double size, double offset)
+        {
+            double[] r = new double[n];
+            Random rnd = new Random();
+            for (int i = 0; i < n; i++)
+            {
+                r[i] = size*rnd.NextDouble()-offset;
+            }
+            return r;
+        }
+
+        static public int[] random(int n, int size, int offset)
+        {
+            int[] r = new int[n];
+            Random rnd = new Random();
+            for (int i = 0; i < n; i++)
+            {
+                r[i] = (int)Math.Floor (size*rnd.NextDouble()) - offset;
+            }
+            return r;
+        }
+
         static public double[] convDouble(Object[] a)
         {
             double[] r = new double[a.Length];
@@ -46,7 +103,40 @@ namespace RobobuilderLib
             return r;
         }
 
+        static public double[] convDouble(int[] a)
+        {
+            double[] r = new double[a.Length];
+            for (int i = 0; i < a.Length; i++)
+            {
+                r[i] = Convert.ToDouble(a[i]);
+            }
+            return r;
+        }
+
+        static public double[] convDouble(byte[] a)
+        {
+            double[] r = new double[a.Length];
+            for (int i = 0; i < a.Length; i++)
+            {
+                r[i] = Convert.ToDouble(a[i]);
+            }
+            return r;
+        }
+
         static public byte[] convByte(int[] a)
+        {
+            if (a == null) return null;
+            byte[] r = new byte[a.Length];
+            for (int i = 0; i < a.Length; i++)
+            {
+                if (a[i] < 0) r[i] = 0;
+                if (a[i] > 255) r[i] = 255;
+                if (a[i] >= 0 && a[i] <= 255) r[i] = Convert.ToByte(a[i]);
+            }
+            return r;
+        }
+
+        static public byte[] convByte(double[] a)
         {
             if (a == null) return null;
             byte[] r = new byte[a.Length];
@@ -136,10 +226,74 @@ namespace RobobuilderLib
             }
             return r;
         }
+        static public double sum(double[] a)
+        {
+            if (a == null) return 0.0;
+            double r = 0;
+
+            for (int i = 0; i < a.Length; i++)
+            {
+               r += a[i] ;
+            }
+            return r;
+        }
+
+        static public double rms(double[] a, double[] b)
+        {
+            if (a == null || b==null ) return 0.0;
+            double rms=0;
+
+            for (int i = 0; i < a.Length; i++)
+            {
+                double d = 0;
+                if (i < b.Length)
+                    d = a[i] - b[i];
+
+                rms += (d * d);
+            }
+            rms = Math.Sqrt(rms / a.Length);
+            return rms;
+        }
+
+        static public int sum(int[] a)
+        {
+            if (a == null) return 0;
+            int r = 0;
+
+            for (int i = 0; i < a.Length; i++)
+            {
+                r += a[i];
+            }
+            return r;
+        }
+
+        static public int average(int[] a)
+        {
+            return sum(a) / a.Length;
+        }
+
+        static public double average(double[] a)
+        {
+            return sum(a) / a.Length;
+        }
 
         static public int[] append(int[] a, int[] b)
         {
             int[] r = new int[a.Length + b.Length];
+            for (int i = 0; i < a.Length; i++)
+            {
+                r[i] = a[i];
+            }
+            for (int i = 0; i < b.Length; i++)
+            {
+                r[i + a.Length] = b[i];
+            }
+            return r;
+        }
+
+        static public double[] append(double[] a, double[] b)
+        {
+            double[] r = new double[a.Length + b.Length];
             for (int i = 0; i < a.Length; i++)
             {
                 r[i] = a[i];
@@ -308,6 +462,21 @@ namespace RobobuilderLib
             for (int i = 0; i < s; i++) mat[i, i] = 1.0;
         }
 
+        public matrix resize(int nc, int nr)
+        {
+            matrix nmat = new matrix(nc,nr);
+
+            for (int i=0; i<nc; i++)
+                for (int j = 0; j < nr; j++)
+                {
+                    if (i < cols && j < rows)
+                        nmat.set(i, j, mat[i, j]);
+                    else
+                        nmat.set(i, j, 0.0);
+                }
+            return nmat;
+        }
+
         public double get(int c, int r)
         {
             return mat[c, r];
@@ -327,8 +496,8 @@ namespace RobobuilderLib
         {
             if (r < 0 || r >= rows) return null;
 
-            double[] a = new double[rows];
-            for (int i = 0; i < rows; i++)
+            double[] a = new double[cols];
+            for (int i = 0; i < cols; i++)
                 a[i] = mat[i, r];
             return a;
         }
@@ -337,8 +506,8 @@ namespace RobobuilderLib
         {
             if (c < 0 || c >= cols) return null;
 
-            double[] a = new double[cols];
-            for (int i = 0; i < cols; i++)
+            double[] a = new double[rows];
+            for (int i = 0; i < rows; i++)
                 a[i] = mat[c, i];
             return a;
         }
@@ -384,6 +553,12 @@ namespace RobobuilderLib
                 mat[c, r] = v;
         }
 
+        public void delta(int c, int r, double v)
+        {
+            if (!(c < 0 || c >= cols || r < 0 || r >= rows))
+                mat[c, r] += v;
+        }
+
         public void print()
         {
             for (int i = 0; i < rows; i++)
@@ -392,6 +567,68 @@ namespace RobobuilderLib
                     Console.Write("{0:0.#} ", mat[j, i]);
                 Console.WriteLine("");
             }
+        }
+
+        public bool load(string filename)
+        {
+            string[] inpt;
+            double[] data = new double[rows*cols];
+            int c = 0;
+
+            try
+            {
+                inpt = File.ReadAllLines(filename);
+                for (int i = 0; i < inpt.Length; i++)
+                {
+                    if (inpt[i].StartsWith("#"))
+                        continue;
+                    string[] v = inpt[i].Split(',');
+                    for (int j = 0; j < v.Length; j++)
+                    {
+                        try
+                        {
+                            if (v[j] != null && v[j]!= "" && c<rows*cols) 
+                                data[c++] = Convert.ToDouble(v[j]);
+                        }
+                        catch
+                        {
+                            Console.WriteLine("{0} - Can't convert to double {1}", c, v[j]);
+                            data[c++] = 0.0;
+                        }
+                    }
+                }
+                if (!set(data))
+                {
+                    Console.WriteLine("Data import failed");
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("File load failed {0} - {1}", filename, e.Message );
+                return false;
+            }
+            return true;
+        }
+
+        public bool save(string filename)
+        {
+            string outp = "";
+            for (int i = 0; i < rows; i++)
+            {
+                for (int j = 0; j < cols; j++)
+                    outp += String.Format("{0},", mat[j, i]);
+                outp += "\r\n";
+            }
+            try
+            {
+                File.WriteAllText(filename, outp);
+            } 
+            catch 
+            {
+                return false;
+
+            }
+            return true;
         }
 
         public bool add(matrix x)
@@ -435,7 +672,7 @@ namespace RobobuilderLib
             if (xr != cols )
                 return null;
 
-            matrix r = new matrix(rows, xc);
+            matrix r = new matrix(xc, rows);
 
             for (int i=0; i<rows; i++)
                 for (int j=0; j<xc; j++)
@@ -503,6 +740,19 @@ namespace RobobuilderLib
 
             matrix matB = new matrix ( 3, 2);
             matB .set (new object[] { 7.0, 8.0, 9.0, 10.0, 11.0, 12.0});
+            matB.print();
+
+            matA.multiply(matB).print();
+
+            matA = new matrix(2,3);
+            matA.set(new object[] {0.1, 0.2, 0.3, 0.1, 0.4, 0.2 });
+            matA.print();
+
+            matA.load("test.csv");
+
+
+            matB = new matrix(1,2);
+            matB.set(new object[] { 1.0, 2.0 });
             matB.print();
 
             matA.multiply(matB).print();

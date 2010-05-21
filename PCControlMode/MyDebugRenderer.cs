@@ -281,7 +281,7 @@ namespace Simulator
 
 
 
-        static private VertexBuffer vbuf;
+        //static private VertexBuffer vbuf;
         
         public void drawplane()
         {

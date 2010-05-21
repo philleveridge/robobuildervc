@@ -2,7 +2,6 @@
 (def mapcar  (x y z)   (if (or y) (cons (x (car y) (car z))         (mapcar  x (cdr y) (cdr z)        ))) )
 (def mapcar2 (x a b c) (if (or a) (cons (x (car a) (car b) (car c)) (mapcar2 x (cdr a) (cdr b) (cdr c)))) )
 
-(= basic18 '(143 179 198  83 106 106  69  48 167 141  47  47  49 199 192 204 122 125 127 ))	
 
 ;            0    1  2   3   4   5   6   7   8   9   10  11  12  13  14  15
 (= ub_Huno '(174 228 254 130 185 254 180 126 208 208 254 224 198 254 200 254))
@@ -258,6 +257,3 @@
  )
  (standup)
 )
-
-
-
