@@ -50,11 +50,7 @@ namespace RobobuilderLib
             }
             else
             {
-                if (viewport == null)
-                {
-                    MessageBox.Show("Must connect first");
-                    return;
-                }
+                this.Text += "[Offline]";
             }
             this.Show();
         }
@@ -430,7 +426,7 @@ namespace RobobuilderLib
                 int[] diff =new int[m.no_servos];
                 for (int delta = 0; delta < m.no_servos; delta++)
                 {
-                    if (delta<wckMotion.MAX_SERVOS) 
+                    if (delta<wckMotion.MAX_SERVOS && conv.Checked==true) 
                         diff[delta] = wckMotion.basic_pos[delta] - (int)m.scenes[0].mPositions[delta];
                     else
                         diff[delta] = 0;

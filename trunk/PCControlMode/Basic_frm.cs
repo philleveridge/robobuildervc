@@ -61,20 +61,13 @@ namespace RobobuilderLib
         {
             if (run_btn.Text != "Run")
             {
-                pcr.serialPort.Write("\u0027");
+                pcr.serialPort.Write("\u0027");  // send esc to running program
             }
             else
             {
                 if (pcr != null)
                 {
                     run_btn.Text = "Break";
-
-                        string r = "";
-                        // robot must be put into experimental mode first!
-                        //write2serial("eC1", false);
-                        //output.Text = pcr.serialPort.ReadExisting();
-                        //Console.WriteLine("Debug: - " + r);
-
                     do
                     {
                         string t = pcr.serialPort.ReadExisting();

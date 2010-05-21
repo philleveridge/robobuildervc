@@ -49,7 +49,7 @@ namespace RobobuilderLib
         List<ServoModel> servos;
         List<JointModel> skeleton;
 
-        ServoModel temp;
+        ServoModel temp=null;
         bool temp_focus;
 
 

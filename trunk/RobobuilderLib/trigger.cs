@@ -23,6 +23,8 @@ namespace RobobuilderLib
 
         public int timer { get; set; }  //trigger timer (in ms)
 
+        public double[] delta   = null; // offset to add when active
+
         public trigger()
         {
             timer = 250; //default value
@@ -62,6 +64,11 @@ namespace RobobuilderLib
             Ymax = maxy; Ymin = miny; Yval = 0;     //defaults : accelerometer Y axis
             Zmax = maxz; Zmin = minz; Zval = 0;     //defaults : accelerometer Z axis
             AccTrig = true;
+        }
+
+        public void set_delta(double[] m)
+        {
+            delta = m;
         }
 
         public void set_PSD(int minp, int maxp)
@@ -112,6 +119,7 @@ namespace RobobuilderLib
                 Console.WriteLine("P={0:#}   : {1:#}   : {2:#}   : {3}", Pmin, Pmax, Pval, ((PSDTrig) ? "On" : "Off").ToString());
                 Console.WriteLine("S={0:#}   : {1:#}   : {2:#}   : {3}", Smin, Smax, Sval, ((SndTrig) ? "On" : "Off").ToString());
                 Console.WriteLine("I={0:#}   : {1}", Ival, ((IRTrig) ? "On" : "Off").ToString());
+                Console.WriteLine("Delta={0}", ((delta!=null) ? "On" : "Off").ToString());
             }
             catch (Exception e1)
             {
