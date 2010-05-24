@@ -668,6 +668,11 @@ namespace RobobuilderLib
 
             //Console.WriteLine("Debug: diff = " + cnt);
 
+            if (trig != null && trig.active() && (trig.IRTrig || trig.SndTrig))
+            {
+                wckReadPos(30, 8); // sampling on.
+            }
+
             for (int s = 1; s <= no_steps; s++)
             {
                 //
@@ -756,12 +761,34 @@ namespace RobobuilderLib
 
                     if (trig.SndTrig)
                     {
-                        //todo
+                        if (trig.DCMP)
+                        {
+                            if (wckReadPos(30, 10))
+                            {
+                                trig.Sval = respnse[0]*256 + respnse[1];
+                            }
+                            else
+                            {
+                                Console.WriteLine("Failed ");
+                            }
+                        }
+                        if (trig.dbg) Console.WriteLine("Dbg: Trigger Sound event {0} ", trig.Sval);
                     }
 
                     if (trig.IRTrig)
                     {
-                        //todo
+                        if (trig.DCMP)
+                        {
+                            if (wckReadPos(30, 7))
+                            {
+                                trig.Ival = respnse[0];
+                            }
+                            else
+                            {
+                                Console.WriteLine("Failed ");
+                            }
+                        }
+                        if (trig.dbg) Console.WriteLine("Dbg: Trigger IR event {0} ", trig.Ival);
                     }
 
                     if (!trig.DCMP) 
@@ -793,6 +820,11 @@ namespace RobobuilderLib
                 {
                     delay_ms(td);
                 }
+            }
+
+            if (trig != null && trig.active() && (trig.IRTrig || trig.SndTrig))
+            {
+                wckReadPos(30, 9); // sampling off.
             }
 
             for (int n = 0; n < spod.Length; n++)
