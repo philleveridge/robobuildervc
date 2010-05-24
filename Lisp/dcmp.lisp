@@ -72,4 +72,60 @@
    )
    (psdoff)
 )
-       
+
+;
+; new firmware capabilities
+;
+(def setSampling (s)
+  "Set sampling - need for IR and Sound & Timer"
+  
+  (if s   
+    (with (d 0) 
+      (.wckReadPos wck 30 8) ; sampling on
+      (prn "sampling on")
+    )
+  
+    (with (d 0) 
+      (.wckReadPos wck 30 9) ; sampling off
+      (prn "sampling off" )
+    )
+  )
+)
+
+(def readIR ()
+  "Read IR"     
+  (with (d 0) 
+    (.wckReadPos wck 30 7) ; power psd up and read sensor
+    (= d (nth (.respnse wck) 0))
+  )
+)
+  
+(def readSound ()  ; this is not working
+  "Read Sound level" 
+   (.wckReadPos wck 30 10)    
+   (list (nth (.respnse wck) 0) (nth (.respnse wck) 1)) 
+ ) 
+ 
+ (def readTimer()
+    (.wckReadPos wck 30 11)  
+    (list (nth (.respnse wck) 0) (nth (.respnse wck) 1)) 
+ )   
+ 
+ (def readVolts()
+    "read power supply - in mV"
+    (.wckReadPos wck 30 6)  
+    (= lb (coerce (nth (.respnse wck) 0) "Int32"))
+    (= hb (coerce (nth (.respnse wck) 1) "Int32"))
+    (+ hb (*  lb 256) ) 
+ )  
+ 
+ (def readMIC()
+    (.wckReadPos wck 30 12)  
+    (nth (.respnse wck) 0)
+ ) 
+ 
+ (def stest () 
+   (while (not (console.keyavailable)) 
+       (do (.wckReadPos wck 30 12) (prn (.PadLeft "*" (nth (.respnse wck) 0) #\-)  ))
+   )
+)
