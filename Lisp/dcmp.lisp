@@ -17,13 +17,11 @@
 
 (def readdistance ()
   "Read distance"
-  (if (not (.Isopen sport)) 
+   (if (not (.Isopen sport)) 
       (.open sport))
       
-  (with (d 0) 
     (.wckReadPos wck 30 5) ; power psd up and read sensor
-    (= d (nth (.respnse wck) 0))
-  )
+    (nth (.respnse wck) 0)
 )
 
 (def psdon ()
@@ -65,14 +63,12 @@
   (prn "Not available in DCMP")
 )
 
-
 (def dtest () 
    (while (not (console.keyavailable)) 
        (do (.wckReadPos wck 30 5) (prn (.PadLeft "*" (nth (.respnse wck) 0) #\-)  ))
    )
    (psdoff)
 )
-
 ;
 ; new firmware capabilities
 ;
@@ -80,12 +76,12 @@
   "Set sampling - need for IR and Sound & Timer"
   
   (if s   
-    (with (d 0) 
+    (do
       (.wckReadPos wck 30 8) ; sampling on
       (prn "sampling on")
     )
-  
-    (with (d 0) 
+    ;else
+    (do 
       (.wckReadPos wck 30 9) ; sampling off
       (prn "sampling off" )
     )
@@ -94,16 +90,16 @@
 
 (def readIR ()
   "Read IR"     
-  (with (d 0) 
     (.wckReadPos wck 30 7) ; power psd up and read sensor
-    (= d (nth (.respnse wck) 0))
-  )
+    (nth (.respnse wck) 0)
 )
   
-(def readSound ()  ; this is not working
+(def readSound ()  
   "Read Sound level" 
    (.wckReadPos wck 30 10)    
-   (list (nth (.respnse wck) 0) (nth (.respnse wck) 1)) 
+   (= lb (coerce (nth (.respnse wck) 0) "Int32"))
+   (= hb (coerce (nth (.respnse wck) 1) "Int32"))
+   (+ hb (*  lb 256) ) 
  ) 
  
  (def readTimer()
@@ -111,7 +107,7 @@
     (list (nth (.respnse wck) 0) (nth (.respnse wck) 1)) 
  )   
  
- (def readVolts()
+(def readVolts()
     "read power supply - in mV"
     (.wckReadPos wck 30 6)  
     (= lb (coerce (nth (.respnse wck) 0) "Int32"))
@@ -119,13 +115,15 @@
     (+ hb (*  lb 256) ) 
  )  
  
- (def readMIC()
+(def readMIC()
     (.wckReadPos wck 30 12)  
     (nth (.respnse wck) 0)
  ) 
  
- (def stest () 
+(def soundTest () 
+   (setSampling true)
    (while (not (console.keyavailable)) 
-       (do (.wckReadPos wck 30 12) (prn (.PadLeft "*" (nth (.respnse wck) 0) #\-)  ))
+       (do  (prn (.PadLeft "*" (readSound) #\-)  ))
    )
+   (setSampling false)
 )
