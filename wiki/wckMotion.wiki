@@ -1,0 +1,80 @@
+#summary One-sentence summary of this page.
+
+= Introduction =
+
+RobobuilderLib.wckMotion
+
+
+= Methods =
+
+{{{
+RobobuilderLib.wckMotion.~wckMotion() 
+RobobuilderLib.wckMotion.BasicPose(int, int) 
+RobobuilderLib.wckMotion.close() 
+RobobuilderLib.wckMotion.delay_ms(int) 
+RobobuilderLib.wckMotion.PlayFile(string) 
+RobobuilderLib.wckMotion.PlayFile(string, int, int) 
+RobobuilderLib.wckMotion.PlayMatrix(RobobuilderLib.matrix) 
+RobobuilderLib.wckMotion.PlayMatrix(RobobuilderLib.matrix, int, int) 
+RobobuilderLib.wckMotion.PlayPose(int, int, object[], bool) 
+RobobuilderLib.wckMotion.PlayPose(int, int, byte[], bool) 
+RobobuilderLib.wckMotion.reset_timer() 
+RobobuilderLib.wckMotion.servoID_readservo(int) 
+RobobuilderLib.wckMotion.servoStatus(int, bool) 
+RobobuilderLib.wckMotion.set_kfactor(double) 
+RobobuilderLib.wckMotion.set_trigger(RobobuilderLib.trigger) 
+RobobuilderLib.wckMotion.SyncPosSend(int, int, object[], int)
+RobobuilderLib.wckMotion.SyncPosSend(int, int, byte[], int) 
+RobobuilderLib.wckMotion.wckBreak() 
+RobobuilderLib.wckMotion.wckMotion(string, bool) 
+RobobuilderLib.wckMotion.wckMotion(RobobuilderLib.PCremote)
+RobobuilderLib.wckMotion.wckMovePos(int, int, int) 
+RobobuilderLib.wckMotion.wckPassive(int) 
+RobobuilderLib.wckMotion.wckPosMove10Bit(int, int, int) 
+RobobuilderLib.wckMotion.wckPosRead10Bit(int) 
+RobobuilderLib.wckMotion.wckReadBoundary(int) 
+RobobuilderLib.wckMotion.wckReadIgain(int) 
+RobobuilderLib.wckMotion.wckReadIO(int) 
+RobobuilderLib.wckMotion.wckReadMotionData(int) 
+RobobuilderLib.wckMotion.wckReadOverload(int) 
+RobobuilderLib.wckMotion.wckReadPDgain(int) 
+RobobuilderLib.wckMotion.wckReadPos(int) 
+RobobuilderLib.wckMotion.wckReadPos(int, int) 
+RobobuilderLib.wckMotion.wckReadSpeed(int) 
+RobobuilderLib.wckMotion.wckSetBaudRate(int, int) 
+RobobuilderLib.wckMotion.wckSetBoundary(int, int, int) 
+RobobuilderLib.wckMotion.wckSetID(int, int) 
+RobobuilderLib.wckMotion.wckSetIgain(int, int) 
+RobobuilderLib.wckMotion.wckSetIgainRT(int, int) 
+RobobuilderLib.wckMotion.wckSetOper(byte, byte, byte, byte) 
+RobobuilderLib.wckMotion.wckSetOverload(int, int) 
+RobobuilderLib.wckMotion.wckSetPDgain(int, int, int) 
+RobobuilderLib.wckMotion.wckSetPDgainRT(int, int, int) 
+RobobuilderLib.wckMotion.wckSetSpeed(int, int, int) 
+RobobuilderLib.wckMotion.wckSetSpeedRT(int, int, int) 
+RobobuilderLib.wckMotion.wckWriteIO(int, bool, bool) 
+RobobuilderLib.wckMotion.wckWriteMotionData(int, int, int) 
+
+}}}
+
+= Properties =
+
+{{{
+RobobuilderLib.wckMotion.DCMP 
+RobobuilderLib.wckMotion.basic_pos 
+RobobuilderLib.wckMotion.basic16 
+RobobuilderLib.wckMotion.basic18 
+RobobuilderLib.wckMotion.initpos 
+RobobuilderLib.wckMotion.kfactor 
+RobobuilderLib.wckMotion.lb_Huno 
+RobobuilderLib.wckMotion.ub_Huno 
+RobobuilderLib.wckMotion.Message 
+RobobuilderLib.wckMotion.pcR 
+RobobuilderLib.wckMotion.pos 
+RobobuilderLib.wckMotion.respnse 
+RobobuilderLib.wckMotion.serialPort 
+RobobuilderLib.wckMotion.sids 
+RobobuilderLib.wckMotion.tcnt 
+RobobuilderLib.wckMotion.trig 
+RobobuilderLib.wckMotion.MAX_SERVOS
+}}}
