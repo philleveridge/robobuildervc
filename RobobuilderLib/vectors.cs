@@ -74,12 +74,62 @@ namespace RobobuilderLib
         static public double[] random(int n, double size, double offset)
         {
             double[] r = new double[n];
-            Random rnd = new Random();
+            Random rnd = new Random((int)DateTime.Now.Ticks);
             for (int i = 0; i < n; i++)
             {
                 r[i] = size*rnd.NextDouble()-offset;
             }
             return r;
+        }
+
+        static public double maxValue(double[] a)
+        {
+            double r=a[0];
+            for (int i = 1; i < a.Length; i++)
+            {
+                if (a[i] > r) r = a[i];
+            }
+            return r;
+        }
+
+        static public double maxValue(int[] a)
+        {
+            int r = a[0];
+            for (int i = 1; i < a.Length; i++)
+            {
+                if (a[i] > r) r = a[i];
+            }
+            return r;
+        }
+
+        static public int maxItem(double[] a)
+        {
+            double r = a[0];
+            int n = 0;
+            for (int i = 1; i < a.Length; i++)
+            {
+                if (a[i] > r)
+                {
+                    r = a[i];
+                    n = i;
+                }
+            }
+            return n;
+        }
+
+        static public int maxItem(int[] a)
+        {
+            int r = a[0];
+            int n = 0;
+            for (int i = 1; i < a.Length; i++)
+            {
+                if (a[i] > r)
+                {
+                    r = a[i];
+                    n = i;
+                }
+            }
+            return n;
         }
 
         static public int[] random(int n, int size, int offset)
@@ -301,6 +351,16 @@ namespace RobobuilderLib
             for (int i = 0; i < b.Length; i++)
             {
                 r[i + a.Length] = b[i];
+            }
+            return r;
+        }
+
+        static public double[] scale(double[] a, double[] b, double s)
+        {
+            double[] r = new double[a.Length];
+            for (int i = 0; i < a.Length; i++)
+            {
+                if (i < b.Length) r[i] = a[i] * b[i]; else r[i] = a[i]*s;
             }
             return r;
         }
@@ -695,6 +755,24 @@ namespace RobobuilderLib
             for (int i = 0; i < rows; i++)
                 for (int j = 0; j < cols; j++)
                     mat[j, i] *= sf;
+        }
+
+        public void deltaRow(int rownum, double sf)
+        {
+            if (rownum >= 0 && rownum < rows)
+            {
+                for (int j = 0; j < cols; j++)
+                    mat[j, rownum] += sf;
+            }
+        }
+
+        public void deltaCol(int colnum, double sf)
+        {
+            if (colnum >= 0 && colnum < cols)
+            {
+                for (int j = 0; j < rows; j++)
+                    mat[colnum,j] += sf;
+            }
         }
 
         static public double[] bipolar(bool[] a)

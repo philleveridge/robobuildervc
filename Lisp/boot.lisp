@@ -36,7 +36,7 @@
 (prn "RobobuilderLib version : " (.version (.GetName rbl)))
 
 
-;(def toByteArray (x) (RobobuilderLib.vectors.convByte (toarray x))) ; from version RBL 1.9.9.7
+(def toByteArray (x) (vectors.convByte (toarray x))) ; from version RBL 1.9.9.7
 
 (def trace (f) 
   "tracing on or off." 
@@ -47,6 +47,8 @@
 (include "scanner.lisp")
 (include "motions.lisp")
 
-(= basic18 '( 143 179 198  83 106 106  69  48 167 141  47  47  49 199 192 204 122 125))	
+(= basic18 '[ 143 179 198  83 106 106  69  48 167 141  47  47  49 199 192 204 122 125])	
 (def standup () (dcmodeOn)(sleep 0.5)  (.playpose wck 1000 10 (toByteArray basic18) true) )
 (def rb () (connect "COM5") (standup) "ok")
+
+(include "fft.lisp")
