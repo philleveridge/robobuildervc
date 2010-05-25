@@ -40,11 +40,6 @@
     (.print w)
 )
 
-
-
-
-
-
 ; eg (recog '[0 1 0 1] afn)
 ;
 (def recog (x f)

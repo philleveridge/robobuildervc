@@ -521,13 +521,27 @@ namespace RobobuilderLib
 
         public bool PlayMatrix(matrix m, int s, int f)
         { 
-            // assume row 0=duration, row 1= no steps
-            int n = 0;
-            if (f == 0) f = m.getr();
+            // assume col 0=duration, col 1= no steps
+            // start on row 's' finish on row 'f'
+            // s >= f or s <= f 
+            // f < 0 assume all remaining rows
 
-            for (int i = s; i < f; i++)
+            int n = 0;
+            if (f < 0) f = m.getr()-1;
+
+            if (s < 0 || s >= m.getr() || f >= m.getr())
             {
-                double[] row = m.getrow(0);
+                Console.WriteLine("Bad params S={0}-F={1) M[{2},{3}]",s, f, m.getc(), m.getr());
+                return false;
+            }
+
+            int sp = (s < f) ? 1 : -1;
+            int ns = (f - s) * sp + 1;
+
+            for (int i = 0; i < ns; i++)
+            {
+                int r = s + i * sp;
+                double[] row = m.getrow(r);
                 int duration = (int)row[0];
                 int steps    = (int)row[1];
 
