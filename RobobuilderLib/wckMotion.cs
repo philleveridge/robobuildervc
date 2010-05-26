@@ -576,10 +576,11 @@ namespace RobobuilderLib
                 {
                     line = line.Trim();
                     linecount++;
-                    Console.WriteLine("{0} - {1}", linecount, line);
 
                     if (!(linecount>=startrow && ( linecount<=endrow || endrow==0)))
                         continue;
+
+                    if (pcR.dbg) Console.WriteLine("{0} - {1}", linecount, line);
 
                     if (line.StartsWith("#")) // comment
                     {
