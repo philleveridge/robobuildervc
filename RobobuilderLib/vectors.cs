@@ -3,8 +3,103 @@ using System.IO;
 
 namespace RobobuilderLib
 {
+
+
     public class vectors
     {
+
+
+        static public void swap(ref double a, ref double b)
+        {
+            double t = a; a = b; b = t;
+        }
+
+        static public double[] fft(double[] signal)
+        {
+            /* 
+             * from Dr Dobbs 2007 c++ implementation of fft
+             * The initial signal is stored in the array data of length 2*nn, 
+             * where each even element corresponds to the real part and each 
+             * odd element to the imaginary part of a complex number. 
+             */
+
+            int n, mmax, m, j, istep, i;
+            double wtemp, wr, wpr, wpi, wi, theta;
+            double tempr, tempi;
+
+            double[] data = new double[signal.Length*2];
+            for (i=0; i<signal.Length; i++)
+            {
+                data[2*i]=signal[i];
+            }
+
+            int nn = data.Length/2;
+
+            // NOTE:::  nn MUST be Power of two = need check
+            
+            double p = Math.Log((double)nn, 2.0);
+            if (p != Math.Floor(p)) return null;
+
+            // reverse-binary reindexing
+            n = nn<<1;
+            j=1;
+            for (i=1; i<n; i+=2) {
+                if (j>i) {
+                    swap(ref data[j-1], ref data[i-1]);
+                    swap(ref data[j], ref data[i]);
+                }
+                m = nn;
+                while (m>=2 && j>m) {
+                    j -= m;
+                    m >>= 1;
+                }
+                j += m;
+            };
+
+            // here begins the Danielson-Lanczos section
+            mmax=2;
+            while (n>mmax) {
+                istep = mmax<<1;
+                theta = -(2 * Math.PI / mmax);  // -(2 * M_PI / mmax);
+                wtemp = Math.Sin(0.5*theta);
+                wpr = -2.0*wtemp*wtemp;
+                wpi = Math.Sin(theta);
+                wr = 1.0;
+                wi = 0.0;
+                for (m=1; m < mmax; m += 2) {
+                    for (i=m; i <= n; i += istep) {
+                        j=i+mmax;
+                        tempr = wr*data[j-1] - wi*data[j];
+                        tempi = wr * data[j] + wi*data[j-1];
+
+                        data[j-1] = data[i-1] - tempr;
+                        data[j] = data[i] - tempi;
+                        data[i-1] += tempr;
+                        data[i] += tempi;
+                    }
+                    wtemp=wr;
+                    wr += wr*wpr - wi*wpi;
+                    wi += wi*wpr + wtemp*wpi;
+                }
+                mmax=istep;
+            }
+            double max = 0.0;
+            int f = 0;
+            double[] output = new double[signal.Length / 2]; // first half only - second half is a reflection
+            output[0] = 0.0; // drop DC component
+            for (i = 0; i < signal.Length/2; i++)
+            {
+                // absolute value sqrt(real^2 + complex^2)
+                output[i] = Math.Sqrt((data[2 * i] * data[2 * i]) + (data[2 * i + 1] * data[2 * i + 1]));
+                if (output[i] > max) { output[i] = max; f = i; }
+            }
+            for (i = 0; i < signal.Length / 2; i++)
+            {
+                output[i] = output[i] / max; // n ormalise
+            }
+            return output; //absolute value normalised, with out DC
+        }
+
         static public string str(int[] a)
         {
             if (a == null) return "null";
@@ -482,6 +577,10 @@ namespace RobobuilderLib
             Console.WriteLine("|a|=" + vectors.normal(a));
             Console.WriteLine("M(a)=" + vectors.str(vectors.match(testv, a)));
             Console.WriteLine("M(b)=" + vectors.str(vectors.match(testv, b)));
+            double[] d = new double[] { 5.0, 5.0, 5.0, 5.0, -5.0, -5.0, -5.0, -5.0 };
+
+            Console.WriteLine("fft data=" + vectors.str(d)); 
+            Console.WriteLine("fft out="  + vectors.str(vectors.fft(d)));
         }
     }
 
