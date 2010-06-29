@@ -1,4 +1,4 @@
-#Using Lisp based client
+#summary Using Lisp based client
 
 = Introduction =
 
@@ -10,4 +10,26 @@ This is a set of example lisp programs to show how access can be simplified thro
 
 = Details =
 
+Download a ZIP archive with all necessary files : [http://robobuildervc.googlecode.com/files/Lsharp%20with%20RobobuilderLib.zip RobobuilderLib.zip]
+
 There is an online PDF tutorial to explain how to use LISP/L# to interface [http://robobuildervc.googlecode.com/files/PDFOnline.pdf PDF file]
+
+On start up the console will load boot.lisp. Example Session - from a cmd prompt 
+
+{{{
+>LsharpConsole.exe
+Boot.lisp loading
+.Boot loader
+...Loading Lisp\final.lisp
+.....RobobuilderLib version : 1.9.9.8
+.............
+.Loading Lisp\wckutils18.lisp
+........................
+.Loading Lisp\utilities.lisp
+............................................
+
+L Sharp 2.1.0.0 on 2.0.50727.3603
+Copyright (c) Rob Blackwell. All rights reserved.
+Mods by l3v3rz.
+>
+}}}
