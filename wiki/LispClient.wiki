@@ -2,12 +2,12 @@
 
 = Introduction =
 
-Add your content here.
+This is a set of example lisp programs to show how access can be simplified through a number of Lisp based functions. 
 
+  * LSharpConsole application
+  * balance.lisp
+  * DCMP.lisp
 
 = Details =
 
-Add your content here.  Format your content with:
-  * Text in *bold* or _italic_
-  * Headings, paragraphs, and lists
-  * Automatic links to other wiki pages
+There is an online PDF tutorial to explain how to use LISP/L# to interface [http://robobuildervc.googlecode.com/files/PDFOnline.pdf PDF file]
