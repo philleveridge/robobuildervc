@@ -2,9 +2,27 @@
 
 = Introduction =
 
-This now uses the LSharp.NET / L# engine (see LispScripting)
+Using Lisp embedded within VC. Uses the LSharp.NET / L# engine (see LispClient)
 
-= example =
+===Variables initialised at start time ===
+
+{{{
+form    Windows form access that LISP is running in
+pcr     PCremote object handle
+wck     wckMotion object handle
+sport   Serial port object handle
+}}}
+
+=== Additional functions ===
+
+{{{
+readIR            : Read IR - simulate
+readVideo         : Read Video 
+alert (x)         : Display alert box!
+message (x)       : Display message
+}}}
+
+=== example ===
 
 {{{
 ;
