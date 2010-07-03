@@ -1,4 +1,4 @@
-#Visual Client Details
+#summary Visual Client (windows forms based applications)
 
 = Introduction =
 
