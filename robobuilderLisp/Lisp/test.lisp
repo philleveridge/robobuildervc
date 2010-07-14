@@ -1,0 +1,6 @@
+(def ca (l) 
+  (cond  ((empty? l) 0)
+          ((atom? l) 1)
+          (t (+ (ca (car l)) (ca (cdrl))))
+  )
+)
