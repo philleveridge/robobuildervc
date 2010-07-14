@@ -1,0 +1,16 @@
+
+<!-- Language ID = United States English -->
+<grammar version="1.0" xmlns="http://www.w3.org/2001/06/grammar"
+ xml:lang="en-GB" tag-format="semantics-ms/1.0">
+<rule id="BlueGreen" scope="public">
+      <example> blue </example>
+      <example> indigo </example>
+      <example> green </example>
+      <example> aqua </example>
+      <one-of>
+          <item> <ruleref uri="#Blue"/> </ITEM>
+          <item> <ruleref uri="#Green"/> </ITEM>
+      </one-of>
+      <tag> $ = $$ </tag>
+  </rule>
+ </grammar>
