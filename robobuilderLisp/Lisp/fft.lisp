@@ -1,49 +1,70 @@
-(reference "fft")
-(using "MathNet.Numerics")
+; fft from version of RobobuilderLib 1.9.9.8
 
-
-(def soundTest (nos) 
-   (setSampling true)
-   (= fft (new "Demo.fft"))
-   
+(def soundTest () 
+  (setSampling true)
   (= p1 (new "Pen" (Color.FromName "Black")))
   (.set_DashStyle p1 (System.Drawing.Drawing2D.DashStyle.DashDot))
-  (createwindow "Plot Distance Demo" 250 250)
+  (createwindow "Sound Demo" 250 250)
   (.show form1) 
+  
+  (= nos 64)
    
    (while (not (console.keyavailable)) 
-          (= dp ())
           (= history ())
+          (.clear g (Color.FromName "White"))
+          (= sx 0) (= sy 0) (= fx 0) (= fy 0)
           (for i 1 nos 
-             (= dp (cons (= snd (readSound)) dp))
-             (prn (.PadLeft "*" snd #\-)  )
-             ;(plot "MIC" (* 6 (- i 16) ) (- (* 5 snd) 20))
-             (= history (cons (list (* 6 (- i 16) ) (- (* 5 snd) 20) ) history))
-          )
-          (= dp (vectors.ConvDouble (toarray dp)))
-          (.fftReal fft dp)
-          (= p ())
-          (= h1 (reverse 
-              (for n 0 (- nos 1) 
-                (do
-                 (= f (- (* n 4) 64))
-                 (= a (* 2 (nth (.freqReal fft) n)))
-                 (= p (cons (list f a) p))
-                )
-              )))
-              
-          (drawlist g history "Blue")  
-          (drawlist g h1 "Red")  
-          
-          (= bw (vectors.scale (.freqReal fft) (vectors.convDouble '[0 0]) 1.0))
-                  
-          (= t (String.Format "Pk Amp = {0:#.##} , Pk Frq = {1}" 
-                (vectors.maxValue bw)  
-                (vectors.maxItem  bw)))
-          (plot t 0 0 )
+             (= snd (readSound))
+             (= fx (* 6 (- i 16) ) )
+             (= fy (- (* 5 snd) 20) )     
+             (drawline g sx sy fx fy "Blue")
+             (= sx fx) (= sy fy)
+          )           
    )
    (setSampling false)
    (.close form1)
 )
 
+(def drawbar (x h)
 
+   (with (y 120 w 8 p2 (new "Pen" (Color.FromName "Red"))) 
+     (= x (coerce x "Int32"))
+     (= h (coerce h "Int32")) 
+     (prn "x= " x ", h= " h)
+     (.drawrectangle g p2 x y w h)
+   )
+)
+
+(def fftTest () 
+  (setSampling true)
+  (= nos 64)
+   
+  (= p1 (new "Pen" (Color.FromName "Black")))
+  (.set_DashStyle p1 (System.Drawing.Drawing2D.DashStyle.DashDot))
+  (createwindow "FFT Demo" 320 250)
+  (.show form1) 
+   
+   (while (not (console.keyavailable)) 
+          (= dp ())
+
+          
+          (for i 1 nos 
+             (= dp (cons (= snd (readSound)) dp))  ; need to know sampling speed best is 4ms or 125Hz
+          )
+          (= dp (vectors.ConvDouble (toarray dp)))
+          (= fdata (vectors.fft dp))
+          (= fdata (vectors.scale fdata (new "double[]" 0) 50.0))
+    
+          (= fx 0)  
+          (.clear g (Color.FromName "White"))   
+          (each fy fdata 
+          (do 
+             (= fx (+ fx 10))
+             (drawbar  fx fy)
+          ))        
+   )
+   (setSampling false)
+   (.close form1)
+)
+
+;(tolist fdata)
