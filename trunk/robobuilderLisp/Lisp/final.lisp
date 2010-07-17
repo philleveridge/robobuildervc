@@ -10,15 +10,14 @@
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-; Day x
+(reference "System.Windows.Forms")
 
-(reference "RobobuilderLib" 
-           "System.Windows.Forms")
-
-(using     "RobobuilderLib"
-           "System.Windows.Forms"
+(using     "System.Windows.Forms"
            "System.IO.Ports")
 
+(= rbl (reference  (String.Concat (System.IO.Directory.GetCurrentDirectory) "\\Libs\\RobobuilderLib.dll")))
+(using "RobobuilderLib")
+(prn "RobobuilderLib version : " (.version (.GetName rbl)))
 
 (def connect (pn)
   "Initialise connection to robobuilder"
@@ -110,10 +109,6 @@
     )
 )
 
-(def serial? () (if (and (bound 'sport) (.isopen sport)) "Green" "Red"))
-(def remote? () (if (and (bound 'pcr) (is "Green" (serial?))) "Green" "Red"))
-
-
 (= menu '( 1 "GET UP A" 
            2 "GET UP B" 
            3 "TURN LEFT" 
@@ -181,7 +176,3 @@
   (.close sport)
   'ok 
 ) 
-
-
-(prn "Robobuilder is Go! type : (run_robobuilder)" )
-'READY!
