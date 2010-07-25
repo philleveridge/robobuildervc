@@ -461,6 +461,117 @@ namespace RobobuilderLib
 
         /*********************************************************************************************
          * 
+         * hardware functions (require DCMP)
+         * 
+         *********************************************************************************************/
+
+
+        public int cbyte(byte b)
+        {
+            int i;
+            if (b > 127)
+            {
+                i = (int)b - 256;
+            }
+            else
+            {
+                i = (int)b;
+            }
+            return i;
+        }
+
+        public bool I2C_write(int addr, byte[] outbuff)
+        {
+            if (!DCMP)
+            {
+                Message = "Special Op requires DCMP"; 
+                return false;
+            }
+
+            int n = 0;
+            if (outbuff != null) n = outbuff.Length;
+
+            byte[] buff = new byte[n+6];
+            buff[0] = 0xFF;
+            buff[1] = 0xBE;                     // servo address 30
+            buff[2] = 0x0E;                     // cmd = 0x0E (IC2_out)
+            buff[3] = (byte)(addr%256);         // IC2 slave address
+            buff[4] = (byte)(outbuff.Length);   // no of bytes tos end
+            int cs = 0;
+
+            for (int i = 0; i < n; i++)
+            {
+                buff[5 + i] = outbuff[i];
+                cs ^= outbuff[i];
+            }
+            buff[5 + n] = (byte)(cs & 0x7f);
+
+            try
+            {
+                //serialPort.Write(buff, 0, buff.Length);
+                for (int cb = 0; cb < buff.Length; cb++)
+                {
+                    serialPort.Write(buff, cb, 1); // send each byte 
+                }
+                respnse[0] = (byte)serialPort.ReadByte();
+                respnse[1] = (byte)serialPort.ReadByte();
+                return true;
+            }
+            catch (Exception e1)
+            {
+                Message = "Special Op Failed" + e1.Message;
+                return false;
+            }
+        }
+
+        public byte[] I2C_read(int addr, byte[] outbuff, int cnt)
+        {
+            if (!DCMP)
+            {
+                Message = "Special Op requires DCMP" ;
+                return null;
+            }
+
+            byte[] inbuff = new byte[cnt];
+
+            byte[] buff = new byte[outbuff.Length + 7];
+            buff[0] = 0xFF;
+            buff[1] = 0xBE;                         // servo address 30
+            buff[2] = 0x0D;                         // cmd = 0xD (IC2_in)
+            buff[3] = (byte)(addr % 256);           // IC2 slave address
+            buff[4] = (byte)(outbuff.Length + 1);   // no of bytes tos end 
+            buff[5] = (byte)(cnt);                  // input bytes required added as first byte
+
+            int cs = cnt;
+
+            for (int i = 0; i < outbuff.Length; i++)
+            {
+                buff[6 + i] = outbuff[i];
+                cs ^= outbuff[i];
+            }
+
+            buff[6 + outbuff.Length] = (byte)(cs & 0x7f);
+
+            try
+            {
+                serialPort.Write(buff, 0, buff.Length);
+
+                for (int j = 0; j < cnt; j++)
+                {
+                    respnse[j] = (byte)serialPort.ReadByte();
+                    inbuff[j] = respnse[j];
+                }
+                return inbuff;
+            }
+            catch (Exception e1)
+            {
+                Message = "Special Op Failed" + e1.Message;
+                return null;
+            }
+        }
+
+        /*********************************************************************************************
+         * 
          * higher level functions
          * 
          *********************************************************************************************/
@@ -498,7 +609,7 @@ namespace RobobuilderLib
             initpos = true;
         }
 
-        private void delay_ms(int t1)
+        public void delay_ms(int t1)
         {
             if (pcR.dbg) Console.WriteLine("dly=" + t1);
             System.Threading.Thread.Sleep(t1);
