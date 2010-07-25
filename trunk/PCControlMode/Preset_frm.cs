@@ -57,10 +57,13 @@ namespace RobobuilderLib
             if (r != null && r.serialPort != null && r.serialPort.IsOpen)
             {
                 wckm = new wckMotion(r);
+                this.Text = "Preset Poses/Actions/Motions";
             }
             else
             {
-                MessageBox.Show("Must connect first");
+                //MessageBox.Show("Must connect first");
+                wckm = null;
+                this.Text = "Preset Poses/Actions/Motions (Offline)";
             }
             setupLisp();
         }
@@ -323,13 +326,23 @@ namespace RobobuilderLib
         private void load_btn_Click(object sender, EventArgs e)
         {
             string n = action.Text;
-            try
+            if (n == "")
             {
-                script.Text = File.ReadAllText(button_dir + "\\" + n + ".lisp");
+                OpenFileDialog od = new OpenFileDialog();
+                od.ShowDialog();
+                n = od.FileName;
+                script.Text = File.ReadAllText(n);
             }
-            catch
+            else
             {
-                MessageBox.Show("Load failed");
+                try
+                {
+                    script.Text = File.ReadAllText(button_dir + "\\" + n + ".lisp");
+                }
+                catch
+                {
+                    MessageBox.Show("Load failed");
+                }
             }
         }
 
