@@ -54,6 +54,7 @@
             this.button8 = new System.Windows.Forms.Button();
             this.textBox2 = new System.Windows.Forms.TextBox();
             this.dcmp_cb = new System.Windows.Forms.CheckBox();
+            this.i2ctst = new System.Windows.Forms.Button();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -205,10 +206,7 @@
             // toolStripMenuItem1
             // 
             this.toolStripMenuItem1.Name = "toolStripMenuItem1";
-            this.toolStripMenuItem1.Size = new System.Drawing.Size(46, 20);
-            this.toolStripMenuItem1.Text = "Basic";
-            this.toolStripMenuItem1.Visible = false;
-            this.toolStripMenuItem1.Click += new System.EventHandler(this.toolStripMenuItem1_Click_1);
+            this.toolStripMenuItem1.Size = new System.Drawing.Size(12, 20);
             // 
             // viewModelToolStripMenuItem
             // 
@@ -286,11 +284,22 @@
             this.dcmp_cb.Text = "DCMP?";
             this.dcmp_cb.UseVisualStyleBackColor = true;
             // 
+            // i2ctst
+            // 
+            this.i2ctst.Location = new System.Drawing.Point(288, 53);
+            this.i2ctst.Name = "i2ctst";
+            this.i2ctst.Size = new System.Drawing.Size(42, 23);
+            this.i2ctst.TabIndex = 70;
+            this.i2ctst.Text = "I2C";
+            this.i2ctst.UseVisualStyleBackColor = true;
+            this.i2ctst.Click += new System.EventHandler(this.i2ctst_Click);
+            // 
             // Main
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(373, 271);
+            this.Controls.Add(this.i2ctst);
             this.Controls.Add(this.dcmp_cb);
             this.Controls.Add(this.textBox2);
             this.Controls.Add(this.button8);
@@ -345,6 +354,7 @@
         private System.Windows.Forms.ToolStripMenuItem balance;
         private System.Windows.Forms.TextBox textBox2;
         private System.Windows.Forms.CheckBox dcmp_cb;
+        private System.Windows.Forms.Button i2ctst;
     }
 }
 

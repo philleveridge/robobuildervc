@@ -17,7 +17,6 @@ namespace RobobuilderLib
         Display3D_frm   view = null;
         balance_frm     bal = null;
         PCremote        pcR = null;
-        Basic_frm       bc = null;
 
         string robot_config = "config-20dof.txt";
 
@@ -32,7 +31,6 @@ namespace RobobuilderLib
             videoc = new Video_frm(presets);
             medit = new MotionEdit_frm();
             bal = new balance_frm();
-            bc = new Basic_frm();
 
             serialPort1.PortName = "COM5";
             serialPort1.BaudRate = 115200;
@@ -355,17 +353,35 @@ namespace RobobuilderLib
             medit.viewport = null;
         }
 
-        private void toolStripMenuItem1_Click_1(object sender, EventArgs e)
-        {
-            bc.pcr = pcR; //
-            bc.Show();
-        }
-
 
         private void balance_Click(object sender, EventArgs e)
         {
             bal.pcr = pcR;
             bal.Show();
+        }
+
+        private void i2ctst_Click(object sender, EventArgs e)
+        {
+	        Console.WriteLine("I2C test");
+
+            wckMotion wmt = new wckMotion("COM5", true);
+
+	        // acc init
+            if (!wmt.I2C_write(0x70, new byte[] { 0x14, 0x03 }))
+            {
+                Console.WriteLine("I2C test failed");
+            }
+        	
+	        for (int z=0; z<20; z++)
+	        {
+		        // acc get
+		        wmt.I2C_write(0x70, new byte[] {0x02});
+		        byte[] ib = wmt.I2C_read (0x71, new byte[] {}, 6);
+        		
+		        Console.WriteLine("{0}, {1}, {2}", wmt.cbyte(ib[1]) ,wmt.cbyte(ib[3]),wmt.cbyte(ib[5]));
+        		
+		        wmt.delay_ms(250);
+	        }
         }
 
 
