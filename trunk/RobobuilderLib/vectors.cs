@@ -87,15 +87,18 @@ namespace RobobuilderLib
             int f = 0;
             double[] output = new double[signal.Length / 2]; // first half only - second half is a reflection
             output[0] = 0.0; // drop DC component
-            for (i = 0; i < signal.Length/2; i++)
+            for (i = 1; i < signal.Length/2; i++)
             {
                 // absolute value sqrt(real^2 + complex^2)
                 output[i] = Math.Sqrt((data[2 * i] * data[2 * i]) + (data[2 * i + 1] * data[2 * i + 1]));
-                if (output[i] > max) { output[i] = max; f = i; }
+                if (output[i] > max) { max = output[i]; f = i; }
             }
-            for (i = 0; i < signal.Length / 2; i++)
+            if (max > 0)
             {
-                output[i] = output[i] / max; // n ormalise
+                for (i = 0; i < signal.Length / 2; i++)
+                {
+                    output[i] = output[i] / max; // n ormalise
+                }
             }
             return output; //absolute value normalised, with out DC
         }
