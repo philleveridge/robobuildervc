@@ -46,8 +46,6 @@ namespace RobobuilderLib
 
         public void test()
         {
-            vectors.test();
-
             int[] a = new int[] { 1, 2, 3 };
             int[] b = new int[] { 3, 2, 4 };
 

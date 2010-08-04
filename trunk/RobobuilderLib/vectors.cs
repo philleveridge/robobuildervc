@@ -8,7 +8,6 @@ namespace RobobuilderLib
     public class vectors
     {
 
-
         static public void swap(ref double a, ref double b)
         {
             double t = a; a = b; b = t;
@@ -86,8 +85,8 @@ namespace RobobuilderLib
             double max = 0.0;
             int f = 0;
             double[] output = new double[signal.Length / 2]; // first half only - second half is a reflection
-            output[0] = 0.0; // drop DC component
-            for (i = 1; i < signal.Length/2; i++)
+            //output[0] = 0.0; // drop DC component
+            for (i = 0; i < signal.Length/2; i++)
             {
                 // absolute value sqrt(real^2 + complex^2)
                 output[i] = Math.Sqrt((data[2 * i] * data[2 * i]) + (data[2 * i + 1] * data[2 * i + 1]));
@@ -548,43 +547,6 @@ namespace RobobuilderLib
             }
             return r;
         }
-
-
-        // *****************************************************************************************
-        // test data / routines
-        // *****************************************************************************************
-
-        static public void test()
-        {
-            int[] a = new int[] { 1, 2, 3 };
-            int[] b = new int[] { 3, 2, 4 };
-
-            int[][] testv = new int[][] {  
-            new int[] {0, 0, 5},  
-            new int[] {0, 0, 4, 0, 0, 0, 0, -4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-
-            new int[] {0, 0, 2},  
-            new int[] {0, 0, 2, 0, 0, 0, 0, -2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-
-            new int[] {0, 0, -5},  
-            new int[] {0, 0, -2, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
-            };
-
-            Console.WriteLine("Vectors test");
-            Console.WriteLine("a=" + vectors.str(a));
-            Console.WriteLine("b=" + vectors.str(b));
-            Console.WriteLine("a&b=" + vectors.str(vectors.append(a, b)));
-            Console.WriteLine("a+b=" + vectors.str(vectors.add(a, b)));
-            Console.WriteLine("a-b=" + vectors.str(vectors.sub(a, b)));
-            Console.WriteLine("a.b=" + vectors.dotprod(a, b));
-            Console.WriteLine("|a|=" + vectors.normal(a));
-            Console.WriteLine("M(a)=" + vectors.str(vectors.match(testv, a)));
-            Console.WriteLine("M(b)=" + vectors.str(vectors.match(testv, b)));
-            double[] d = new double[] { 5.0, 5.0, 5.0, 5.0, -5.0, -5.0, -5.0, -5.0 };
-
-            Console.WriteLine("fft data=" + vectors.str(d)); 
-            Console.WriteLine("fft out="  + vectors.str(vectors.fft(d)));
-        }
     }
 
     public class matrix
@@ -909,33 +871,6 @@ namespace RobobuilderLib
                 for (int j = 0; j < cols; j++)
                     r.set(i,j, mat[j, i]);
             return r;
-        }
-
-        static public void test()
-        {
-            matrix matA = new matrix ( 2, 3);
-            matA.set (new object[] { 1.0, 4.0, 2.0, 5.0, 3.0, 6.0});
-            matA.print();
-
-
-            matrix matB = new matrix ( 3, 2);
-            matB .set (new object[] { 7.0, 8.0, 9.0, 10.0, 11.0, 12.0});
-            matB.print();
-
-            matA.multiply(matB).print();
-
-            matA = new matrix(2,3);
-            matA.set(new object[] {0.1, 0.2, 0.3, 0.1, 0.4, 0.2 });
-            matA.print();
-
-            matA.load("test.csv");
-
-
-            matB = new matrix(1,2);
-            matB.set(new object[] { 1.0, 2.0 });
-            matB.print();
-
-            matA.multiply(matB).print();
         }
 
     }

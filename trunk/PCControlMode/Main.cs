@@ -360,31 +360,6 @@ namespace RobobuilderLib
             bal.Show();
         }
 
-        private void i2ctst_Click(object sender, EventArgs e)
-        {
-	        Console.WriteLine("I2C test");
-
-            wckMotion wmt = new wckMotion("COM5", true);
-
-	        // acc init
-            if (!wmt.I2C_write(0x70, new byte[] { 0x14, 0x03 }))
-            {
-                Console.WriteLine("I2C test failed");
-            }
-        	
-	        for (int z=0; z<20; z++)
-	        {
-		        // acc get
-		        wmt.I2C_write(0x70, new byte[] {0x02});
-		        byte[] ib = wmt.I2C_read (0x71, new byte[] {}, 6);
-        		
-		        Console.WriteLine("{0}, {1}, {2}", wmt.cbyte(ib[1]) ,wmt.cbyte(ib[3]),wmt.cbyte(ib[5]));
-        		
-		        wmt.delay_ms(250);
-	        }
-        }
-
-
 
     }
 }
