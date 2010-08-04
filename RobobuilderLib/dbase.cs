@@ -122,27 +122,6 @@ namespace RobobuilderLib
             }
         }
 
-        /********************************************************************************/
 
-        public void test()
-        {
-            vectors.test();
-
-            int[] a = new int[] { 1, 2, 3 };
-            int[] b = new int[] { 3, 2, 4 };
-
-            Console.WriteLine("Data gen test");
-
-            Console.WriteLine("DB test");
-            store_db(a, b, 1.0);
-            show_db();
-
-            store_db(new int[] { 1, 2, 3 }, b, 2.0);
-            int f = find_db(a);
-            Console.WriteLine("f=" + f);
-            if (f >= 0) update_db(f, 3.0);
-
-            show_db();
-        }
     }
 }

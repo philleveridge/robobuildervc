@@ -33,6 +33,8 @@ namespace RobobuilderLib
 
         public bool DCMP { get; set; }  // this must be true for DCMP high speed mode (custom firmware)
 
+        public MoveTypes cmt { get; set; }
+
         /**********************************************
          * 
          * direct Command mode  - wcK prorocol
@@ -53,6 +55,7 @@ namespace RobobuilderLib
         public wckMotion(string port, bool df)
         {
             DCMP = df;
+            cmt = MoveTypes.Linear; //default 
             pcR = new PCremote(port);
             trig = null;
             serialPort = pcR.serialPort;
@@ -461,7 +464,7 @@ namespace RobobuilderLib
 
         /*********************************************************************************************
          * 
-         * hardware functions (require DCMP)
+         * I2C hardware functions (require DCMP)
          * 
          *********************************************************************************************/
 
@@ -744,18 +747,94 @@ namespace RobobuilderLib
             return true;
         }
 
-        // NEW:: if byte = 255 = use current positon
+        // Different type of move interpolation
+        // from http://robosavvy.com/forum/viewtopic.php?t=5306&start=30
+        // orinial by RN1AsOf091407
+
+        public enum MoveTypes { AccelDecel, Accel, Decel, Linear };
+
+        double CalculatePos_AccelDecel(int Distance, double FractionOfMove)
+        {
+            if ( FractionOfMove < 0.5 )     // Accel:
+                return CalculatePos_Accel(Distance /2, FractionOfMove * 2);
+            else if (FractionOfMove > 0.5 ) //'Decel:
+                return CalculatePos_Decel(Distance/2, (FractionOfMove - 0.5) * 2) + (Distance * 0.5);
+            else                            //'= .5! Exact Middle.
+                return Distance / 2;
+        }
+
+        double CalculatePos_Accel(int Distance, double FractionOfMove) 
+        {
+            return FractionOfMove * (Distance * FractionOfMove);
+        }
+
+        double CalculatePos_Decel(int Distance, double FractionOfMove)
+        {
+            FractionOfMove = 1 - FractionOfMove;
+            return Distance - (FractionOfMove * (Distance * FractionOfMove));
+        }
+
+        double CalculatePos_Linear(int Distance, double FractionOfMove)
+        {
+            return (Distance * FractionOfMove);
+        }
+
+        double GetMoveValue(MoveTypes mt, int StartPos, int EndPos, double FractionOfMove)
+        {
+            int Offset,Distance;
+            if (StartPos > EndPos)
+            {
+                Distance = StartPos - EndPos;
+                Offset = EndPos;
+                switch (mt)
+                {
+                    case MoveTypes.Accel:
+                        return Distance - CalculatePos_Accel(Distance, FractionOfMove) + Offset;
+                    case MoveTypes.AccelDecel:
+                        return Distance - CalculatePos_AccelDecel(Distance, FractionOfMove) + Offset;
+                    case MoveTypes.Decel:
+                        return Distance - CalculatePos_Decel(Distance, FractionOfMove) + Offset;
+                    case MoveTypes.Linear:
+                        return Distance - CalculatePos_Linear(Distance, FractionOfMove) + Offset;
+                }
+            }
+            else
+            {
+                Distance = EndPos - StartPos;
+                Offset = StartPos;
+                switch (mt)
+                {
+                    case MoveTypes.Accel:
+                        return CalculatePos_Accel(Distance, FractionOfMove) + Offset;
+                    case MoveTypes.AccelDecel:
+                        return CalculatePos_AccelDecel(Distance, FractionOfMove) + Offset;
+                    case MoveTypes.Decel:
+                        return CalculatePos_Decel(Distance, FractionOfMove) + Offset;
+                    case MoveTypes.Linear:
+                        return CalculatePos_Linear(Distance, FractionOfMove) + Offset;
+                }
+            }
+            return 0.0;
+        }
+
+        // NEW:: if byte = 255 = use current position
         // NEW:: check limits / bounds before sending
+        // NEW:: move types added, will use linear interpolation between points unless specified
 
         public bool PlayPose(int duration, int no_steps, Object[] spodobj, bool first)
         {
             byte[] s = new byte[spodobj.Length];
             for (int i = 0; i < spodobj.Length; i++)
                 s[i] = (byte)spodobj[i];
-            return PlayPose(duration, no_steps, s, first);
+            return PlayPose(duration, no_steps, s, first, cmt);
         }
 
         public bool PlayPose(int duration, int no_steps, byte[] spod, bool first)
+        {
+            return PlayPose(duration, no_steps, spod, first, cmt);
+        }
+
+        public bool PlayPose(int duration, int no_steps, byte[] spod, bool first, MoveTypes ty)
         {
             int cnt = 0;
 
@@ -769,7 +848,7 @@ namespace RobobuilderLib
                 tcnt = 0;
             }
 
-            double[] intervals = new double[spod.Length];
+            //double[] intervals = new double[spod.Length];
 
             duration = (int)(0.5+(double)duration * kfactor);
 
@@ -778,16 +857,13 @@ namespace RobobuilderLib
             // bounds check
             for (int n = 0; n < spod.Length ; n++)
             {
-                if (spod[n] == 255)
-                    intervals[n] = 0f;
-                else
+                if (spod[n] != 255)
                 {
                     if (n < lb_Huno.Length)
                     {
                         if (spod[n] < lb_Huno[n]) spod[n] = (byte)lb_Huno[n];
                         if (spod[n] > ub_Huno[n]) spod[n] = (byte)ub_Huno[n];
                     }
-                    intervals[n] = (double)(spod[n] - pos[n]) / no_steps;
                     cnt++;
                 }
             }
@@ -804,7 +880,11 @@ namespace RobobuilderLib
                 //
                 for (int n = 0; n < spod.Length; n++) 
                 {
-                    temp[n] = (byte)(pos[n] + (double)s * intervals[n]);
+                    if (spod[n] == 255)
+                        temp[n] = pos[n];
+                    else
+                        temp[n] = (byte)GetMoveValue(ty, pos[n], spod[n], (double)s / (double)no_steps);
+
                     if (trig != null && trig.active() && trig.delta != null && n<trig.delta.Length)
                     {
                         temp[n] = (byte)((double)temp[n] + trig.delta[n]);
