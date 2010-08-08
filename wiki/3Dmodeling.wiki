@@ -1,0 +1,16 @@
+#summary 3D modeling using blender
+
+= Introduction =
+
+http://robobuildervc.googlecode.com/files/3dmodel.png
+
+= Details =
+
+created using Blender 2.53 (beta)
+
+*Todo:*
+
+Tweek alignment of objects, then add bones/armatures. 
+
+Download file from here : http://robobuildervc.googlecode.com/files/robobuilder-full.zip
+
