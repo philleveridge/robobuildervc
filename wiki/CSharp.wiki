@@ -6,7 +6,7 @@ This wiki explains how to use the RobobuilderLib library with your on C# code ru
   * [http://code.google.com/p/robobuildervc/wiki/PCRemote PCRemote]
   * [http://code.google.com/p/robobuildervc/wiki/wckMotion wckMotion]
   * [http://code.google.com/p/robobuildervc/wiki/vectors vectors]
-  * [http://code.google.com/p/robobuildervc/wiki/matrix matrix]
+  * [http://code.google.com/p/robobuildervc/wiki/Matrix Matrix]
   * Trigger
 
 = Details =
@@ -161,4 +161,3 @@ or read accelerometer:
 Or to run a motion (in this case basic pose) put:
 
 {{{pcr.runMotion(7); }}}
-
