@@ -3,10 +3,10 @@
 = Introduction =
 
 This wiki explains how to use the RobobuilderLib library with your on C# code running on a PC to remotely control Robobuilder humanoid robot. For details on the to core classes see the following
-  * PCRemote
-  * wckMotion
-  * vectors
-  * matrix
+  * [http://code.google.com/p/robobuildervc/wiki/PCRemote PCRemote]
+  * [http://code.google.com/p/robobuildervc/wiki/wckMotion wckMotion]
+  * [http://code.google.com/p/robobuildervc/wiki/vectors vectors]
+  * [http://code.google.com/p/robobuildervc/wiki/matrix matrix]
   * Trigger
 
 = Details =
@@ -161,6 +161,4 @@ or read accelerometer:
 Or to run a motion (in this case basic pose) put:
 
 {{{pcr.runMotion(7); }}}
-
-
 
