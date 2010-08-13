@@ -1,32 +1,26 @@
 #summary Details of RobobuilderLib.wckMotion class
 = Introduction =
 
-RobobuilderLib.wckMotion
+RobobuilderLib.wckMotion class. Provides access through the RBC controller to the wckBus for control of the servos. Works with either standard firmware or DCMP.hex
 
+= Details =
 
-= Methods =
-
+== example ==
 {{{
-RobobuilderLib.wckMotion.~wckMotion() 
-RobobuilderLib.wckMotion.BasicPose(int, int) 
-RobobuilderLib.wckMotion.close() 
-RobobuilderLib.wckMotion.delay_ms(int) 
-RobobuilderLib.wckMotion.PlayFile(string) 
-RobobuilderLib.wckMotion.PlayFile(string, int, int) 
-RobobuilderLib.wckMotion.PlayMatrix(RobobuilderLib.matrix) 
-RobobuilderLib.wckMotion.PlayMatrix(RobobuilderLib.matrix, int, int) 
-RobobuilderLib.wckMotion.PlayPose(int, int, object[], bool) 
-RobobuilderLib.wckMotion.PlayPose(int, int, byte[], bool) 
-RobobuilderLib.wckMotion.reset_timer() 
-RobobuilderLib.wckMotion.servoID_readservo(int) 
-RobobuilderLib.wckMotion.servoStatus(int, bool) 
-RobobuilderLib.wckMotion.set_kfactor(double) 
-RobobuilderLib.wckMotion.set_trigger(RobobuilderLib.trigger) 
-RobobuilderLib.wckMotion.SyncPosSend(int, int, object[], int)
-RobobuilderLib.wckMotion.SyncPosSend(int, int, byte[], int) 
-RobobuilderLib.wckMotion.wckBreak() 
+wckMotion w = new wckMotion("COM1", true);
+}}}
+
+== constructor ==
+{{{
 RobobuilderLib.wckMotion.wckMotion(string, bool) 
 RobobuilderLib.wckMotion.wckMotion(RobobuilderLib.PCremote)
+RobobuilderLib.wckMotion.~wckMotion() 
+}}}
+
+== methods ==
+=== low level access ===
+{{{
+RobobuilderLib.wckMotion.wckBreak() 
 RobobuilderLib.wckMotion.wckMovePos(int, int, int) 
 RobobuilderLib.wckMotion.wckPassive(int) 
 RobobuilderLib.wckMotion.wckPosMove10Bit(int, int, int) 
@@ -53,11 +47,30 @@ RobobuilderLib.wckMotion.wckSetSpeed(int, int, int)
 RobobuilderLib.wckMotion.wckSetSpeedRT(int, int, int) 
 RobobuilderLib.wckMotion.wckWriteIO(int, bool, bool) 
 RobobuilderLib.wckMotion.wckWriteMotionData(int, int, int) 
+}}}
+=== high level access ===
+{{{
+RobobuilderLib.wckMotion.PlayFile(string) 
+RobobuilderLib.wckMotion.PlayFile(string, int, int) 
+RobobuilderLib.wckMotion.PlayMatrix(RobobuilderLib.matrix) 
+RobobuilderLib.wckMotion.PlayMatrix(RobobuilderLib.matrix, int, int) 
+RobobuilderLib.wckMotion.PlayPose(int, int, object[], bool) 
+RobobuilderLib.wckMotion.PlayPose(int, int, byte[], bool) 
+RobobuilderLib.wckMotion.SyncPosSend(int, int, object[], int)
+RobobuilderLib.wckMotion.SyncPosSend(int, int, byte[], int) 
+RobobuilderLib.wckMotion.BasicPose(int, int) 
 
+RobobuilderLib.wckMotion.servoID_readservo(int) 
+RobobuilderLib.wckMotion.servoStatus(int, bool) 
+RobobuilderLib.wckMotion.set_kfactor(double) 
+RobobuilderLib.wckMotion.set_trigger(RobobuilderLib.trigger) 
+RobobuilderLib.wckMotion.reset_timer() 
+
+RobobuilderLib.wckMotion.close() 
+RobobuilderLib.wckMotion.delay_ms(int) 
 }}}
 
-= Properties =
-
+== properties ==
 {{{
 RobobuilderLib.wckMotion.DCMP 
 RobobuilderLib.wckMotion.basic_pos 
