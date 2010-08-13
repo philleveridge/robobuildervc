@@ -1,4 +1,4 @@
-#summary One-sentence summary of this page.
+#summary PCRemote class definition
 
 = Introduction =
 PCRemote class definition
@@ -10,9 +10,16 @@ PCremote r = new PCremote("COM1");
 Console.WriteLine("PSD={0}", r.readPSD());
 }}}
 
+==constructor==
+{{{
+RobobuilderLib.PCremote.PCremote(string) 
+RobobuilderLib.PCremote.PCremote(System.IO.Ports.SerialPort) 
+RobobuilderLib.PCremote.~PCremote() 
+}}}
+
 ==methods==
 {{{
-RobobuilderLib.PCremote.~PCremote() 
+
 RobobuilderLib.PCremote.a() 
 RobobuilderLib.PCremote.accelerometer() 
 RobobuilderLib.PCremote.availMem() 
@@ -24,8 +31,6 @@ RobobuilderLib.PCremote.command_nB(byte, byte, byte[])
 RobobuilderLib.PCremote.displayResponse(bool) 
 RobobuilderLib.PCremote.download_basic(string) 
 RobobuilderLib.PCremote.executionStatus(int) 
-RobobuilderLib.PCremote.PCremote(string) 
-RobobuilderLib.PCremote.PCremote(System.IO.Ports.SerialPort) 
 RobobuilderLib.PCremote.readButton(int) 
 RobobuilderLib.PCremote.readButton(int, RobobuilderLib.callBack) 
 RobobuilderLib.PCremote.readDistance() 
@@ -53,7 +58,9 @@ RobobuilderLib.PCremote.zeroHuno()
 == properties ==
 {{{
 RobobuilderLib.PCremote.dbg
-RobobuilderLib.PCremote.DCmode RobobuilderLib.PCremote.header 
-RobobuilderLib.PCremote.message RobobuilderLib.PCremote.respnse 
+RobobuilderLib.PCremote.DCmode 
+RobobuilderLib.PCremote.header 
+RobobuilderLib.PCremote.message 
+RobobuilderLib.PCremote.respnse 
 RobobuilderLib.PCremote.serialPort
 }}}
