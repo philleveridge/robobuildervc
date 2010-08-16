@@ -10,6 +10,12 @@ The visual client provides
   * a 3D visualisation using Physx and 
   * web cam interaction with object detection (based n colour filters)
 
+This code requires * DirectX End-User Runtime * - get it from here : http://www.microsoft.com/downloads/en/resultsForCategory.aspx?displaylang=en&categoryid=2
+
+The code also uses Physx Novodex wrapper for .NET and uses LSharp.NET dll for its scripting language. These libraries have all been packaged into zip - see download area.
+
+_This code is still pre-alpha and not available as a pre-built package_
+
 ==Screen images from the Visual Client==
 
 || * screen Images * || * Description * ||
