@@ -23,8 +23,6 @@ namespace RobobuilderLib
             InitializeComponent();
 
             a = new Autonomy();
-            a.test();
-
             label1.Text = "Press button to start";
         }
 

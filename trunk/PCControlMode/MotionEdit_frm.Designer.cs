@@ -86,6 +86,7 @@
             this.textBox1 = new System.Windows.Forms.TextBox();
             this.servoStatus1 = new RobobuilderLib.ServoStatus();
             this.conv = new System.Windows.Forms.CheckBox();
+            this.mtypelb = new System.Windows.Forms.ListBox();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.servoPoseDataBindingSource)).BeginInit();
             this.panel1.SuspendLayout();
@@ -93,7 +94,7 @@
             // 
             // closeBtn
             // 
-            this.closeBtn.Location = new System.Drawing.Point(497, 221);
+            this.closeBtn.Location = new System.Drawing.Point(423, 239);
             this.closeBtn.Name = "closeBtn";
             this.closeBtn.Size = new System.Drawing.Size(50, 21);
             this.closeBtn.TabIndex = 0;
@@ -501,7 +502,7 @@
             // all_pass_chk
             // 
             this.all_pass_chk.AutoSize = true;
-            this.all_pass_chk.Location = new System.Drawing.Point(422, 190);
+            this.all_pass_chk.Location = new System.Drawing.Point(423, 188);
             this.all_pass_chk.Name = "all_pass_chk";
             this.all_pass_chk.Size = new System.Drawing.Size(76, 17);
             this.all_pass_chk.TabIndex = 81;
@@ -621,12 +622,26 @@
             this.conv.Text = "Conv?";
             this.conv.UseVisualStyleBackColor = true;
             // 
+            // mtypelb
+            // 
+            this.mtypelb.FormattingEnabled = true;
+            this.mtypelb.Items.AddRange(new object[] {
+            "Acc",
+            "DeAcc",
+            "AccDeAcc",
+            "Linear"});
+            this.mtypelb.Location = new System.Drawing.Point(423, 95);
+            this.mtypelb.Name = "mtypelb";
+            this.mtypelb.Size = new System.Drawing.Size(92, 17);
+            this.mtypelb.TabIndex = 88;
+            // 
             // MotionEdit_frm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoSize = true;
             this.ClientSize = new System.Drawing.Size(708, 477);
+            this.Controls.Add(this.mtypelb);
             this.Controls.Add(this.conv);
             this.Controls.Add(this.panel1);
             this.Controls.Add(this.torq_list);
@@ -722,5 +737,6 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn Y;
         private System.Windows.Forms.DataGridViewTextBoxColumn Z;
         private System.Windows.Forms.CheckBox conv;
+        private System.Windows.Forms.ListBox mtypelb;
     }
 }

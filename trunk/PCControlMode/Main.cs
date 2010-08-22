@@ -22,9 +22,6 @@ namespace RobobuilderLib
 
         public Main()
         {
-            //matrix.test();
-            //vectors.test();
-
             InitializeComponent();
 
             presets = new Preset_frm();
