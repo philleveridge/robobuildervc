@@ -323,11 +323,23 @@ namespace RobobuilderLib
 
         private void playAll_Click(object sender, EventArgs e)
         {
-            Console.WriteLine("Play - motiondata line - " +
-                dataGridView1.CurrentRow.Index);
 
             int n = 0;
             bool ff = true;
+
+            wckMotion.MoveTypes mt = wckMotion.MoveTypes.Linear;
+
+            if (mtypelb.SelectedIndex >= 0) mt = (wckMotion.MoveTypes)mtypelb.SelectedIndex;
+
+            if (dataGridView1.CurrentRow == null)
+            {
+                MessageBox.Show("No motion created");
+                return;
+            }
+
+            Console.WriteLine("Play - motiondata line - " +
+                dataGridView1.CurrentRow.Index);
+
 
             foreach (ServoPoseData r in motiondata)
             {
@@ -339,8 +351,11 @@ namespace RobobuilderLib
                 for (int i = 0; i < 20; i++)
                     t[i] = (byte)r.S[i];
 
-                if (dcontrol != null) dcontrol.PlayPose(r.Time, r.Steps, t, ff);
-                if (viewport != null) viewport.PlayPose(r.Time, r.Steps, t, ff);
+                if (dcontrol != null) 
+                    dcontrol.PlayPose(r.Time, r.Steps, t, ff, mt);
+
+                if (viewport != null) 
+                    viewport.PlayPose(r.Time, r.Steps, t, ff); 
 
                 if (ff) ff = false;
                 
