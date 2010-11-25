@@ -2,11 +2,15 @@
 
 = Introduction =
 
-TBC
 
+Default mode - Works with standard firmware. Select either Connect or quit menu options. On connect it will display serial number and firmware version if successful and a graphic of a game controller appears. Pressing numbers 0-9 will cause the robot to perform the appropriate motion/action. This mode use PCRemote built against compact .Net framework and send binary protocol to the robot.
+
+If you press 'b' before connecting it switches to basic mode, and the controller simply send the corresponding IR character value directly to the robot. Again no use for standard firmware - but this can be used in custom application firmware (or basic programs)
+
+If you press 't' before connecting it will switch into Terminal mode - and then you can get a very basic VT100 terminal emulator so you can interact with your robot. This won't work with standard firmware - but is great if you're running Basic for instance.
 
 = Details =
 
-|| Default Mode  || http://code.google.com/p/robobuildervc/files/IMG_1388.JPG ||
-|| Terminal Mode || http://code.google.com/p/robobuildervc/files/IMG_1387.JPG ||
-|| Basic Mode || ||
+|| Mode || Image ||
+|| Default/Basic Mode  || <img src="http://robobuildervc.googlecode.com/files/IMG_1388t.jpg" width=400> ||
+|| Terminal Mode || <img src="http://robobuildervc.googlecode.com/files/IMG_1387t.jpg" width=400> ||
