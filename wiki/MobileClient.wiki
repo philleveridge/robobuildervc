@@ -1,0 +1,12 @@
+#summary Details of Windows Mobile 6 client
+
+= Introduction =
+
+TBC
+
+
+= Details =
+
+|| Default Mode  || http://code.google.com/p/robobuildervc/files/IMG_1388.JPG ||
+|| Terminal Mode || http://code.google.com/p/robobuildervc/files/IMG_1387.JPG ||
+|| Basic Mode || ||
