@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.IO;
 using System.IO.Ports;
+using System.Diagnostics;
 
 namespace RobobuilderLib
 {
@@ -14,7 +16,18 @@ namespace RobobuilderLib
         byte[] respnse = new byte[32];
         bool DCmode;
 
-        public bool dbg = false;
+        public bool dbg  = false;
+
+        // for asynch response
+
+        bool amode = false;
+        bool dready = false;
+        int data;
+        callBack afn = null; 
+        int nob = 0;
+        int ml=0;
+
+        // done
 
         public string message;
 
@@ -96,6 +109,92 @@ namespace RobobuilderLib
             }
             serialPort.Write(cs, 0, 1);
             return true;
+        }
+
+        void asynchResponse(bool f)
+        {
+            // new
+            if (amode == f) return;
+
+            Debug.WriteLine("Asynch = " + f);
+            if (f )
+            {
+                serialPort.DataReceived += new SerialDataReceivedEventHandler(serialPort_DataReceived);
+                nob = 0;
+                amode = true;
+                dready = false;
+            }
+            else
+            {
+                serialPort.DataReceived -= new SerialDataReceivedEventHandler(serialPort_DataReceived);
+                nob = 0;
+                amode = false;
+            }
+        }
+
+        void serialPort_DataReceived(object sender, SerialDataReceivedEventArgs e)
+        {
+            switch (e.EventType)
+            {
+                case SerialData.Chars:
+                    //string rx = serialPort.ReadExisting();
+                    byte b1 = (byte)serialPort.ReadByte();
+                    {
+                        if (nob < header.Length && b1 != header[nob])
+                        {
+                            ml = 0;
+                            nob = 0;
+
+                            if (b1 != header[0])
+                            {
+                                Debug.WriteLine("askip [" + b1 + "]");
+                                return;
+                            }
+                        }
+                        respnse[nob] = b1;
+                        if (nob == 13)
+                        {
+                            ml = (respnse[nob - 3] << 24) + (respnse[nob - 2] << 16) + (respnse[nob - 1] << 8) + respnse[nob];
+                            Console.WriteLine("L=" + ml);
+                        }
+                        nob++;
+                        if (nob == (15 + ml))
+                        {
+                            dready = true; //packet ready
+
+                            Debug.WriteLine("Asynch Response:");
+                            for (int i = 0; i < 7 + ml; i++)
+                            {
+                                Debug.Write(respnse[8 + i].ToString("X2") + " ");
+                            }
+                            Debug.WriteLine("");
+                            // process packet
+                            // ....
+                            data = respnse[14] + (respnse[15] << 8);
+                            switch (respnse[8])
+                            {
+                                case 23: // sound input level reached
+                                    Debug.WriteLine("soundlevel - " + data);
+                                    break;
+                                case 24: // button press
+                                    Debug.WriteLine("button - " + data); 
+                                    break;
+                                case 25: // remote press
+                                    Debug.WriteLine("IR - " + data);
+                                    break;
+                            }
+                            if (afn != null)
+                                afn(data);
+
+                            // process done
+                            nob = 0;
+                            ml = 0;
+                        }
+                    }
+                    break;
+                case SerialData.Eof:
+                    break;
+            }
         }
 
         bool displayResponse(bool flag)
@@ -392,40 +491,37 @@ namespace RobobuilderLib
         }
 
 
-        public int readButton(int timeout)
-        {
-            return readButton(timeout, null);
-        }
-
         public int readButton(int timeout, callBack x)
         {
-            int n = 0;
-            int tmp = serialPort.ReadTimeout;
-
+            int v=0;
             DateTime end = DateTime.Now + TimeSpan.FromMilliseconds((double)timeout);
 
+            readButton(x);
+
+            while (DateTime.Now < end)
+            {
+                if (dready == true)
+                {
+                    v = data;
+                    break;
+                }
+                System.Windows.Forms.Application.DoEvents();
+            }
+            asynchResponse(false);
+            return v;
+        }
+
+        public void readButton(callBack x)
+        {
             if (serialPort.IsOpen)
             {
                 command_1B(24, 0x01);
-
-                while (DateTime.Now < end)
-                {
-                    if (displayResponse(true))
-                    {
-                        n = respnse[14] + (respnse[15] << 8);
-                    }
-
-                    System.Diagnostics.Debug.WriteLine(DateTime.Now.ToString() + " = " + message + " n=" + n);
-
-                    if (x != null)
-                        x(n);
-                    else
-                        break;
-               }
-             }
-             serialPort.ReadTimeout = tmp;
-             return n;
+                afn = x;
+                asynchResponse(true);
+                Debug.WriteLine(DateTime.Now.ToString());
+            }
         }
+
 
         public int readsoundLevel(int timeout, int level)
         {

@@ -86,6 +86,13 @@ namespace RobobuilderLib
         static public void ftest()
         {
             double[] d;
+
+            Console.WriteLine("FFT test");
+            d = new double[] { 20.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
+            Console.WriteLine("fft data=" + vectors.str(d));
+            Console.WriteLine("fft out=" + vectors.str(vectors.fft(d)));
+
+
             Console.WriteLine("FFT test");
             d = new double[] { 5.0, 5.0, 5.0, 5.0, -5.0, -5.0, -5.0, -5.0 };
             Console.WriteLine("fft data=" + vectors.str(d));
@@ -224,4 +231,6 @@ namespace RobobuilderLib
 
         }
     }
+
+
 }
