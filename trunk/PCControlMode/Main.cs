@@ -266,6 +266,19 @@ namespace RobobuilderLib
             button8.Enabled = true;
         }
 
+        private void button3_Click(object sender, EventArgs e)
+        {
+            // wait for IR, Button or Sound
+            button3.Enabled = false;
+
+            pcR.readsoundLevel(10000, Convert.ToInt32(textBox2.Text), new callBack(addMessage));
+            pcR.readButton(10000, new callBack(addMessage));
+            pcR.readIR(10000, new callBack(addMessage));
+
+            button3.Enabled = true;
+        }
+
+
         public void addMessage(int n)
         {
             if (n!=0)
