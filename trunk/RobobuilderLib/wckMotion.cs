@@ -128,6 +128,36 @@ namespace RobobuilderLib
             }
         }
 
+        public bool wckReadAll()
+        {
+            // requires DCMP >229
+            byte[] buff = new byte[4];
+            buff[0] = 0xFF;
+            buff[1] = (byte)(5 << 5 | (30 % 31));
+            buff[2] = (byte)0x0f;      // 
+            buff[3] = (byte)((buff[1] ^ buff[2]) & 0x7f);
+
+            try
+            {
+                serialPort.Write(buff, 0, 4);
+                respnse[0] = (byte)serialPort.ReadByte(); // x
+                respnse[1] = (byte)serialPort.ReadByte(); // y
+                respnse[2] = (byte)serialPort.ReadByte(); // z
+                respnse[3] = (byte)serialPort.ReadByte(); // PSD
+                respnse[4] = (byte)serialPort.ReadByte(); // ir
+                respnse[5] = (byte)serialPort.ReadByte(); // snd
+
+                Message = "ReadAll = " + respnse[0] + ":" + respnse[1] + ":" + respnse[2] +":" + respnse[3] +":" + respnse[4] +":" + respnse[5];
+                System.Diagnostics.Debug.WriteLine(Message); // debug
+                return true;
+            }
+            catch (Exception e1)
+            {
+                Message = "Failed" + e1.Message;
+                return false;
+            }
+        }
+
         public bool wckReadPos(int id)
         {
             return wckReadPos(id, 0);
