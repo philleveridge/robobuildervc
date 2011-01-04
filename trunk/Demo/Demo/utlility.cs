@@ -79,6 +79,11 @@ namespace Demo
             pb = new System.Windows.Forms.Panel();
             pb.Size= new Size (h,w);
             pb.Location = new Point(24, 16);
+
+            p1 = new Pen(Color.FromName("Black"));
+            p1.DashStyle = (System.Drawing.Drawing2D.DashStyle.DashDot);
+            p2 = new Pen(Color.FromName("Red"));
+
             win.Controls.Add( pb);
             g=pb.CreateGraphics();
             return win;
@@ -87,6 +92,11 @@ namespace Demo
         public void usePanel(Panel x)
         {
             pb = x;
+
+            p1 = new Pen(Color.FromName("Black"));
+            p1.DashStyle = (System.Drawing.Drawing2D.DashStyle.DashDot);
+            p2 = new Pen(Color.FromName("Red"));
+
             g = pb.CreateGraphics();
         }
 
@@ -138,6 +148,18 @@ namespace Demo
                 drawline(g, xy[i], xy[i + 1], xy[i + 2], xy[i + 3], c);
                 i += 2;
             }
+        }
+
+        public void pwin(CList coords, int coord, int n, double t)
+        {
+            int nx = ((n * 10) % 280) - 140;
+            int ny = 4 * coord;
+
+            plot("(Acc=" + ny + " Rate=" + String.Format("{0:#.#}", t) + " ms)", nx, ny);
+            drawlist(new int[] { -125, 40, 125, 40 }, 4, (Pen)((ny > 40) ? p2 : p1)); //limit
+            drawlist(new int[] { -125, -40, 125, -40 }, 4, (Pen)((ny < -40) ? p2 : p1)); //limit    
+            coords.store(nx, ny);
+            drawlist(coords.getlast(6), 6, new Pen(Color.FromName("Blue")));
         }
     }
 }
