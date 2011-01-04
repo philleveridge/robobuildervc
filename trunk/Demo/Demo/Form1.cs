@@ -30,7 +30,7 @@ namespace Demo
 
                 w = new wckMotion(textBox1.Text, true);
                 bw = new BalanceWalk(w);
-                bw.standup();
+                standup();
             }
             else
             {
@@ -50,6 +50,7 @@ namespace Demo
                 label1.Text = "Delay=" + bw.dely;
                 swin(u);
                 bw.motion(u);                 //balanced walk
+                standup();
             }
             else
             {
@@ -57,6 +58,11 @@ namespace Demo
                 label1.Text = "";
                 bw.wlk = false;
             }
+        }
+
+        public void standup()
+        {
+            w.PlayPose(1000, 10, wckMotion.basic18, true);
         }
 
         void win_KeyPress(object sender, KeyPressEventArgs e)
@@ -93,6 +99,15 @@ namespace Demo
         {
             bw.dely += 5;
             label1.Text = "Delay=" + bw.dely;
+        }
+
+        private void button6_Click(object sender, EventArgs e)
+        {
+            w.wckReadPos(30, 5);
+            MessageBox.Show("PSD=" + w.respnse[0]);
+
+            w.wckReadPos(30, 7);
+            MessageBox.Show("IR=" + w.respnse[0]);
         }
 
 

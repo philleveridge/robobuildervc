@@ -43,7 +43,7 @@
             this.button1.Enabled = false;
             this.button1.Location = new System.Drawing.Point(188, 11);
             this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(70, 38);
+            this.button1.Size = new System.Drawing.Size(70, 25);
             this.button1.TabIndex = 0;
             this.button1.Text = "Go";
             this.button1.UseVisualStyleBackColor = true;

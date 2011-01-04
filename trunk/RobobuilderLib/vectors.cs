@@ -261,6 +261,33 @@ namespace RobobuilderLib
             return r;
         }
 
+        static public double head(Double[] a)
+        {
+            if (a != null && a.Length > 0)
+                return a[0];
+            else
+                return 0.0;
+        }
+
+        static public double[] partOf(Double[] a, int s, int f)
+        {
+            if (a == null || s >=a.Length || s < 0)
+                return null;
+            if (f > a.Length || f < s) f = a.Length;
+            double[] r = new double[f-s];
+            for (int i = s; i < f; i++)
+            {
+                r[i - s] = a[i];
+            }
+            return r;
+        }
+
+        static public double[] tail(Double[] a)
+        {
+            return partOf(a, 1, a.Length);
+        }
+
+
         static public double[] random(int n, double size, double offset)
         {
             double[] r = new double[n];

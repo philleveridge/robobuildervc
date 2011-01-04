@@ -24,171 +24,51 @@ namespace Demo
         byte[] ub_Huno = new byte[] { 174, 228, 254, 130, 185, 254, 180, 126, 208, 208, 254, 224, 198, 254, 200, 254 };
         byte[] lb_Huno = new byte[] { 1, 70, 124, 40, 41, 73, 22, 1, 120, 57, 1, 46, 1, 1, 25, 40 };
 
-        byte[][] rstep = new byte[][] {
-            new byte[] {123, 156, 212,  80, 108, 126, 73, 40, 150, 141,  68, 44, 40, 138, 208, 195},
-            new byte[] {130, 165, 201,  81, 115, 134, 81, 31, 147, 149,  72, 44, 40, 145, 209, 201},
-            new byte[] {132, 171, 197,  83, 117, 137, 86, 28, 148, 152,  78, 43, 41, 154, 209, 206},
-            new byte[] {132, 175, 195,  87, 117, 139, 91, 27, 152, 154,  87, 43, 43, 164, 209, 211},
-            new byte[] {132, 178, 197,  91, 117, 137, 95, 28, 157, 152,  97, 43, 48, 172, 209, 213},
-            new byte[] {130, 179, 201,  95, 115, 134, 96, 31, 161, 149, 105, 43, 53, 179, 210, 214},
-            new byte[] {127, 178, 206,  98, 112, 130, 95, 35, 166, 145, 111, 42, 57, 182, 210, 214},
-            new byte[] {124, 175, 212, 100, 109, 127, 92, 40, 170, 142, 113, 42, 59, 183, 210, 214}
-        };
-
-        byte[][] lstep = new byte[][] {
-            new byte[] {124, 175, 212, 100, 109, 127, 92, 40, 170, 142, 113, 42, 59, 183, 210, 214},
-            new byte[] {120, 172, 217, 102, 105, 123, 88, 46, 170, 138, 111, 42, 57, 182, 210, 214},
-            new byte[] {116, 167, 221, 103, 101, 120, 83, 51, 169, 135, 106, 43, 53, 179, 210, 214},
-            new byte[] {113, 162, 224, 102,  98, 118, 77, 55, 167, 133, 97,  43, 48, 173, 209, 213},
-            new byte[] {111, 157, 225, 98,   96, 118, 73, 57, 163, 133, 87,  43, 43, 164, 209, 211},
-            new byte[] {113, 153, 224, 93,   98, 118, 70, 55, 159, 133, 79,  43, 41, 154, 209, 206},
-            new byte[] {116, 152, 221, 89,  101, 120, 69, 51, 155, 135, 72,  44, 40, 146, 209, 201},
-            new byte[] {120, 153, 217, 84,  105, 123, 70, 46, 152, 138, 69,  44, 40, 140, 208, 197},
-            new byte[] {123, 156, 212, 80,  108, 126, 73, 40, 150, 141, 68,  44, 40, 138, 208, 195}
-            };
-
+        byte[][] rstep = new byte[8][];
+        byte[][] lstep = new byte[9][];
         byte[][] rstep_r;
         byte[][] lstep_r;
 
         struct compare
         {
-            public int min;
-            public int max;
+            public int av;
             public int[] dp;
 
-            public compare(int a, int b, int[] c)
-            { min = a; max = b; dp = c; }
+            public compare(int a, int[] c)
+            { av = a; dp = c; }
         };
 
-        compare[] z2 = new compare[] {
-                new compare( 14, 20, new int[] {0,0,0,0,0,0,0,0,0,0, 4,0,0,-4,0,0}),
-                new compare( 10, 15, new int[] {0,0,0,0,0,0,0,0,0,0, 2,0,0,-2,0,0}),
-                new compare(  5, 11, new int[] {0,0,0,0,0,0,0,0,0,0, 1,0,0,-1,0,0}),
-                new compare(-11, -5, new int[] {0,0,0,0,0,0,0,0,0,0,-1,0,0, 1,0,0}),
-                new compare(-14,-10, new int[] {0,0,0,0,0,0,0,0,0,0,-2,0,0, 2,0,0}),
-                new compare(-20,-13, new int[] {0,0,0,0,0,0,0,0,0,0,-4,0,0, 4,0,0})
-            };
-
-        compare[] Zx = new compare[] {
-                new compare( 6, 15, new int[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -2, 0, 0, -2, 0 }),
-                new compare( 4,  7, new int[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, 0, 0, -1, 0 }),
-                new compare(-7, -4, new int[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  1, 0, 0,  1, 0 }),
-                new compare(-15,-6, new int[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  2, 0, 0,  2, 0 })    
-            };
+        compare[] zm;
 
         public BalanceWalk(wckMotion w1)
         {
             w = w1;
             n_of_s = countServos(22);
             Console.WriteLine("Balance walk - {0}", n_of_s);
+
+            matrix m = new matrix(16, 17);
+            if (m.load("rlstep.csv"))
+            {
+                for (int i = 0; i < 8; i++)
+                    rstep[i] = cv18(vectors.convByte( m.getrow(i)));
+
+                for (int i = 0; i < 9; i++)
+                    lstep[i] = cv18(vectors.convByte(m.getrow(8+i)));      
+            }
+
             lstep_r = reverse(lstep);
             rstep_r = reverse(rstep);
-        }
 
-        public void standup()
-        {
-            if (n_of_s < 16) return;
-            w.PlayPose(1000, 10, (n_of_s < 18) ? wckMotion.basic16 : wckMotion.basic18, true);
-        }
-
-        int countServos(int m)
-        {
-            for (int i = 0; i < m; i++)
+            matrix m2 = new matrix(17,7);
+            zm = new compare[7];
+            if (m2.load("compare.csv"))
             {
-                if (!w.wckReadPos(i))
+                for (int i = 0; i < 7; i++)
                 {
-                    return i;
+                    double[] t = m2.getrow(i);
+                    zm[i] = new compare((int)vectors.head(t), vectors.convInt(vectors.tail(t)));
                 }
             }
-            return m;
-        }
-
-        byte[] bcheck(int[] p, byte[] min, byte[] max)
-        {
-            byte[] r = new byte[p.Length];
-            for (int i = 0; i < p.Length; i++)
-            {
-                if (i < min.Length && i < max.Length)
-                    r[i] = (byte)((p[i] > max[i]) ? max[i] : ((p[i] < min[i]) ? min[i] : p[i]));
-            }
-
-            return r;
-        }
-
-        int[] rmatch(int g, compare[] c)
-        {
-            int[] res = null;
-            foreach (compare r in c)
-            {
-                if (g >= r.min && g < r.max)
-                {
-                    res = r.dp;
-                    break;
-                }
-            }
-            return res;
-        }
-
-        void calibrateXYZ()
-        {
-            gx = 0; gy = 0; gz = 0;
-
-            if (w.wckReadAll())
-            {
-                gx = w.cbyte(w.respnse[0]); 
-                gy = w.cbyte(w.respnse[1]);
-                gz = w.cbyte(w.respnse[2]);
-            }
-            Console.WriteLine("calibrated: {0},{1},{2}", gx, gy, gz);
-        }
-
-        int[] add_delta(int[] a, int[] b)
-        {
-            if (a == null) return b;
-
-            int[] r = new int[a.Length];
-            for (int i = 0; i < a.Length; i++)
-            {
-                r[i] = a[i] + ((b != null && i < b.Length) ? b[i] : 0);
-            }
-            return r;
-        }
-
-        int[] add_delta(int[] a, byte[] b)
-        {
-            int[] r;
-
-            if (a == null && b == null) return null;
-
-            if (a == null)
-            {
-                r = new int[b.Length];
-                for (int i = 0; i < b.Length; i++)
-                {
-                    r[i] = b[i];
-                }
-                return r;
-            }
-
-            r = new int[a.Length];
-            for (int i = 0; i < a.Length; i++)
-            {
-                r[i] = a[i] + ((b != null && i < b.Length) ? b[i] : 0);
-            }
-            return r;
-        }
-
-        public byte[] getallServos(int p)
-        {
-            byte[] r = new byte[p];
-            for (int i = 0; i < p; i++)
-            {
-                if (w.wckReadPos(i))
-                    r[i] = w.respnse[1];
-                else
-                    r[i] = 0;
-            }
-            return r;
         }
 
         byte[][] reverse(byte[][] z)
@@ -196,7 +76,7 @@ namespace Demo
             byte[][] r = new byte[z.Length][];
 
             for (int i = 0; i < z.Length; i++)
-                r[i] = z[z.Length-i-1];
+                r[i] = z[z.Length - i - 1];
 
             return r;
         }
@@ -214,6 +94,46 @@ namespace Demo
                 r[5] -= 20;
             }
             return r;
+        }
+
+        int countServos(int m)
+        {
+            for (int i = 0; i < m; i++)
+            {
+                if (!w.wckReadPos(i))
+                {
+                    return i;
+                }
+            }
+            return m;
+        }
+
+        int[] rmatch(int g, compare[] c)
+        {
+            int[] res = null;
+            int diff = 99;
+            foreach (compare r in c)
+            {
+                if (Math.Abs(r.av - g) < diff)
+                {
+                    diff = Math.Abs(r.av - g);
+                    res = r.dp;
+                }
+            }
+            return res;
+        }
+
+        void calibrateXYZ()
+        {
+            gx = 0; gy = 0; gz = 0;
+
+            if (w.wckReadAll())
+            {
+                gx = w.cbyte(w.respnse[0]); 
+                gy = w.cbyte(w.respnse[1]);
+                gz = w.cbyte(w.respnse[2]);
+            }
+            Console.WriteLine("calibrated: {0},{1},{2}", gx, gy, gz);
         }
 
         void pwin(Utility u, int coord, int n, double t)
@@ -258,7 +178,10 @@ namespace Demo
                     z = w.cbyte(w.respnse[2])-gz;
                     d = w.respnse[3];
                     if (w.respnse[4] < 255)
-                        Console.WriteLine("IR pressed = {0}",w.respnse[4]);
+                    {
+                        //MessageBox.Show(String.Format("IR pressed = {0}", w.respnse[4]));
+                        if (w.respnse[4] == 7) wlk = false;
+                    }
                 }
 
                 if ((nc++ % 10) == 0)
@@ -266,6 +189,7 @@ namespace Demo
                     //timing loop
                     rt = (DateTime.Now.Ticks - st) / (10 * TimeSpan.TicksPerMillisecond);
                     st = DateTime.Now.Ticks;
+                    w.wckReadPos(30, 5); // for PSD read
                 }
 
                 pwin(u, z, nc, rt);
@@ -294,15 +218,14 @@ namespace Demo
                             break;
                         case "s":
                             cpos = new byte[1][];
-                            cpos[0] = wckMotion.basic16;
+                            cpos[0] = wckMotion.basic18;
                             break;
                     }
                 }
 
-
                 try
                 {
-                    int[] dz = rmatch(z, z2);
+                    int[] dz = rmatch(z, zm);
 
                     if (az == null)
                         az= dz;
@@ -310,30 +233,25 @@ namespace Demo
                     {
                         if (dz!=null)
                         {
-                            az = add_delta(az ,dz);
+                            az = vectors.add(az, dz);
                         }
                     }
-                    sbase = bcheck(add_delta(az, cv18(cpos[counter++])), lb_Huno, ub_Huno);
+
+                    sbase = vectors.bcheck(vectors.add(az, cpos[counter++]), lb_Huno, ub_Huno);
 
                     if (counter >= cpos.Length) counter = 0;
 
                     w.SyncPosSend(15, 4, sbase, 0);
-                    System.Threading.Thread.Sleep(dely); 
+                    System.Threading.Thread.Sleep(dely);
 
+                    Console.Write(state);
                 }
                 catch
                 {
                     Console.WriteLine("fail");
                     wlk = false;
                 }
-
-
-
-
-                Console.Write(state);
-
             }
-	        standup();
         }
 
     }
