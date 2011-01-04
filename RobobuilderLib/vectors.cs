@@ -3,7 +3,6 @@ using System.IO;
 
 namespace RobobuilderLib
 {
-
     struct ComplexNumber
     {
         public double Re;
@@ -704,6 +703,36 @@ namespace RobobuilderLib
             cols = s;
             rows = s;
             for (int i = 0; i < s; i++) mat[i, i] = 1.0;
+        }
+
+        public matrix(string filename)
+        {
+            string[] inpt;
+            int r=0, c=0;
+
+            try
+            {
+                inpt = File.ReadAllLines(filename);
+                for (int i = 0; i < inpt.Length; i++)
+                {
+                    if (inpt[i].StartsWith("#"))
+                        continue;
+                    r++;
+                    string[] v = inpt[i].Split(',');
+                    if (v.Length > c) c = v.Length;
+                }
+                mat = new double[c, r];
+                cols = c;
+                rows = r;
+                if (!load(filename))
+                {
+                    Console.WriteLine("File load failed {0} - {1},{2}", filename, r, c);
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("File load failed {0} - {1}", filename, e.Message);
+            }
         }
 
         public matrix resize(int nc, int nr)

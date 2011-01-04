@@ -23,11 +23,7 @@ namespace Demo
 
         byte[] ub_Huno = new byte[] { 174, 228, 254, 130, 185, 254, 180, 126, 208, 208, 254, 224, 198, 254, 200, 254 };
         byte[] lb_Huno = new byte[] { 1, 70, 124, 40, 41, 73, 22, 1, 120, 57, 1, 46, 1, 1, 25, 40 };
-
-        byte[][] rstep = new byte[8][];
-        byte[][] lstep = new byte[9][];
-        byte[][] rstep_r;
-        byte[][] lstep_r;
+        byte[][] fstep, bstep;
 
         struct compare
         {
@@ -46,39 +42,28 @@ namespace Demo
             n_of_s = countServos(22);
             Console.WriteLine("Balance walk - {0}", n_of_s);
 
-            matrix m = new matrix(16, 17);
-            if (m.load("rlstep.csv"))
-            {
-                for (int i = 0; i < 8; i++)
-                    rstep[i] = cv18(vectors.convByte( m.getrow(i)));
+            matrix m = new matrix("rlstep.csv");
 
-                for (int i = 0; i < 9; i++)
-                    lstep[i] = cv18(vectors.convByte(m.getrow(8+i)));      
+            fstep = new byte[m.getr()][]; 
+            bstep = new byte[m.getr()][];
+
+            int r =  m.getr();
+
+            for (int i = 0; i < r; i++)
+            {
+                fstep[i] = cv18(vectors.convByte(m.getrow(i)));
+                bstep[r - i-1] = fstep[i];
             }
 
-            lstep_r = reverse(lstep);
-            rstep_r = reverse(rstep);
+            matrix m2 = new matrix("compare.csv");
+            zm = new compare[m2.getr()];
 
-            matrix m2 = new matrix(17,7);
-            zm = new compare[7];
-            if (m2.load("compare.csv"))
+            for (int i = 0; i < m2.getr(); i++)
             {
-                for (int i = 0; i < 7; i++)
-                {
-                    double[] t = m2.getrow(i);
-                    zm[i] = new compare((int)vectors.head(t), vectors.convInt(vectors.tail(t)));
-                }
+                double[] t = m2.getrow(i);
+                zm[i] = new compare((int)vectors.head(t), vectors.convInt(vectors.tail(t)));
             }
-        }
 
-        byte[][] reverse(byte[][] z)
-        {
-            byte[][] r = new byte[z.Length][];
-
-            for (int i = 0; i < z.Length; i++)
-                r[i] = z[z.Length - i - 1];
-
-            return r;
         }
 
         byte[] cv18(byte[] a) // hip conversion
@@ -136,37 +121,24 @@ namespace Demo
             Console.WriteLine("calibrated: {0},{1},{2}", gx, gy, gz);
         }
 
-        void pwin(Utility u, int coord, int n, double t)
-        {
-            int nx = ((n * 10) % 280) - 140;
-            int ny = 4 * coord;
-
-            u.plot("(Acc=" + ny + " Rate=" + String.Format("{0:#.#}", t) + " ms)", nx, ny);
-            u.drawlist(new int[] { -125, 40, 125, 40 }, 4, (Pen)((ny > 40) ? u.p2 : u.p1)); //limit
-            u.drawlist(new int[] { -125, -40, 125, -40 }, 4, (Pen)((ny < -40) ? u.p2 : u.p1)); //limit    
-            coords.store(nx, ny);
-            u.drawlist(coords.getlast(6), 6, new Pen(Color.FromName("Blue")));
-        }
-
         public void motion (Utility u)
         {
             byte[][] cpos=null;
-            byte[] sbase=null;
+            byte[] sbase=new byte[16] {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
             int[] az=null;
             int counter=0;
 
             int x=0, z=0;
-            Double rt = 0;
+            int d = 0; 
 
             coords = new CList();
             calibrateXYZ();
 
-            sbase = new byte[16] {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-
             int nc = 0;
+            Double rt = 0; 
             st = DateTime.Now.Ticks;
+
             wlk = true;
-            int d=0;
 
             while (wlk)
             {
@@ -179,8 +151,16 @@ namespace Demo
                     d = w.respnse[3];
                     if (w.respnse[4] < 255)
                     {
-                        //MessageBox.Show(String.Format("IR pressed = {0}", w.respnse[4]));
-                        if (w.respnse[4] == 7) wlk = false;
+                        PCremote.RemoCon ir = (PCremote.RemoCon)(w.respnse[4]);
+                        if (ir == PCremote.RemoCon.Stop)
+                        {
+                            if (state == "R")
+                                state = "s";
+                            else
+                                wlk = false;
+                        }
+                        if (ir == PCremote.RemoCon.Forward && state == "s") 
+                            state = "R";
                     }
                 }
 
@@ -190,32 +170,26 @@ namespace Demo
                     rt = (DateTime.Now.Ticks - st) / (10 * TimeSpan.TicksPerMillisecond);
                     st = DateTime.Now.Ticks;
                     w.wckReadPos(30, 5); // for PSD read
+
                 }
 
-                pwin(u, z, nc, rt);
+                u.pwin(coords, z, nc, rt);
 
                 if (counter == 0)
                 {
                     switch (state)
                     {
                         case "R":
-                            cpos = rstep;
-                            state = "L";
-                            break;
-                        case "L":
-                            cpos = lstep;
-                            state = "R";
+                            cpos = fstep;
                             if (d < 15) state = "r";
                             break;
+
                         case "r":
-                            cpos = lstep_r;
-                            state = "l";
-                            break;
-                        case "l":
-                            cpos = rstep_r;
+                            cpos = bstep;
                             state = "r";
                             if (d > 25) state = "R";
                             break;
+                        
                         case "s":
                             cpos = new byte[1][];
                             cpos[0] = wckMotion.basic18;

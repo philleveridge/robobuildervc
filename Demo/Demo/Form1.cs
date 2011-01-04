@@ -48,16 +48,16 @@ namespace Demo
             {
                 button1.Text = "Stop";
                 label1.Text = "Delay=" + bw.dely;
-                swin(u);
+                u.win = this;
+                u.usePanel(panel1);
                 bw.motion(u);                 //balanced walk
                 standup();
             }
-            else
-            {
-                button1.Text = "Go";
-                label1.Text = "";
-                bw.wlk = false;
-            }
+
+            button1.Text = "Go";
+            label1.Text = "";
+            bw.wlk = false;
+
         }
 
         public void standup()
@@ -70,15 +70,6 @@ namespace Demo
             u.kp = true;
             u.ch = e.KeyChar;
             Console.WriteLine("key pressed = {0}", u.ch);
-        }
-
-        void swin(Utility u)
-        {
-            u.p1 = new Pen(Color.FromName("Black"));
-            u.p1.DashStyle = (System.Drawing.Drawing2D.DashStyle.DashDot);
-            u.p2 = new Pen(Color.FromName("Red"));
-            u.win = this;
-            u.usePanel(panel1);
         }
 
         private void button4_Click(object sender, EventArgs e)
@@ -100,16 +91,6 @@ namespace Demo
             bw.dely += 5;
             label1.Text = "Delay=" + bw.dely;
         }
-
-        private void button6_Click(object sender, EventArgs e)
-        {
-            w.wckReadPos(30, 5);
-            MessageBox.Show("PSD=" + w.respnse[0]);
-
-            w.wckReadPos(30, 7);
-            MessageBox.Show("IR=" + w.respnse[0]);
-        }
-
 
     }
 }
