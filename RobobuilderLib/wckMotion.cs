@@ -148,7 +148,7 @@ namespace RobobuilderLib
                 respnse[5] = (byte)serialPort.ReadByte(); // snd
 
                 Message = "ReadAll = " + respnse[0] + ":" + respnse[1] + ":" + respnse[2] +":" + respnse[3] +":" + respnse[4] +":" + respnse[5];
-                System.Diagnostics.Debug.WriteLine(Message); // debug
+                //System.Diagnostics.Debug.WriteLine(Message); // debug
                 return true;
             }
             catch (Exception e1)
@@ -177,7 +177,7 @@ namespace RobobuilderLib
                 respnse[0] = (byte)serialPort.ReadByte();
                 respnse[1] = (byte)serialPort.ReadByte();
                 Message = "ReadPos " + id + " = " + respnse[0] + ":" + respnse[1];
-                System.Diagnostics.Debug.WriteLine(Message); // debug
+                //System.Diagnostics.Debug.WriteLine(Message); // debug
                 return true;
             }
             catch (Exception e1)

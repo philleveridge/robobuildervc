@@ -33,7 +33,8 @@
   <ItemGroup>
     <Reference Include="RobobuilderLib, Version=1.9.9.8, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\robobuildervc\RobobuilderLib\bin\Debug\RobobuilderLib.exe</HintPath>
+      <ExecutableExtension>.exe</ExecutableExtension>
+      <HintPath>..\..\RobobuilderLib\bin\Debug\RobobuilderLib.exe</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core">
@@ -74,6 +75,17 @@
     </Compile>
     <Compile Include="utlility.cs" />
     <Compile Include="Walk.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="compare_x.csv" />
+    <None Include="rlstep.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="compare.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
