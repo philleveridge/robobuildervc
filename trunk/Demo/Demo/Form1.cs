@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
+using System.IO.Ports;
 
 using RobobuilderLib;
 
@@ -28,7 +29,15 @@ namespace Demo
                 button1.Enabled = true;
                 button2.Text = "Disconnect";
 
-                w = new wckMotion(textBox1.Text, true);
+                if (checkBox1.Checked)
+                {
+                    // new highspeed comms mode
+                    w = new wckMotion(new PCremote(new SerialPort(textBox1.Text, 230400)));
+                }
+                else
+                {
+                    w = new wckMotion(textBox1.Text, true);
+                }
                 bw = new BalanceWalk(w);
                 standup();
             }

@@ -7,6 +7,57 @@ using RobobuilderLib;
 
 namespace Demo
 {
+
+    struct compare
+    {
+        public int av;
+        public int[] dp;
+
+        public compare(int a, int[] c)
+        { av = a; dp = c; }
+    };
+
+    class Compare
+    {
+        List<compare> items = new List<compare>();
+
+        public Compare(string f)
+        {
+            matrix m2 = new matrix(f);
+
+            for (int i = 0; i < m2.getr(); i++)
+            {
+                double[] t = m2.getrow(i);
+                items.Add(new compare((int)vectors.head(t), vectors.convInt(vectors.tail(t))));
+            }
+        }
+
+        public void close()
+        {
+            items.Clear();
+        }
+
+        public void build()
+        {
+
+        }
+
+        public int[] match(int g)
+        {
+            int[] res = null;
+            int diff = 99;
+            foreach (compare r in items)
+            {
+                if (Math.Abs(r.av - g) < diff)
+                {
+                    diff = Math.Abs(r.av - g);
+                    res = r.dp;
+                }
+            }
+            return res;
+        }
+    }
+
     class BalanceWalk
     {
         public bool wlk; 
@@ -17,24 +68,13 @@ namespace Demo
         int n_of_s;
         long st;
 
-        CList coords;
-
         int gx = 0, gy = 0, gz = 0;
 
         byte[] ub_Huno = new byte[] { 174, 228, 254, 130, 185, 254, 180, 126, 208, 208, 254, 224, 198, 254, 200, 254 };
         byte[] lb_Huno = new byte[] { 1, 70, 124, 40, 41, 73, 22, 1, 120, 57, 1, 46, 1, 1, 25, 40 };
-        byte[][] fstep, bstep;
+        byte[][] fstep;
 
-        struct compare
-        {
-            public int av;
-            public int[] dp;
-
-            public compare(int a, int[] c)
-            { av = a; dp = c; }
-        };
-
-        compare[] zm;
+        Compare zm;
 
         public BalanceWalk(wckMotion w1)
         {
@@ -43,27 +83,16 @@ namespace Demo
             Console.WriteLine("Balance walk - {0}", n_of_s);
 
             matrix m = new matrix("rlstep.csv");
+            int r = m.getr();
 
-            fstep = new byte[m.getr()][]; 
-            bstep = new byte[m.getr()][];
-
-            int r =  m.getr();
+            fstep = new byte[r][]; 
 
             for (int i = 0; i < r; i++)
             {
                 fstep[i] = cv18(vectors.convByte(m.getrow(i)));
-                bstep[r - i-1] = fstep[i];
             }
 
-            matrix m2 = new matrix("compare.csv");
-            zm = new compare[m2.getr()];
-
-            for (int i = 0; i < m2.getr(); i++)
-            {
-                double[] t = m2.getrow(i);
-                zm[i] = new compare((int)vectors.head(t), vectors.convInt(vectors.tail(t)));
-            }
-
+            zm = new Compare("compare.csv");
         }
 
         byte[] cv18(byte[] a) // hip conversion
@@ -93,19 +122,14 @@ namespace Demo
             return m;
         }
 
-        int[] rmatch(int g, compare[] c)
+        byte[][] reverse(byte[][] z)
         {
-            int[] res = null;
-            int diff = 99;
-            foreach (compare r in c)
-            {
-                if (Math.Abs(r.av - g) < diff)
-                {
-                    diff = Math.Abs(r.av - g);
-                    res = r.dp;
-                }
-            }
-            return res;
+            byte[][] r = new byte[z.Length][];
+
+            for (int i = 0; i < z.Length; i++)
+                r[i] = z[z.Length - i - 1];
+
+            return r;
         }
 
         void calibrateXYZ()
@@ -128,10 +152,11 @@ namespace Demo
             int[] az=null;
             int counter=0;
 
-            int x=0, z=0;
+            bool bal = true;
+
+            int x=0, z=0, dz=0;
             int d = 0; 
 
-            coords = new CList();
             calibrateXYZ();
 
             int nc = 0;
@@ -147,21 +172,40 @@ namespace Demo
                 if (w.wckReadAll())
                 {
                     x = w.cbyte(w.respnse[0])-gx;
-                    z = w.cbyte(w.respnse[2])-gz;
+                    int tz = w.cbyte(w.respnse[2])-gz;
+                    dz = z - tz;
+                    z = tz;
                     d = w.respnse[3];
+
                     if (w.respnse[4] < 255)
                     {
-                        PCremote.RemoCon ir = (PCremote.RemoCon)(w.respnse[4]);
-                        if (ir == PCremote.RemoCon.Stop)
+                        switch((PCremote.RemoCon)(w.respnse[4]))
                         {
-                            if (state == "R")
-                                state = "s";
-                            else
-                                wlk = false;
+                            case PCremote.RemoCon.Stop:
+                                if (state == "R")
+                                    state = "s";
+                                else
+                                    wlk = false;
+                                break;
+
+                            case PCremote.RemoCon.Forward:
+                                if (state == "s")
+                                    state = "R";
+                                break;
+
+                            case PCremote.RemoCon.Back:
+                                if (state == "s")
+                                    state = "r";
+                                break;
+
+                            case PCremote.RemoCon.A:
+                                bal = !bal;
+                                break;
                         }
-                        if (ir == PCremote.RemoCon.Forward && state == "s") 
-                            state = "R";
                     }
+
+                    Console.WriteLine("{0},{1},{2},{3},{4},{5}", counter, z, dz, d, w.respnse[4], bal);
+
                 }
 
                 if ((nc++ % 10) == 0)
@@ -170,10 +214,9 @@ namespace Demo
                     rt = (DateTime.Now.Ticks - st) / (10 * TimeSpan.TicksPerMillisecond);
                     st = DateTime.Now.Ticks;
                     w.wckReadPos(30, 5); // for PSD read
-
                 }
 
-                u.pwin(coords, z, nc, rt);
+                u.pwin(z, dz, nc, rt);
 
                 if (counter == 0)
                 {
@@ -185,7 +228,7 @@ namespace Demo
                             break;
 
                         case "r":
-                            cpos = bstep;
+                            cpos = reverse(fstep);
                             state = "r";
                             if (d > 25) state = "R";
                             break;
@@ -199,24 +242,29 @@ namespace Demo
 
                 try
                 {
-                    int[] dz = rmatch(z, zm);
+                    int[] dp = zm.match(z);
 
                     if (az == null)
-                        az= dz;
+                        az= dp;
                     else
                     {
-                        if (dz!=null)
+                        if (dp!=null)
                         {
-                            az = vectors.add(az, dz);
+                            az = vectors.add(az, dp);
                         }
+
+                        Console.Write("sum={0}", vectors.sum(az));
                     }
 
-                    sbase = vectors.bcheck(vectors.add(az, cpos[counter++]), lb_Huno, ub_Huno);
-
-                    if (counter >= cpos.Length) counter = 0;
+                    if (bal)
+                        sbase = vectors.bcheck(vectors.add(az, cpos[counter]), lb_Huno, ub_Huno);
+                    else
+                        sbase = cpos[counter];
 
                     w.SyncPosSend(15, 4, sbase, 0);
                     System.Threading.Thread.Sleep(dely);
+
+                    if (++counter >= cpos.Length) counter = 0;
 
                     Console.Write(state);
                 }

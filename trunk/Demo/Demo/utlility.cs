@@ -56,6 +56,7 @@ namespace Demo
         public Pen p1, p2;
         Graphics g;
         Panel pb;
+        CList coords = new CList();
 
         public bool kp = false;
         public int ch = 0;
@@ -105,7 +106,7 @@ namespace Demo
             if (win != null) win.Close();
         }
 
-        public void plot(string txt, int x, int y)
+        public void plot(string txt, int x, int y, bool cf, Pen pen)
         {
             int w  = pb.Width;
             int h  = pb.Height;
@@ -115,16 +116,21 @@ namespace Demo
 
             if (win != null) win.Show();
   
-            g.Clear(Color.FromName ("White"));
+            if (cf)
+            {
+                g.Clear(Color.FromName("White"));
+                Pen axis = new Pen(Color.FromName("Black"));
+                g.DrawLine(axis, 0, h / 2, w, h / 2);
+                g.DrawLine(axis, w / 2, 0, w / 2, h);
+            }
 
-            Pen axis  = new Pen (Color.FromName ("Black"));
-            Pen pen   = new Pen (Color.FromName ("Red"));
-            Font font = new Font ("Arial", (Single) 8.25 );
-
-            g.DrawLine    (axis, 0, h/2, w, h/2);
-            g.DrawLine    (axis, w/2, 0, w/2, h);
             g.DrawEllipse (pen, (x-6),  (y-6), 14, 14);
-            g.DrawString  (txt, font, (pen.Brush), new PointF( 10, 10));     
+
+            if (txt != "")
+            {
+                Font font = new Font("Arial", (Single)8.25);
+                g.DrawString(txt, font, (pen.Brush), new PointF(10, 10));
+            }
         }
 
         public void drawline(Graphics g, int fx, int fy, int tx, int ty, Pen c)
@@ -150,12 +156,15 @@ namespace Demo
             }
         }
 
-        public void pwin(CList coords, int coord, int n, double t)
+        public void pwin(int y, int y2, int n, double t)
         {
             int nx = ((n * 10) % 280) - 140;
-            int ny = 4 * coord;
+            int ny = 4 * y;
+            int ny2 = 4 * y2;
 
-            plot("(Acc=" + ny + " Rate=" + String.Format("{0:#.#}", t) + " ms)", nx, ny);
+            plot("(Acc=" + ny + " Rate=" + String.Format("{0:#.#}", t) + " ms)", nx, ny, true, new Pen (Color.FromName ("Red")));
+            plot("", nx, ny2, false, new Pen (Color.FromName ("Blue")));
+
             drawlist(new int[] { -125, 40, 125, 40 }, 4, (Pen)((ny > 40) ? p2 : p1)); //limit
             drawlist(new int[] { -125, -40, 125, -40 }, 4, (Pen)((ny < -40) ? p2 : p1)); //limit    
             coords.store(nx, ny);
