@@ -67,6 +67,7 @@ namespace RobobuilderLib
         {
             DCMP = false;
             trig = null;
+            cmt = MoveTypes.Linear; //default 
             serialPort = r.serialPort;
             pcR = r;
             pcR.setDCmode(true);
@@ -102,6 +103,7 @@ namespace RobobuilderLib
         public void close()
         {
            pcR.setDCmode(false);
+            
         }
 
         public bool wckPassive(int id)
