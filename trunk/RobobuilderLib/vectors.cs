@@ -521,6 +521,19 @@ namespace RobobuilderLib
             return rms;
         }
 
+        static public double rms(int[] a)
+        {
+            if (a == null ) return 0.0;
+            double rms = 0;
+
+            for (int i = 0; i < a.Length; i++)
+            {
+                rms += (a[i] * a[i]);
+            }
+            rms = Math.Sqrt(rms / a.Length);
+            return rms;
+        }
+
         static public int sum(int[] a)
         {
             if (a == null) return 0;

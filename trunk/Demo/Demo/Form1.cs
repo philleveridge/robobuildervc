@@ -15,6 +15,8 @@ namespace Demo
         wckMotion w;
         Demo.BalanceWalk bw;
         Utility u = new Utility();
+        SerialPort s;
+        PCremote pcr;
 
         public Form1()
         {
@@ -32,12 +34,18 @@ namespace Demo
                 if (checkBox1.Checked)
                 {
                     // new highspeed comms mode
-                    w = new wckMotion(new PCremote(new SerialPort(textBox1.Text, 230400)));
+                    s = new SerialPort(textBox1.Text, 230400);
                 }
                 else
                 {
-                    w = new wckMotion(textBox1.Text, true);
+                    s = new SerialPort(textBox1.Text, 115200);
                 }
+
+                s.WriteTimeout = 500;
+                s.ReadTimeout = 500;
+                s.Open();
+                pcr = new PCremote(s);
+                w = new wckMotion(pcr); 
                 bw = new BalanceWalk(w);
                 standup();
             }
@@ -45,7 +53,14 @@ namespace Demo
             {
                 button1.Enabled = false;
                 button2.Text = "Connect";
-                if (w != null) w.close();
+                if (w != null)
+                {
+                    w.close();
+                }
+                if (s != null)
+                {
+                    s.Close();
+                }
                 bw = null;
                 w = null;
             }

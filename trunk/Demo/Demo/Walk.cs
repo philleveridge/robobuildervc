@@ -132,6 +132,25 @@ namespace Demo
             return r;
         }
 
+        void mirror(bool f)
+        {
+            byte p1=0,p2=0,p3=0;
+            int n = f ? 13 : 10; // reading side
+            int m = f ? 10 : 13; // writing side
+
+            w.wckPassive(n);                    
+            w.wckPassive(n+1);
+            w.wckPassive(n+2);
+
+            if (w.wckReadPos(n))   p1=w.respnse[0];
+            if (w.wckReadPos(n+1)) p2=w.respnse[0];
+            if (w.wckReadPos(n+2)) p3=w.respnse[0];
+
+            w.wckMovePos(m,   254 - p1, 4);
+            w.wckMovePos(m+1, 254 - p2, 4);
+            w.wckMovePos(m+2, 254 - p3, 4);
+        }
+
         void calibrateXYZ()
         {
             gx = 0; gy = 0; gz = 0;
@@ -237,6 +256,11 @@ namespace Demo
                             cpos = new byte[1][];
                             cpos[0] = wckMotion.basic18;
                             break;
+
+                        case "m":
+                            mirror(true);
+                            cpos = null;
+                            break;
                     }
                 }
 
@@ -253,7 +277,7 @@ namespace Demo
                             az = vectors.add(az, dp);
                         }
 
-                        Console.Write("sum={0}", vectors.sum(az));
+                        Console.Write("sum={0}", vectors.rms(az));
                     }
 
                     if (bal)

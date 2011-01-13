@@ -42,6 +42,9 @@ namespace RobobuilderLib
 
         public PCremote(SerialPort s)
         {
+            s.WriteTimeout = 500;
+            s.ReadTimeout = 500;
+            if (!s.IsOpen) s.Open();
             setup(s);
         }
 
