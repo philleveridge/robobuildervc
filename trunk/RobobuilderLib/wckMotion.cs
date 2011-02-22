@@ -8,11 +8,17 @@ using System.Text.RegularExpressions;
 
 namespace RobobuilderLib
 {
-
     public class wckMotion
     {
         public const int MAX_SERVOS = 21;
         trigger trig;
+
+        static int[] pair_bonds = { 10, 13, 11, 14, 12, 15, 0, 5, 1, 6, 2, 7, 3, 8, 4, 9, 16, 17 };
+
+        static public byte[] dh = new byte[] {
+                                143,	179,	198,	83,	    105,	106,	68,	    46,	
+                                167,	140,	77,	    70,	    152,	165,	181,	98,	
+                                120,	124,	99};
 
         static public int[] ub_Huno = new int[] {
         /* ID
@@ -77,6 +83,16 @@ namespace RobobuilderLib
         ~wckMotion()
         {
             close();
+        }
+
+        public int bond(int n)
+        {
+            for (int i = 0; i < pair_bonds.Length; i += 2)
+            {
+                if (n == pair_bonds[i])   return pair_bonds[i + 1];
+                if (n == pair_bonds[i+1]) return pair_bonds[i];
+            }
+            return -1;
         }
 
         public void set_kfactor(double k)

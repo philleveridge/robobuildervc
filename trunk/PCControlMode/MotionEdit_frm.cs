@@ -21,6 +21,8 @@ namespace RobobuilderLib
 
         public string filename = "";
         public string fn = "";
+        public bool dhf = false;
+
 
         wckMotion dcontrol;
         PCremote remote;
@@ -219,6 +221,31 @@ namespace RobobuilderLib
                         if (viewport != null)
                         {
                             viewport.setServoPos(id, servoPos[id].Value);
+                        }
+
+                        if (readID[id].Checked)
+                        {
+                            //
+                            int v = servoPos[id].Value;
+                            int bid = dcontrol.bond(id);
+                            if (mode.SelectedIndex < 0) mode.SelectedIndex = 0;
+                            switch (mode.SelectedItem.ToString())
+                            {
+                                case "":
+                                case "Ind":
+                                    break;
+                                case "Mirror": 
+                                    v = 254-v;
+                                    readID[bid].Checked = false;
+                                    servoPos[bid].Value = v;
+                                    dcontrol.wckMovePos(bid, v, 4);
+                                    break;
+                                case "Copy":
+                                    readID[bid].Checked = false;
+                                    servoPos[bid].Value = v;
+                                    dcontrol.wckMovePos(bid, v, 4);
+                                    break;
+                            }
                         }
                     }
                 }
@@ -581,14 +608,15 @@ namespace RobobuilderLib
 
         private void setBasic_Click(object sender, EventArgs e)
         {
+            
             // set basic pose !
-            if (dcontrol != null) dcontrol.BasicPose(1000, 10);
-            servoID_readservo();
-        }
-
-        private void queryValues_Click(object sender, EventArgs e)
-        {
-            //read and load current servo positions
+            if (dcontrol != null)
+            {
+                if (dhf)
+                    dcontrol.PlayPose(1000, 10, wckMotion.dh, true); // dance hands
+                else
+                    dcontrol.BasicPose(1000, 10);
+            }
             servoID_readservo();
         }
 
@@ -682,6 +710,32 @@ namespace RobobuilderLib
         private void close_Click(object sender, EventArgs e)
         {
             panel1.Visible = false;
+        }
+
+        private void queryValues_Click(object sender, EventArgs e)
+        {
+            //read and load current servo positions
+            if (qt.Enabled)
+            {
+                queryValues.Text = "?"; 
+                qt.Stop();
+            }
+            else
+            {
+                qt.Start();
+                queryValues.Text = "()";
+            }
+
+        }
+
+        private void qt_Tick(object sender, EventArgs e)
+        {
+            //
+            servoID_readservo();
+            if (queryValues.Text == "()")
+                queryValues.Text = ")(";
+            else
+                queryValues.Text = "()"; 
         }
 
     }

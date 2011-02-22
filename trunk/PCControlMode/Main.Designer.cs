@@ -55,6 +55,7 @@
             this.textBox2 = new System.Windows.Forms.TextBox();
             this.dcmp_cb = new System.Windows.Forms.CheckBox();
             this.button3 = new System.Windows.Forms.Button();
+            this.dhmode = new System.Windows.Forms.CheckBox();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -80,7 +81,7 @@
             // button5
             // 
             this.button5.Enabled = false;
-            this.button5.Location = new System.Drawing.Point(175, 57);
+            this.button5.Location = new System.Drawing.Point(231, 92);
             this.button5.Name = "button5";
             this.button5.Size = new System.Drawing.Size(64, 29);
             this.button5.TabIndex = 6;
@@ -91,7 +92,7 @@
             // button6
             // 
             this.button6.Enabled = false;
-            this.button6.Location = new System.Drawing.Point(27, 57);
+            this.button6.Location = new System.Drawing.Point(5, 57);
             this.button6.Name = "button6";
             this.button6.Size = new System.Drawing.Size(72, 29);
             this.button6.TabIndex = 7;
@@ -102,7 +103,7 @@
             // button7
             // 
             this.button7.Enabled = false;
-            this.button7.Location = new System.Drawing.Point(105, 57);
+            this.button7.Location = new System.Drawing.Point(223, 58);
             this.button7.Name = "button7";
             this.button7.Size = new System.Drawing.Size(64, 29);
             this.button7.TabIndex = 8;
@@ -132,7 +133,7 @@
             // button9
             // 
             this.button9.Enabled = false;
-            this.button9.Location = new System.Drawing.Point(27, 89);
+            this.button9.Location = new System.Drawing.Point(83, 57);
             this.button9.Name = "button9";
             this.button9.Size = new System.Drawing.Size(64, 29);
             this.button9.TabIndex = 15;
@@ -143,7 +144,7 @@
             // button10
             // 
             this.button10.Enabled = false;
-            this.button10.Location = new System.Drawing.Point(105, 89);
+            this.button10.Location = new System.Drawing.Point(153, 57);
             this.button10.Name = "button10";
             this.button10.Size = new System.Drawing.Size(64, 29);
             this.button10.TabIndex = 16;
@@ -225,7 +226,7 @@
             // button1
             // 
             this.button1.Enabled = false;
-            this.button1.Location = new System.Drawing.Point(175, 89);
+            this.button1.Location = new System.Drawing.Point(151, 92);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(74, 29);
             this.button1.TabIndex = 63;
@@ -236,7 +237,7 @@
             // button2
             // 
             this.button2.Enabled = false;
-            this.button2.Location = new System.Drawing.Point(27, 124);
+            this.button2.Location = new System.Drawing.Point(11, 92);
             this.button2.Name = "button2";
             this.button2.Size = new System.Drawing.Size(64, 29);
             this.button2.TabIndex = 64;
@@ -247,7 +248,7 @@
             // button4
             // 
             this.button4.Enabled = false;
-            this.button4.Location = new System.Drawing.Point(105, 124);
+            this.button4.Location = new System.Drawing.Point(81, 92);
             this.button4.Name = "button4";
             this.button4.Size = new System.Drawing.Size(64, 29);
             this.button4.TabIndex = 66;
@@ -258,7 +259,7 @@
             // button8
             // 
             this.button8.Enabled = false;
-            this.button8.Location = new System.Drawing.Point(222, 124);
+            this.button8.Location = new System.Drawing.Point(297, 92);
             this.button8.Name = "button8";
             this.button8.Size = new System.Drawing.Size(64, 29);
             this.button8.TabIndex = 67;
@@ -286,7 +287,8 @@
             // 
             // button3
             // 
-            this.button3.Location = new System.Drawing.Point(268, 58);
+            this.button3.Enabled = false;
+            this.button3.Location = new System.Drawing.Point(135, 124);
             this.button3.Name = "button3";
             this.button3.Size = new System.Drawing.Size(63, 28);
             this.button3.TabIndex = 70;
@@ -294,11 +296,22 @@
             this.button3.UseVisualStyleBackColor = true;
             this.button3.Click += new System.EventHandler(this.button3_Click);
             // 
+            // dhmode
+            // 
+            this.dhmode.AutoSize = true;
+            this.dhmode.Location = new System.Drawing.Point(222, 255);
+            this.dhmode.Name = "dhmode";
+            this.dhmode.Size = new System.Drawing.Size(48, 17);
+            this.dhmode.TabIndex = 71;
+            this.dhmode.Text = "DH?";
+            this.dhmode.UseVisualStyleBackColor = true;
+            // 
             // Main
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(373, 271);
+            this.Controls.Add(this.dhmode);
             this.Controls.Add(this.button3);
             this.Controls.Add(this.dcmp_cb);
             this.Controls.Add(this.textBox2);
@@ -355,6 +368,7 @@
         private System.Windows.Forms.TextBox textBox2;
         private System.Windows.Forms.CheckBox dcmp_cb;
         private System.Windows.Forms.Button button3;
+        private System.Windows.Forms.CheckBox dhmode;
     }
 }
 

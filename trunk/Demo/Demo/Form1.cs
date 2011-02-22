@@ -13,10 +13,12 @@ namespace Demo
     public partial class Form1 : Form
     {
         wckMotion w;
-        Demo.BalanceWalk bw;
+        BalanceWalk bw;
         Utility u = new Utility();
         SerialPort s;
         PCremote pcr;
+
+        bool dhf = true; // dance hands mode (servo 12 & 15 rotated by 90deg)
 
         public Form1()
         {
@@ -47,6 +49,15 @@ namespace Demo
                 pcr = new PCremote(s);
                 w = new wckMotion(pcr); 
                 bw = new BalanceWalk(w);
+
+                if (!w.wckReadPos(30, 0))
+                {
+                    button1.Enabled = false;
+                    button2.Text = "Connect";
+                    return;
+                }
+                label1.Text = string.Format("DCMP={0}.{1}", w.respnse[0], w.respnse[1]);
+
                 standup();
             }
             else
@@ -86,7 +97,10 @@ namespace Demo
 
         public void standup()
         {
-            w.PlayPose(1000, 10, wckMotion.basic18, true);
+            if (dhf)
+                w.PlayPose(1000, 10, wckMotion.dh, true);
+            else
+                w.PlayPose(1000, 10, wckMotion.basic18, true);
         }
 
         void win_KeyPress(object sender, KeyPressEventArgs e)
@@ -102,6 +116,8 @@ namespace Demo
                 bw.state = "R";
             else
                 bw.state = "s";
+
+            button4.Text = bw.state;
         }
 
         private void button3_Click(object sender, EventArgs e)
@@ -114,6 +130,16 @@ namespace Demo
         {
             bw.dely += 5;
             label1.Text = "Delay=" + bw.dely;
+        }
+
+        private void button6_Click(object sender, EventArgs e)
+        {
+            if (bw.state == "s")
+                bw.state = "m";
+            else
+                bw.state = "s";
+
+            button4.Text = bw.state;
         }
 
     }
