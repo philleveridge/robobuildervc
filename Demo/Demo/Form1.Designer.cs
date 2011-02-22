@@ -37,12 +37,14 @@
             this.label1 = new System.Windows.Forms.Label();
             this.textBox1 = new System.Windows.Forms.TextBox();
             this.checkBox1 = new System.Windows.Forms.CheckBox();
+            this.button6 = new System.Windows.Forms.Button();
+            this.dhmode = new System.Windows.Forms.CheckBox();
             this.SuspendLayout();
             // 
             // button1
             // 
             this.button1.Enabled = false;
-            this.button1.Location = new System.Drawing.Point(188, 11);
+            this.button1.Location = new System.Drawing.Point(198, 11);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(70, 25);
             this.button1.TabIndex = 0;
@@ -123,11 +125,33 @@
             this.checkBox1.TabIndex = 8;
             this.checkBox1.UseVisualStyleBackColor = true;
             // 
+            // button6
+            // 
+            this.button6.Location = new System.Drawing.Point(173, 40);
+            this.button6.Name = "button6";
+            this.button6.Size = new System.Drawing.Size(38, 15);
+            this.button6.TabIndex = 9;
+            this.button6.Text = "button6";
+            this.button6.UseVisualStyleBackColor = true;
+            this.button6.Click += new System.EventHandler(this.button6_Click);
+            // 
+            // dhmode
+            // 
+            this.dhmode.AutoSize = true;
+            this.dhmode.Location = new System.Drawing.Point(220, 41);
+            this.dhmode.Name = "dhmode";
+            this.dhmode.Size = new System.Drawing.Size(48, 17);
+            this.dhmode.TabIndex = 10;
+            this.dhmode.Text = "DH?";
+            this.dhmode.UseVisualStyleBackColor = true;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(261, 271);
+            this.ClientSize = new System.Drawing.Size(267, 271);
+            this.Controls.Add(this.dhmode);
+            this.Controls.Add(this.button6);
             this.Controls.Add(this.checkBox1);
             this.Controls.Add(this.textBox1);
             this.Controls.Add(this.label1);
@@ -155,6 +179,8 @@
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.TextBox textBox1;
         private System.Windows.Forms.CheckBox checkBox1;
+        private System.Windows.Forms.Button button6;
+        private System.Windows.Forms.CheckBox dhmode;
     }
 }
 

@@ -70,6 +70,7 @@ namespace Demo
 
         int gx = 0, gy = 0, gz = 0;
 
+
         byte[] ub_Huno = new byte[] { 174, 228, 254, 130, 185, 254, 180, 126, 208, 208, 254, 224, 198, 254, 200, 254 };
         byte[] lb_Huno = new byte[] { 1, 70, 124, 40, 41, 73, 22, 1, 120, 57, 1, 46, 1, 1, 25, 40 };
         byte[][] fstep;
@@ -134,7 +135,7 @@ namespace Demo
 
         void mirror(bool f)
         {
-            byte p1=0,p2=0,p3=0;
+            byte p1=0,p2=0,p3=0,p4=0,p5=0,p6=0;
             int n = f ? 13 : 10; // reading side
             int m = f ? 10 : 13; // writing side
 
@@ -142,13 +143,17 @@ namespace Demo
             w.wckPassive(n+1);
             w.wckPassive(n+2);
 
-            if (w.wckReadPos(n))   p1=w.respnse[0];
-            if (w.wckReadPos(n+1)) p2=w.respnse[0];
-            if (w.wckReadPos(n+2)) p3=w.respnse[0];
+            if (w.wckReadPos(n))   p1=w.respnse[1];
+            if (w.wckReadPos(n+1)) p2=w.respnse[1];
+            if (w.wckReadPos(n+2)) p3=w.respnse[1];
 
-            w.wckMovePos(m,   254 - p1, 4);
-            w.wckMovePos(m+1, 254 - p2, 4);
-            w.wckMovePos(m+2, 254 - p3, 4);
+            if (w.wckReadPos(m))     p4 = w.respnse[1];
+            if (w.wckReadPos(m + 1)) p5 = w.respnse[1];
+            if (w.wckReadPos(m + 2)) p6 = w.respnse[1];
+
+            if (p4 != (254 - p1)) w.wckMovePos(m,     254 - p1, 4);
+            if (p5 != (254 - p2)) w.wckMovePos(m + 1, 254 - p2, 4);
+            if (p6 != (254 - p3)) w.wckMovePos(m + 2, 254 - p3, 4);
         }
 
         void calibrateXYZ()
@@ -277,18 +282,21 @@ namespace Demo
                             az = vectors.add(az, dp);
                         }
 
-                        Console.Write("sum={0}", vectors.rms(az));
+                        Console.Write("Pwr={0}", vectors.rms(az));
                     }
 
-                    if (bal)
-                        sbase = vectors.bcheck(vectors.add(az, cpos[counter]), lb_Huno, ub_Huno);
-                    else
-                        sbase = cpos[counter];
+                    if (cpos != null)
+                    {
+                        if (bal)
+                            sbase = vectors.bcheck(vectors.add(az, cpos[counter]), lb_Huno, ub_Huno);
+                        else
+                            sbase = cpos[counter];
 
-                    w.SyncPosSend(15, 4, sbase, 0);
-                    System.Threading.Thread.Sleep(dely);
+                        w.SyncPosSend(15, 4, sbase, 0);
+                        System.Threading.Thread.Sleep(dely);
 
-                    if (++counter >= cpos.Length) counter = 0;
+                        if (++counter >= cpos.Length) counter = 0;
+                    }
 
                     Console.Write(state);
                 }

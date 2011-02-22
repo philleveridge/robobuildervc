@@ -87,6 +87,8 @@
             this.servoStatus1 = new RobobuilderLib.ServoStatus();
             this.conv = new System.Windows.Forms.CheckBox();
             this.mtypelb = new System.Windows.Forms.ListBox();
+            this.mode = new System.Windows.Forms.ListBox();
+            this.qt = new System.Windows.Forms.Timer(this.components);
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.servoPoseDataBindingSource)).BeginInit();
             this.panel1.SuspendLayout();
@@ -635,12 +637,30 @@
             this.mtypelb.Size = new System.Drawing.Size(92, 17);
             this.mtypelb.TabIndex = 88;
             // 
+            // mode
+            // 
+            this.mode.FormattingEnabled = true;
+            this.mode.Items.AddRange(new object[] {
+            "Ind",
+            "Mirror",
+            "Copy"});
+            this.mode.Location = new System.Drawing.Point(427, 66);
+            this.mode.Name = "mode";
+            this.mode.Size = new System.Drawing.Size(54, 17);
+            this.mode.TabIndex = 89;
+            // 
+            // qt
+            // 
+            this.qt.Interval = 500;
+            this.qt.Tick += new System.EventHandler(this.qt_Tick);
+            // 
             // MotionEdit_frm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoSize = true;
             this.ClientSize = new System.Drawing.Size(708, 477);
+            this.Controls.Add(this.mode);
             this.Controls.Add(this.mtypelb);
             this.Controls.Add(this.conv);
             this.Controls.Add(this.panel1);
@@ -738,5 +758,7 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn Z;
         private System.Windows.Forms.CheckBox conv;
         private System.Windows.Forms.ListBox mtypelb;
+        private System.Windows.Forms.ListBox mode;
+        private System.Windows.Forms.Timer qt;
     }
 }
