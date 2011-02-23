@@ -68,29 +68,40 @@ namespace Demo
         int n_of_s;
         long st;
 
+        bool dhf = false;
+
         int gx = 0, gy = 0, gz = 0;
 
-
-        byte[] ub_Huno = new byte[] { 174, 228, 254, 130, 185, 254, 180, 126, 208, 208, 254, 224, 198, 254, 200, 254 };
-        byte[] lb_Huno = new byte[] { 1, 70, 124, 40, 41, 73, 22, 1, 120, 57, 1, 46, 1, 1, 25, 40 };
         byte[][] fstep;
 
         Compare zm;
 
-        public BalanceWalk(wckMotion w1)
+        public BalanceWalk(wckMotion w1, bool dh)
         {
             w = w1;
+            dhf = dh;
+
             n_of_s = countServos(22);
             Console.WriteLine("Balance walk - {0}", n_of_s);
 
-            matrix m = new matrix("rlstep.csv");
+            matrix m;
+            
+            if (dhf)
+                m = new matrix("rls2.csv");
+            else
+                m = new matrix("rlstep.csv");
+
             int r = m.getr();
 
-            fstep = new byte[r][]; 
+            fstep = new byte[r][];
+
 
             for (int i = 0; i < r; i++)
             {
-                fstep[i] = cv18(vectors.convByte(m.getrow(i)));
+                if (dhf)
+                    fstep[i] = vectors.convByte(m.getrow(i));
+                else
+                    fstep[i] = cv18(vectors.convByte(m.getrow(i)));
             }
 
             zm = new Compare("compare.csv");
@@ -259,7 +270,10 @@ namespace Demo
                         
                         case "s":
                             cpos = new byte[1][];
-                            cpos[0] = wckMotion.basic18;
+                            if (dhf)
+                                cpos[0] = wckMotion.dh;
+                            else
+                                cpos[0] = wckMotion.basic18;
                             break;
 
                         case "m":
@@ -288,7 +302,7 @@ namespace Demo
                     if (cpos != null)
                     {
                         if (bal)
-                            sbase = vectors.bcheck(vectors.add(az, cpos[counter]), lb_Huno, ub_Huno);
+                            sbase = vectors.bcheck(vectors.add(az, cpos[counter]), wckMotion.lb_Huno, wckMotion.ub_Huno); // lb_Huno, ub_Huno);
                         else
                             sbase = cpos[counter];
 
