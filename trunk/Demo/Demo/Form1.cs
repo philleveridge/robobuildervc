@@ -48,7 +48,8 @@ namespace Demo
                 s.Open();
                 pcr = new PCremote(s);
                 w = new wckMotion(pcr); 
-                bw = new BalanceWalk(w);
+                bw = new BalanceWalk(w, dhmode.Checked);
+                button4.Text = bw.state;
 
                 if (!w.wckReadPos(30, 0))
                 {
@@ -73,6 +74,7 @@ namespace Demo
                     s.Close();
                 }
                 bw = null;
+                button4.Text = "#";
                 w = null;
             }
         }
@@ -112,10 +114,18 @@ namespace Demo
 
         private void button4_Click(object sender, EventArgs e)
         {
-            if (bw.state == "s")
-                bw.state = "R";
-            else
-                bw.state = "s";
+            switch (bw.state)
+            {
+                case "s":
+                    bw.state = "m";
+                    break;
+                case "m":
+                    bw.state = "R";
+                    break;
+                case "R":
+                    bw.state = "s";
+                    break;
+            }
 
             button4.Text = bw.state;
         }

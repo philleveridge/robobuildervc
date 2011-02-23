@@ -679,6 +679,17 @@ namespace RobobuilderLib
             }
             return r;
         }
+
+        static public byte[] bcheck(int[] p, int[] min, int[] max)
+        {
+            byte[] r = new byte[p.Length];
+            for (int i = 0; i < p.Length; i++)
+            {
+                if (i < min.Length && i < max.Length)
+                    r[i] = (byte)((p[i] > max[i]) ? max[i] : ((p[i] < min[i]) ? min[i] : p[i]));
+            }
+            return r;
+        }
     }
 
     public class matrix
