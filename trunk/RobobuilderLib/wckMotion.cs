@@ -162,9 +162,10 @@ namespace RobobuilderLib
                 respnse[2] = (byte)serialPort.ReadByte(); // z
                 respnse[3] = (byte)serialPort.ReadByte(); // PSD
                 respnse[4] = (byte)serialPort.ReadByte(); // ir
-                respnse[5] = (byte)serialPort.ReadByte(); // snd
+                respnse[5] = (byte)serialPort.ReadByte(); // buttons
+                respnse[6] = (byte)serialPort.ReadByte(); // snd
 
-                Message = "ReadAll = " + respnse[0] + ":" + respnse[1] + ":" + respnse[2] +":" + respnse[3] +":" + respnse[4] +":" + respnse[5];
+                Message = "ReadAll = " + respnse[0] + ":" + respnse[1] + ":" + respnse[2] + ":" + respnse[3] + ":" + respnse[4] + ":" + respnse[5] + ":" + respnse[6];
                 //System.Diagnostics.Debug.WriteLine(Message); // debug
                 return true;
             }
