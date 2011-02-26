@@ -5,26 +5,56 @@ using System.IO;
 using System.IO.Ports;
 using RobobuilderLib;
 
-
-
-
-
-
 namespace SinDemo
 {
     public partial class Form1 : Form
     {
-
+        bool runf = false;
         wckMotion w;
-
-        double[] amps = new double[] {   10.5,	13.5,	 15,	11.5,	10.5,	10.5,	13.5,	15,	11.5,	10.5,	22.5,	 0};
-        int[] offas   = new int[]    {    142,	166,	210,	  92,	 107,	109,	  83,	42,	 159,	 144,	 100,	70};
-        int[] phase   = new int[]    {      0,	 14,	  8,	  11,	  16,	  1,	  14,	 8,	  10,	   1,	  11,	11};
-
+        bar[] generation = new bar[3];
 
         public Form1()
         {
             InitializeComponent();
+            
+
+        }
+
+        private void test(int d, bool f)
+        {
+            while (true)
+            {
+                //
+                for (int i = 0; i < generation.Length; i++)
+                    generation[i] = new bar();
+                //
+                for (int gen = 0; gen < 3; gen++)
+                {
+                    System.Windows.Forms.Application.DoEvents();
+
+                    for (int i = 0; i < 16; i++)
+                    {
+                        foreach (int s in new int[] { 10, 13 })
+                        {
+                            bar z = generation[gen];
+
+                            int p = z.abc[s].offset + (int)(z.abc[s].amp * Math.Sin(((double)(i + z.abc[s].phase) / 16) * Math.PI * 2));
+
+                            Console.WriteLine("{0} : {1}", i, p);
+
+                            if (f)
+                            {
+                                w.wckMovePos(s, p, 4);
+                            }
+                        }
+
+                        System.Threading.Thread.Sleep(d);
+                    }
+
+                    if (!runf)
+                        break;
+                }
+            }
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -42,6 +72,14 @@ namespace SinDemo
             textBox1.AppendText(string.Format("DCMP {0}.{1}", w.respnse[0], w.respnse[1]));
 
             w.PlayPose(1000, 10, wckMotion.dh, true);
+
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            runf = !runf;
+            if (runf)
+                test(50, true);
 
         }
     }
