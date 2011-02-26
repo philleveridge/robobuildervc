@@ -151,10 +151,10 @@ namespace RobobuilderLib
                 {
                     label1.Text = String.Format("DCMP mode {0}.{1}", w.respnse[0], w.respnse[1]);
                     button6.Visible = false; button7.Visible = false; button9.Visible = false; button10.Visible = false;
-                    button4.Visible = false; button3.Visible = false;
+                    button4.Visible = false; 
 
                     if (dhmode.Checked)
-                        w.PlayPose(1000, 10, wckMotion.dh, true);
+                        w.PlayPose(1000, 10, wckMotion.basicdh, true);
                 }
                 else
                 {
@@ -316,8 +316,8 @@ namespace RobobuilderLib
             // read Soundlevel - 
             if (dcmp_cb.Checked)
             {
-                if (w.wckReadPos(30, 10))
-                    textBox1.AppendText(String.Format("Sound={0}\r\n", w.respnse[0]));
+                if (w.wckReadAll())
+                    textBox1.AppendText(String.Format("Sound={0}\r\n", w.respnse[6]));
                 else
                     textBox1.AppendText("Fail\r\n");
                 return;
@@ -329,12 +329,13 @@ namespace RobobuilderLib
 
         private void button3_Click(object sender, EventArgs e)
         {
+            //read any
             if (dcmp_cb.Checked)
             {
-                //if (w.wckReadPos(30, 10))
-                //    textBox1.AppendText(String.Format("Sound={0}\r\n", w.respnse[0]));
-                //else
-                //    textBox1.AppendText("Fail\r\n");
+                if (w.wckReadAll())
+                    textBox1.AppendText(String.Format("Any={0}\r\n", w.Message));
+                else
+                    textBox1.AppendText("Fail\r\n");
 
 
                 return;

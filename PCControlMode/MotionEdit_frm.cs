@@ -613,7 +613,7 @@ namespace RobobuilderLib
             if (dcontrol != null)
             {
                 if (dhf)
-                    dcontrol.PlayPose(1000, 10, wckMotion.dh, true); // dance hands
+                    dcontrol.PlayPose(1000, 10, wckMotion.basicdh, true); // dance hands
                 else
                     dcontrol.BasicPose(1000, 10);
             }
