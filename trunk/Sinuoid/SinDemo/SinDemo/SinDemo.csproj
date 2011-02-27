@@ -34,8 +34,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="RobobuilderLib">
-      <HintPath>bin\Debug\RobobuilderLib.exe</HintPath>
+    <Reference Include="RobobuilderLib, Version=1.9.9.8, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <ExecutableExtension>.exe</ExecutableExtension>
+      <HintPath>..\..\..\RobobuilderLib\bin\Release\RobobuilderLib.exe</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />

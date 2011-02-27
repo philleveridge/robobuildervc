@@ -16,8 +16,6 @@ namespace SinDemo
         public Form1()
         {
             InitializeComponent();
-            
-
         }
 
         private void test(int d, bool f)
@@ -28,12 +26,31 @@ namespace SinDemo
                 for (int i = 0; i < generation.Length; i++)
                     generation[i] = new bar();
                 //
-                for (int gen = 0; gen < 3; gen++)
+                for (int gen = 0; gen < generation.Length; gen++)
                 {
                     System.Windows.Forms.Application.DoEvents();
 
                     for (int i = 0; i < 16; i++)
                     {
+                        if (w.wckReadAll())
+                        {
+                            //
+                            Console.WriteLine("X={0}, Y={1}, z={2}, PSD={3}, IR={4}, BTN={5}, SND={6}",
+                                w.respnse[0],
+                                w.respnse[1],
+                                w.respnse[2],
+                                w.respnse[3],
+                                w.respnse[4],
+                                w.respnse[5],
+                                w.respnse[6]);
+                        }
+                        else
+                        {
+                            // failed
+                            Console.WriteLine("Failed to read servos");
+                            runf = false;
+                            return;
+                        }
                         foreach (int s in new int[] { 10, 13 })
                         {
                             bar z = generation[gen];
@@ -52,7 +69,7 @@ namespace SinDemo
                     }
 
                     if (!runf)
-                        break;
+                        return;
                 }
             }
         }
@@ -71,7 +88,7 @@ namespace SinDemo
 
             textBox1.AppendText(string.Format("DCMP {0}.{1}", w.respnse[0], w.respnse[1]));
 
-            w.PlayPose(1000, 10, wckMotion.dh, true);
+            w.PlayPose(1000, 10, wckMotion.basicdh, true);
 
         }
 
