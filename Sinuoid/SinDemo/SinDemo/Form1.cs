@@ -20,11 +20,31 @@ namespace SinDemo
 
         private void test(int d, bool f)
         {
+            bar parent = new bar(new foo[] { 
+                new foo ( 10.5, 142,  0 ), 
+                new foo ( 13.5, 166, 14 ), 
+                new foo ( 15.0, 210,  9 ), 
+                new foo ( 10.5,  92, 11 ), 
+                new foo ( 10.5, 107, 16 ), 
+                new foo ( 13.5, 109,  1 ), 
+                new foo ( 13.5,  83, 14 ),             
+                new foo ( 15.0,  42,  8 ),                         
+                new foo ( 11.5, 159, 10 ),      
+                new foo ( 10.5, 144,  1 ),      
+                new foo ( 22.5 ,100, 11 ),      
+                new foo ( 0.0,   70, 11 ),      
+                new foo ( 0.0,  152, 11 ), 
+                new foo ( 22.5, 188, 11 )}
+            );
+
             while (true)
             {
                 //
                 for (int i = 0; i < generation.Length; i++)
-                    generation[i] = new bar();
+                {
+                    generation[i] = new bar(parent); 
+                    generation[i].fit += i;
+                }
                 //
                 for (int gen = 0; gen < generation.Length; gen++)
                 {
@@ -34,7 +54,7 @@ namespace SinDemo
                     {
                         if (w.wckReadAll())
                         {
-                            //
+                            /*
                             Console.WriteLine("X={0}, Y={1}, z={2}, PSD={3}, IR={4}, BTN={5}, SND={6}",
                                 w.respnse[0],
                                 w.respnse[1],
@@ -43,6 +63,18 @@ namespace SinDemo
                                 w.respnse[4],
                                 w.respnse[5],
                                 w.respnse[6]);
+                            */
+                            if (w.respnse[4] == 1) //A
+                            {
+                                generation[gen].fit += 5;
+                                Console.WriteLine("f+ {0}", generation[gen].fit);
+                            }
+
+                            if (w.respnse[4] == 2) //B
+                            {
+                                generation[gen].fit -= 5;
+                                Console.WriteLine("f- {0}", generation[gen].fit);
+                            }
                         }
                         else
                         {
@@ -51,13 +83,14 @@ namespace SinDemo
                             runf = false;
                             return;
                         }
+                        //foreach (int s in new int[] { 4, 9, 10, 13 })
                         foreach (int s in new int[] { 10, 13 })
                         {
                             bar z = generation[gen];
 
                             int p = z.abc[s].offset + (int)(z.abc[s].amp * Math.Sin(((double)(i + z.abc[s].phase) / 16) * Math.PI * 2));
 
-                            Console.WriteLine("{0} : {1}", i, p);
+                            //Console.WriteLine("{0} : {1}", i, p);
 
                             if (f)
                             {
@@ -70,6 +103,17 @@ namespace SinDemo
 
                     if (!runf)
                         return;
+
+                    // sort fitness
+
+                    Array.Sort(generation, delegate(bar a, bar b) { return bar.fmatch(a, b); });
+
+                    //for (int n = 0; n < generation.Length; n++)
+                    //    Console.WriteLine("{0},{1}", n, generation[n].fit);
+
+                    // select next parent
+
+                    parent = generation[0];
                 }
             }
         }
