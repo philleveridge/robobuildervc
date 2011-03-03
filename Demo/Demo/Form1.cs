@@ -100,7 +100,7 @@ namespace Demo
         public void standup()
         {
             if (dhf)
-                w.PlayPose(1000, 10, wckMotion.dh, true);
+                w.PlayPose(1000, 10, wckMotion.basicdh, true);
             else
                 w.PlayPose(1000, 10, wckMotion.basic18, true);
         }

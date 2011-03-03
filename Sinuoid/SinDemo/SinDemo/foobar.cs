@@ -42,6 +42,13 @@ namespace SinDemo
             //breed(x);
         }
 
+        public bar(bar x, bar y)
+        {
+            fit = 10;
+            rn = new Random(seed);
+            breed(x,y);
+        }
+
         public void clone(bar parent)
         {
             abc = new foo[parent.abc.Length];
@@ -79,6 +86,11 @@ namespace SinDemo
                     //scale?
                 }
             }
+        }
+
+        public void breed(bar parent1, bar parent2)
+        {
+            abc = new foo[parent1.abc.Length];
         }
 
         public void print()
