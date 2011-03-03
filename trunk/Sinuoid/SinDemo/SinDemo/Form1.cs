@@ -20,6 +20,7 @@ namespace SinDemo
 
         private void test(int d, bool f)
         {
+
             bar parent = new bar(new foo[] { 
                 new foo ( 10.5, 142,  0 ), 
                 new foo ( 13.5, 166, 14 ), 
@@ -37,12 +38,18 @@ namespace SinDemo
                 new foo ( 22.5, 188, 11 )}
             );
 
+            bar p2=null;
+
             while (true)
             {
                 //
                 for (int i = 0; i < generation.Length; i++)
                 {
-                    generation[i] = new bar(parent); 
+                    if (p2==null)
+                        generation[i] = new bar(parent); 
+                    else
+                        generation[i] = new bar(parent,p2); 
+
                     generation[i].fit += i;
                 }
                 //
@@ -54,8 +61,8 @@ namespace SinDemo
                     {
                         if (w.wckReadAll())
                         {
-                            /*
-                            Console.WriteLine("X={0}, Y={1}, z={2}, PSD={3}, IR={4}, BTN={5}, SND={6}",
+                            /*                    
+                            Console.WriteLine("X={1}, Y={2}, z={3}, PSD={0}, IR={4}, BTN={5}, SND={6}",
                                 w.respnse[0],
                                 w.respnse[1],
                                 w.respnse[2],
@@ -90,8 +97,6 @@ namespace SinDemo
 
                             int p = z.abc[s].offset + (int)(z.abc[s].amp * Math.Sin(((double)(i + z.abc[s].phase) / 16) * Math.PI * 2));
 
-                            //Console.WriteLine("{0} : {1}", i, p);
-
                             if (f)
                             {
                                 w.wckMovePos(s, p, 4);
@@ -108,12 +113,10 @@ namespace SinDemo
 
                     Array.Sort(generation, delegate(bar a, bar b) { return bar.fmatch(a, b); });
 
-                    //for (int n = 0; n < generation.Length; n++)
-                    //    Console.WriteLine("{0},{1}", n, generation[n].fit);
-
                     // select next parent
 
                     parent = generation[0];
+                    p2 = null; // generation[1];
                 }
             }
         }

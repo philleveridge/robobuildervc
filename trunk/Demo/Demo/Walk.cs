@@ -173,9 +173,9 @@ namespace Demo
 
             if (w.wckReadAll())
             {
-                gx = w.cbyte(w.respnse[0]); 
-                gy = w.cbyte(w.respnse[1]);
-                gz = w.cbyte(w.respnse[2]);
+                gx = w.cbyte(w.respnse[1]); 
+                gy = w.cbyte(w.respnse[2]);
+                gz = w.cbyte(w.respnse[3]);
             }
             Console.WriteLine("calibrated: {0},{1},{2}", gx, gy, gz);
         }
@@ -206,11 +206,11 @@ namespace Demo
 
                 if (w.wckReadAll())
                 {
-                    x = w.cbyte(w.respnse[0])-gx;
-                    int tz = w.cbyte(w.respnse[2])-gz;
+                    x = w.cbyte(w.respnse[1])-gx;
+                    int tz = w.cbyte(w.respnse[3])-gz;
                     dz = z - tz;
                     z = tz;
-                    d = w.respnse[3];
+                    d = w.respnse[0];
 
                     if (w.respnse[4] < 255)
                     {
@@ -271,7 +271,7 @@ namespace Demo
                         case "s":
                             cpos = new byte[1][];
                             if (dhf)
-                                cpos[0] = wckMotion.dh;
+                                cpos[0] = wckMotion.basicdh;
                             else
                                 cpos[0] = wckMotion.basic18;
                             break;
