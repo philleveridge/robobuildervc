@@ -27,6 +27,13 @@ namespace SinDemo
         public int fit;
         public foo[] abc;
 
+        public bar(int n)
+        {
+            fit = 10;
+            rn = new Random(seed);
+            abc = new foo[n];
+        }
+
         public bar(foo[] z)
         {
             fit = 10;
@@ -57,35 +64,41 @@ namespace SinDemo
                 abc[i] = parent.abc[i];
         }
 
+        public void breed()
+        {
+            if (abc != null)
+                breed(this);
+        }
+
         public void breed(bar parent)
         {
-            abc = new foo[parent.abc.Length];
+            foo[] nabc = new foo[parent.abc.Length];
 
             for (int i = 0; i < abc.Length; i++)
             {
                 if (rn.NextDouble() < RecombinationRate)
                 {
                     //straight clone
-                    abc[i] = parent.abc[i];
+                    nabc[i] = parent.abc[i];
                 }
                 else if (rn.NextDouble() < MutationRate)
                 {
                     //mutation
-                    abc[i].amp    = rn.NextDouble()*30.0;  // 0->30
-                    abc[1].offset = rn.Next(90, 160);      // 0->255
-                    abc[1].phase  = rn.Next(15);           // 0->15
+                    nabc[i].amp    = rn.NextDouble()*30.0;  // 0->30
+                    nabc[1].offset = rn.Next(90, 160);      // 0->255
+                    nabc[1].phase  = rn.Next(15);           // 0->15
                 }
                 else
                 {
                     //clone variation
-                    //swap
-                    int gn = rn.Next(abc.Length);
-                    abc[i] = parent.abc[gn];
+                    nabc[i].amp = parent.abc[i].amp * (1-rn.NextDouble());
 
-                    //clone variation
-                    //scale?
+                    nabc[i].offset = parent.abc[i].offset + rn.Next(-7,7);
+
+                    nabc[i].phase = parent.abc[i].phase + rn.Next(-1, 1);
                 }
             }
+            abc = nabc;
         }
 
         public void breed(bar parent1, bar parent2)
