@@ -13,14 +13,19 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-<LinearLayout android:id="@+id/LinearLayout01" 
-     android:layout_width="fill_parent" 
-     android:layout_height="fill_parent" 
-     xmlns:android="http://schemas.android.com/apk/res/android">
-     <ImageView 
-	     android:id="@+id/ImageView01" 
-	     android:layout_width="wrap_content" 
-	     android:layout_height="wrap_content" 
-	     android:scaleType="fitCenter">
-     </ImageView>
-</LinearLayout>
+
+
+
+<TableLayout android:id="@+id/TableLayout01" android:layout_width="fill_parent" android:layout_height="fill_parent" xmlns:android="http://schemas.android.com/apk/res/android">
+
+<TableRow android:id="@+id/TableRow01" android:layout_width="wrap_content" android:layout_height="wrap_content">
+<Button android:id="@+id/ButtonS1" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Basic Pose"></Button>
+<Button android:id="@+id/ButtonS2" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Wave"></Button>
+</TableRow>
+
+<TableRow android:id="@+id/TableRow02" android:layout_width="wrap_content" android:layout_height="wrap_content">
+<Button android:id="@+id/ButtonS3" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Bow"></Button>
+<Button android:id="@+id/ButtonS4" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Walk Fwd"></Button>
+</TableRow>
+
+</TableLayout>

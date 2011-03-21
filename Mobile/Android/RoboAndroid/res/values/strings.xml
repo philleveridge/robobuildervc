@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="vibrate">vib</string>
     <string name="hello">Hello Robobuilder</string>
     <string name="app_name">MoboRobo</string>
     
