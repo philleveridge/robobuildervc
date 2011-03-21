@@ -27,4 +27,15 @@
 	<string name="remco">RemoteControl</string>
 	<string name="joy">Joystick</string>
 	<string name="kbd">Keyboard</string>
+
+
+	<string name="cb1">BASIC firmware</string>
+	<string name="cb2">DCMP Firmware</string>
+	<string name="cb3">Standard Firmware (2.26 or above)</string>	
+	
+	
+<string-array name="connect_options"><item>BASIC v3.1.7</item>
+<item>DCMP (v3.10 or above)</item>
+<item>RB Firmware (2.24 or above)</item>
+</string-array>
 </resources>
