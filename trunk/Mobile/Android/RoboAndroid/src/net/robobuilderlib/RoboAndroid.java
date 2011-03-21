@@ -19,6 +19,7 @@ import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.os.Vibrator;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -73,6 +74,8 @@ public class RoboAndroid extends Activity implements OnClickListener, OnItemClic
     Thread						m_hReadThread;   
     
     Bitmap hotspot=null;
+    
+    private Vibrator vibrator; 
 	
 	public static final int 	idLVFirstItem		= Menu.FIRST + 100;	
 
@@ -162,24 +165,6 @@ public class RoboAndroid extends Activity implements OnClickListener, OnItemClic
         setContentView(R.layout.main);
         
         startIntro(); 
-        
-        /*
-        
-        startKBD();
-                
-	 	// clear previous results in the LV
-        
-        if ((m_lvSearch =(ListView) findViewById(R.id.in))  == null)
-        {
-        	Debug.WriteLine("++ LV FAILED ++");
-        }
-        else
-        {  
-            String[] cops = getResources().getStringArray(R.array.connect_options);
-            m_lvSearch.setAdapter(null);
-            m_lvSearch.setOnItemClickListener((OnItemClickListener) this);
-        }
-        */
     }
     
     @Override
@@ -289,11 +274,25 @@ public class RoboAndroid extends Activity implements OnClickListener, OnItemClic
         			idLVFirstItem+i);
         	m_Devices.add(device);
         }
-    CustomAdapter lvAdapter =  new CustomAdapter(this, m_Devices);
-    if (lvAdapter!=null) m_lvSearch.setAdapter(lvAdapter);
-    if (m_nRoboDev >= 0)
-    	Toast.makeText(getBaseContext(), "ROBO found as " + BTDevs[m_nRoboDev].m_szAddress, 
-    			Toast.LENGTH_LONG).show();
+        
+        
+        if ((m_lvSearch =(ListView) findViewById(R.id.in))  == null)
+        {
+        	Debug.WriteLine("++ LV FAILED ++");
+        }
+        else
+        {  
+            CustomAdapter lvAdapter =  new CustomAdapter(this, m_Devices);
+            if (lvAdapter!=null) 
+            {
+            	m_lvSearch.setAdapter(lvAdapter);
+            	m_lvSearch.setOnItemClickListener((OnItemClickListener) this);
+            }
+ 
+		    if (m_nRoboDev >= 0)
+		    	Toast.makeText(getBaseContext(), "ROBO found as " + BTDevs[m_nRoboDev].m_szAddress, 
+		    			Toast.LENGTH_LONG).show();
+        }
 	}
 	
 	/** Bluetooth Functions **/
@@ -452,6 +451,7 @@ public class RoboAndroid extends Activity implements OnClickListener, OnItemClic
 	private String  checkVersion()
 	{
 		String r = "?";
+    	Debug.WriteLine("++ ON VER ");
 		
 		switch (swmode)
 		{
@@ -464,12 +464,14 @@ public class RoboAndroid extends Activity implements OnClickListener, OnItemClic
 		case 2:
 			r = checkVersionFirmware();
 			break;
-		}		
+		}	
+    	Debug.WriteLine("++ ON VER =" + r);
 		return r;
 	}
 	
 	private String checkVersionFirmware()
 	{
+    	Debug.WriteLine("++ CHK FIRMWRE ");
 		try {
 			Serial sp = new Serial(m_btSck.getInputStream(),m_btSck.getOutputStream());
 			pcRemote p = new pcRemote(sp);
@@ -483,6 +485,7 @@ public class RoboAndroid extends Activity implements OnClickListener, OnItemClic
 	
 	private String  checkVersionDCMP()
 	{
+    	Debug.WriteLine("++ CHK DCMP ");
 		try {
 			Serial sp = new Serial(m_btSck.getInputStream(),m_btSck.getOutputStream());
 			wckMotion w = new wckMotion(sp);
@@ -499,6 +502,8 @@ public class RoboAndroid extends Activity implements OnClickListener, OnItemClic
 	
 	private String  checkVersionBasic()
 	{
+    	Debug.WriteLine("++ CHK BASIC ");
+    	
 		byte[] buffer = new byte[1024]; 
 		int bread;
 		String r="";
@@ -581,7 +586,8 @@ public class RoboAndroid extends Activity implements OnClickListener, OnItemClic
     protected void startIntro()
     {
         Button    m_sb;
-        
+    	ImageView im;    	
+    	
     	Debug.WriteLine("++ INTRO ++");
     	
         LayoutInflater li = (LayoutInflater)this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -590,7 +596,7 @@ public class RoboAndroid extends Activity implements OnClickListener, OnItemClic
     	Debug.WriteLine("++ FRAME SET ++");
         
         contentPane.removeAllViews();
-        contentPane.addView( li.inflate(R.layout.intro, null) );   
+        contentPane.addView( li.inflate(R.layout.intro, null) );          
         
         if ((m_sb = (Button) findViewById(R.id.Button01))  == null)
         {
@@ -613,12 +619,59 @@ public class RoboAndroid extends Activity implements OnClickListener, OnItemClic
 	            	if (swmode<0) return; //ignore click
 	            	
 	            	Debug.WriteLine("++ BUTTON CHECKED ++" + swmode);	            	
-	            	startKBD();
+	            	startKBD();	            	
+	                        
+	        	 	// clear previous results in the LV
+
 	            	
 	    			startDiscoverBluetoothDevices();		
 	            }
 	        });
         }
+    }
+    
+    
+    protected void startSimple()
+    {
+        LayoutInflater li = (LayoutInflater)this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        FrameLayout contentPane = (FrameLayout)findViewById(R.id.FrameLayout01);  
+ 
+        contentPane.removeAllViews();
+        contentPane.addView( li.inflate(R.layout.simpleui, null) );
+        
+        OnClickListener ocl = new OnClickListener() {
+            public void onClick(View v) {
+                // Send
+            	Debug.WriteLine("++ BUTTON CLICK ++");
+
+                Button    m_sb = (Button) findViewById(v.getId());
+            	Debug.WriteLine("++ BUTTON CLICK =" + m_sb.getText());
+            	switch (swmode)
+            	{
+            	case 0:
+            		break;
+            	case 1:
+            		break;
+            	case 2:
+            		break;
+            	default:
+            		break;
+            	}
+            }
+        };
+        
+        Button    m_sb;
+        if ((m_sb = (Button) findViewById(R.id.ButtonS1))  == null)
+        {
+        	Debug.WriteLine("++ BUTTON 1 FAILED ++");
+        }
+        m_sb.setOnClickListener(ocl);
+        
+        if ((m_sb = (Button) findViewById(R.id.ButtonS2))  == null)
+        {
+        	Debug.WriteLine("++ BUTTON 2 FAILED ++");
+        }
+        m_sb.setOnClickListener(ocl);
     }
     
     
@@ -712,7 +765,26 @@ public class RoboAndroid extends Activity implements OnClickListener, OnItemClic
                 int y = (int)event.getY();
                 Debug.WriteLine("Clicked" + x + "," + y);
                 if (hotspot != null)
-                	Debug.Write("Pixel=" +hotspot.getPixel(x, y));              
+                {
+                	int n=hotspot.getPixel(x, y);
+                	n = (n &0xFF0000)>>16;               	
+                	Debug.Write("Pixel=" + n);     
+                	if (n>0 && n<20)
+                	{
+                		vibrator.vibrate(50);
+                		switch (swmode)
+                		{
+                		case 0: // Basic
+                			String m= "" + ('A'+n);
+                			sendMessage(m);
+                			break;
+                		case 1: //
+                			break;
+                		case 2: //
+                			break;
+                		}
+                	}              		
+                }
                 return true;
             }
         });
@@ -737,9 +809,11 @@ public class RoboAndroid extends Activity implements OnClickListener, OnItemClic
         case R.id.scan:
 			startDiscoverBluetoothDevices();		
             return true;
+        case R.id.simple:
+			startSimple();		
+            return true;
         }
         return false;
     }
-    
 }
 
