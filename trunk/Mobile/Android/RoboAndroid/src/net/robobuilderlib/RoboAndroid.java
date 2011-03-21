@@ -30,12 +30,15 @@ import android.view.Window;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.Gallery;
 import android.widget.ImageView;
+import android.widget.ListAdapter;
 import android.widget.ListView;
+import android.widget.RadioButton;
 
 import android.widget.TextView;
 import android.widget.Toast;
@@ -50,8 +53,6 @@ public class RoboAndroid extends Activity implements OnClickListener, OnItemClic
 	ListView					m_lvSearch;	
 	ProgressDialog				m_progDlg;
 	
-	TextView					m_tvD1;
-	EditText					m_edit;
 	
 	int 						swmode					=0; //0=Basic, 1= Firm, 2= DCMP
 	int 						opmode					=0; //0=Kbd,   1= Joy,  2= Remco
@@ -69,10 +70,7 @@ public class RoboAndroid extends Activity implements OnClickListener, OnItemClic
     							REQUEST_ENABLE_BT 		= 2;
     BluetoothSocket 			m_btSck;									//used to handle Android<->Robot communication
     private static final UUID 	SPP_UUID 				= UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
-    Thread						m_hReadThread;
-    
-    // Layout Views
-    private Button mSendButton;
+    Thread						m_hReadThread;   
     
     Bitmap hotspot=null;
 	
@@ -163,9 +161,11 @@ public class RoboAndroid extends Activity implements OnClickListener, OnItemClic
         
         setContentView(R.layout.main);
         
-        LayoutInflater li = (LayoutInflater)this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        FrameLayout contentPane = (FrameLayout)findViewById(R.id.FrameLayout01);       
-        contentPane.addView( li.inflate(R.layout.kbdui, null) );
+        startIntro(); 
+        
+        /*
+        
+        startKBD();
                 
 	 	// clear previous results in the LV
         
@@ -174,42 +174,12 @@ public class RoboAndroid extends Activity implements OnClickListener, OnItemClic
         	Debug.WriteLine("++ LV FAILED ++");
         }
         else
-        {       
-			m_lvSearch.setAdapter(null);      
-			m_lvSearch.setOnItemClickListener((OnItemClickListener) this);
+        {  
+            String[] cops = getResources().getStringArray(R.array.connect_options);
+            m_lvSearch.setAdapter(null);
+            m_lvSearch.setOnItemClickListener((OnItemClickListener) this);
         }
-		
-        if (( m_tvD1 = (TextView) findViewById(R.id.TextView01))  == null)
-        {
-        	Debug.WriteLine("++ TV FAILED ++");
-        }
-        else
-        {
-        	m_tvD1.setText("");
-            updateText("Robo V1.0\nPlease Connect");
-        }      
-        
-        if ((mSendButton = (Button) findViewById(R.id.button_send))  == null)
-        {
-        	Debug.WriteLine("++ BUTTON FAILED ++");
-        }
-        else
-        {
-            TextView view = (TextView) findViewById(R.id.edit_text_out);
-            view.setText("V");
-            
-	        mSendButton.setOnClickListener(new OnClickListener() {
-	            public void onClick(View v) {
-	                // Send a message using content of the edit text widget
-	                TextView view = (TextView) findViewById(R.id.edit_text_out);
-	                String message = view.getText().toString() + "\n";
-	                Debug.WriteLine("++ SEND MSG S++");
-	                sendMessage(message);
-	                view.setText("");
-	                Debug.WriteLine("++ SEND MSG E++");
-	            }
-	        });
-        }
+        */
     }
     
     @Override
@@ -608,6 +578,96 @@ public class RoboAndroid extends Activity implements OnClickListener, OnItemClic
         return true;
     }
     
+    protected void startIntro()
+    {
+        Button    m_sb;
+        
+    	Debug.WriteLine("++ INTRO ++");
+    	
+        LayoutInflater li = (LayoutInflater)this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        FrameLayout contentPane = (FrameLayout)findViewById(R.id.FrameLayout01); 
+        
+    	Debug.WriteLine("++ FRAME SET ++");
+        
+        contentPane.removeAllViews();
+        contentPane.addView( li.inflate(R.layout.intro, null) );   
+        
+        if ((m_sb = (Button) findViewById(R.id.Button01))  == null)
+        {
+        	Debug.WriteLine("++ BUTTON FAILED ++");
+        }
+        else
+        {          
+	        m_sb.setOnClickListener(new OnClickListener() {
+	            public void onClick(View v) {
+	                // Send a message using content of the edit text widget
+	            	// check state of radio button
+	            	
+	            	RadioButton rb1 = (RadioButton) findViewById(R.id.RadioButton01);
+	            	RadioButton rb2 = (RadioButton) findViewById(R.id.RadioButton02);
+	            	RadioButton rb3 = (RadioButton) findViewById(R.id.RadioButton03);
+	            	swmode=-1;
+	            	if (rb1.isChecked()) {swmode=0;}
+	            	if (rb2.isChecked()) {swmode=1;}
+	            	if (rb3.isChecked()) {swmode=2;}
+	            	if (swmode<0) return; //ignore click
+	            	
+	            	Debug.WriteLine("++ BUTTON CHECKED ++" + swmode);	            	
+	            	startKBD();
+	            	
+	    			startDiscoverBluetoothDevices();		
+	            }
+	        });
+        }
+    }
+    
+    
+    protected void startKBD()
+    {
+        LayoutInflater li = (LayoutInflater)this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        FrameLayout contentPane = (FrameLayout)findViewById(R.id.FrameLayout01);  
+        
+    	TextView  m_tv;
+        Button    m_sb;
+        
+        contentPane.removeAllViews();
+        contentPane.addView( li.inflate(R.layout.kbdui, null) );
+        
+    	hotspot=null;
+    	
+        if (( m_tv = (TextView) findViewById(R.id.TextView01))  == null)
+        {
+        	Debug.WriteLine("++ TV FAILED ++");
+        }
+        else
+        {
+        	m_tv.setText("");
+            updateText("Robo V1.0\nPlease Connect");
+        }      
+        
+        if ((m_sb = (Button) findViewById(R.id.button_send))  == null)
+        {
+        	Debug.WriteLine("++ BUTTON FAILED ++");
+        }
+        else
+        {
+            TextView view = (TextView) findViewById(R.id.edit_text_out);
+            view.setText("V");
+            
+	        m_sb.setOnClickListener(new OnClickListener() {
+	            public void onClick(View v) {
+	                // Send a message using content of the edit text widget
+	                TextView view = (TextView) findViewById(R.id.edit_text_out);
+	                String message = view.getText().toString() + "\n";
+	                Debug.WriteLine("++ SEND MSG S++");
+	                sendMessage(message);
+	                view.setText("");
+	                Debug.WriteLine("++ SEND MSG E++");
+	            }
+	        });
+        }
+    }
+    
     protected void startJoystick(int n)
     {
     	ImageView im;    	
@@ -619,7 +679,7 @@ public class RoboAndroid extends Activity implements OnClickListener, OnItemClic
         contentPane.removeAllViews();
         if (n==0)
         {
-        	contentPane.addView( li.inflate(R.layout.kbdui, null) );
+        	startKBD();
         	hotspot=null;
         	return;
         }
