@@ -95,35 +95,7 @@ public class RoboAndroid extends Activity implements OnClickListener, OnItemClic
 	BTDev	BTDevs[];
 	int		BTCount;
 	 
-    /**
-     * Sends a message.
-     * @param message  A string of text to send.
-     */
-    private void sendMessage(String message) {
-    	Debug.WriteLine("++ ON SEND MESSAGE ++");
-        
-		if (m_btSck != null)
-			try {			
-		        // Check that there's actually something to send
-		        if (message.length() > 0) {
-		        	
-		        	Debug.WriteLine("++ MESSAGE = " + message);
-		            
-		            // Get the message bytes and tell the BluetoothChatService to write
-		            byte[] send = message.getBytes();	            
-					m_btSck.getOutputStream().write(send);
-		        }
-				
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			else
-			{
-	            Toast.makeText(this, R.string.not_connected, Toast.LENGTH_SHORT).show();
-	            return;
-			}
-    }	
+
     
 	 /** Called when the activity is first created. */
     @Override
@@ -376,6 +348,36 @@ public class RoboAndroid extends Activity implements OnClickListener, OnItemClic
 		return 0;
 	}
     
+    /**
+     * Sends a message.
+     * @param message  A string of text to send.
+     */
+    private void sendMessage(String message) {
+    	Debug.WriteLine("++ ON SEND MESSAGE ++");
+        
+		if (m_btSck != null)
+			try {			
+		        // Check that there's actually something to send
+		        if (message.length() > 0) {
+		        	
+		        	Debug.WriteLine("++ MESSAGE = " + message);
+		            
+		            // Get the message bytes and tell the BluetoothChatService to write
+		            byte[] send = message.getBytes();	            
+					m_btSck.getOutputStream().write(send);
+		        }
+				
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			else
+			{
+	            Toast.makeText(this, R.string.not_connected, Toast.LENGTH_SHORT).show();
+	            return;
+			}
+    }	
+    
     int Disconnect(int nIndex)
 	{
 		if (nIndex >= BTCount || nIndex<0) return -1; //invalid device
@@ -398,7 +400,13 @@ public class RoboAndroid extends Activity implements OnClickListener, OnItemClic
 		Debug.WriteLine("StartReadThread: Connect");
 		Connect(nIndex);
 		
-		updateText("\0332JCONNECT - " + checkVersion() + "\n");
+		if (swmode==1 || swmode==2)
+		{
+			startSimple();
+			return 0;
+		}
+		
+		updateText("\0332JCONNECT - " + checkVersion() + "\n");				
 	
 		m_hReadThread = new Thread() {
 	        public void run() 
@@ -491,7 +499,7 @@ public class RoboAndroid extends Activity implements OnClickListener, OnItemClic
 			wckMotion w = new wckMotion(sp);
 			if (w.wckReadPos(30, 0)) // DCMP this return version
 			{
-				return "V=" + w.respnse[0] + w.respnse[1];
+				return "V=" + (int)(w.respnse[0]) + "." + (int)(w.respnse[1]);
 			}
 		}
 		catch (IOException e)
@@ -574,14 +582,6 @@ public class RoboAndroid extends Activity implements OnClickListener, OnItemClic
 	    	mt.append(s);
 	    }
     }
-	
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) 
-    {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.option_menu, menu);
-        return true;
-    }
     
     protected void startIntro()
     {
@@ -618,16 +618,15 @@ public class RoboAndroid extends Activity implements OnClickListener, OnItemClic
 	            	if (rb3.isChecked()) {swmode=2;}
 	            	if (swmode<0) return; //ignore click
 	            	
-	            	Debug.WriteLine("++ BUTTON CHECKED ++" + swmode);	            	
-	            	startKBD();	            	
-	                        
-	        	 	// clear previous results in the LV
-
+	            	Debug.WriteLine("++ BUTTON CHECKED ++" + swmode);	
 	            	
+	            	
+	            	startKBD();	            	            	
 	    			startDiscoverBluetoothDevices();		
 	            }
 	        });
         }
+        
     }
     
     
@@ -639,6 +638,21 @@ public class RoboAndroid extends Activity implements OnClickListener, OnItemClic
         contentPane.removeAllViews();
         contentPane.addView( li.inflate(R.layout.simpleui, null) );
         
+        if (swmode==0 || m_btSck == null) 
+        	return; // not BASIC
+        
+        TextView tv = (TextView) findViewById(R.id.TextViewSUI02);      
+        
+        if (swmode==1)
+        {
+        	tv.setText("DCMP " + checkVersion());
+        }
+        
+        if (swmode==2)
+        { 
+        	tv.setText("FIRMWARE " + checkVersion());
+        }
+        
         OnClickListener ocl = new OnClickListener() {
             public void onClick(View v) {
                 // Send
@@ -646,16 +660,58 @@ public class RoboAndroid extends Activity implements OnClickListener, OnItemClic
 
                 Button    m_sb = (Button) findViewById(v.getId());
             	Debug.WriteLine("++ BUTTON CLICK =" + m_sb.getText());
-            	switch (swmode)
+            	
+            	if (swmode==1)
             	{
-            	case 0:
-            		break;
-            	case 1:
-            		break;
-            	case 2:
-            		break;
-            	default:
-            		break;
+            		try {
+	        			Serial sp = new Serial(m_btSck.getInputStream(),m_btSck.getOutputStream());
+	        			wckMotion w = new wckMotion(sp);
+	            		if (m_sb.getText().equals("Basic Pose"))
+	            		{
+	                    	Debug.WriteLine("++ BUTTON POSE ++");
+	                    	w.PlayPose(1000, 10, wckMotion.basicdh, true);
+	            		}
+	            		if (m_sb.getText().equals("Wave"))
+	            		{            			
+	            			//#T	N	0	1	2	3	4	5	6	7	8	9	10	11	12	13	14	15            			
+	            			w.PlayPose(1000,	30,	new byte[] {(byte)143,	(byte)179,	(byte)198,	83,	106,	106,	69,	48,	(byte)167,	(byte)141,	47,	47,	49,	(byte)199,(byte)204,	(byte)204}, true);
+	            			w.PlayPose(1000,	30,	new byte[] {(byte)143,	(byte)179,	(byte)198,	83,	106,	106,	69,	48,	(byte)167,	(byte)141,	(byte)178,62,	6,	63,	(byte)195,	(byte)269}, false);
+	            			w.PlayPose(500,		2,	new byte[] {(byte)143,	(byte)179,	(byte)198,	83,	106,	106,	69,	48,	(byte)167,	(byte)141,	(byte)178,62,	6,	63,	(byte)195,	(byte)269}, false);
+	            			w.PlayPose(1000,	30,	new byte[] {(byte)143,	(byte)179,	(byte)198,	83,	106,	106,	69,	48,	(byte)167,	(byte)141,	70,	48,	22,	(byte)174,(byte)204,	(byte)271}, false);
+	            			w.PlayPose(1000,	30,	new byte[] {(byte)143,	(byte)152,	(byte)209,	83,	106,	106,	98,	35,	(byte)167,	(byte)141,	70,	48,	22,	(byte)174,(byte)204,	(byte)271}, false);
+	            			w.PlayPose(1000,	30,	new byte[] {(byte)143,	(byte)179,	(byte)198,	83,	106,	106,	69,	48,	(byte)167,	(byte)141,	70,	48,	22,	(byte)174,(byte)204,	(byte)271}, false);
+	            			w.PlayPose(1000,	30,	new byte[] {(byte)143,	(byte)179,	(byte)198,	83,	106,	106,	69,	48,	(byte)167,	(byte)141,	47,	47,	49,	(byte)199,(byte)204,	(byte)204}, false);            			
+	            			
+	                    	Debug.WriteLine("++ BUTTON WAVE ++");
+	            		}
+            		}
+            		catch (IOException e)
+            		{
+                    	Debug.WriteLine("++ IO EXCEPTION ++");
+            		}
+            	}
+            	
+            	if (swmode==2)
+            	{
+            		try {
+            			Serial sp = new Serial(m_btSck.getInputStream(),m_btSck.getOutputStream());
+            			pcRemote pc = new pcRemote(sp);
+	            		if (m_sb.getText().equals("Basic Pose"))
+	            		{
+	                    	Debug.WriteLine("++ BUTTON POSE ++");
+	                    	pc.basic();
+	            		}
+	            		if (m_sb.getText().equals("Wave"))
+	            		{ 
+	                    	Debug.WriteLine("++ BUTTON WAVE (Attack right) ++");
+	                    	pc.run(8); //attack right !
+	            		}
+            			
+            		}
+            		catch (IOException e)
+            		{
+                    	Debug.WriteLine("++ IO EXCEPTION ++");
+                    }
             	}
             }
         };
@@ -771,7 +827,7 @@ public class RoboAndroid extends Activity implements OnClickListener, OnItemClic
                 	Debug.Write("Pixel=" + n);     
                 	if (n>0 && n<20)
                 	{
-                		vibrator.vibrate(50);
+                		//Vibrator.this.vibrate(50);
                 		switch (swmode)
                 		{
                 		case 0: // Basic
@@ -788,6 +844,15 @@ public class RoboAndroid extends Activity implements OnClickListener, OnItemClic
                 return true;
             }
         });
+    }
+    
+	
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) 
+    {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.option_menu, menu);
+        return true;
     }
 
     @Override

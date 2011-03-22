@@ -1,5 +1,11 @@
 ﻿package net.robobuilderlib;
 
+import java.io.BufferedReader;
+import java.io.DataInputStream;
+import java.io.FileInputStream;
+import java.io.InputStreamReader;
+
+
 public class wckMotion
 {
 	public  enum MoveTypes { AccelDecel, Accel, Decel, Linear };
@@ -484,7 +490,7 @@ public class wckMotion
 	 *********************************************************************************************/
 
 
-	public int cbyte(byte b)
+	/*public int cbyte(byte b) // C# function only
 	{
 		int i;
 		if (b > 127)
@@ -496,7 +502,9 @@ public class wckMotion
 			i = (int)b;
 		}
 		return i;
-	}
+	}*/
+	
+	public int cbyte(byte b) {return (int)b;} // in java bytes are signed
 
 	public boolean I2C_write(int addr, byte[] outbuff)
 	{
@@ -628,7 +636,7 @@ public class wckMotion
 	}
 	
 	
-	/*
+
 	public boolean PlayFile(String filename)
 	{ 
 		return PlayFile(filename, 0, 0);
@@ -646,42 +654,47 @@ public class wckMotion
 
 		try
 		{
-			TextReader tr = new StreamReader(filename);
-			string line = "";
+			//InputStream tr = new InputStreamReader();
 
-			while ((line = tr.ReadLine()) != null)
+		    FileInputStream fstream = new FileInputStream(filename);
+		    DataInputStream in = new DataInputStream(fstream);
+	        BufferedReader tr = new BufferedReader(new InputStreamReader(in));	 
+			
+			String line = "";
+
+			while ((line = tr.readLine()) != null)
 			{
-				line = line.Trim();
+				line = line.trim();
 				linecount++;
 
 				if (!(linecount>=startrow && ( linecount<=endrow || endrow==0)))
 					continue;
 
-				if (pcR.dbg) Console.WriteLine("{0} - {1}", linecount, line);
+				Debug.WriteLine(linecount + " - " + line);
 
-				if (line.StartsWith("#")) // comment
+				if (line.startsWith("#")) // comment
 				{
-					if (trig != null && trig.dbg)  Console.WriteLine(line);
-					if (line.StartsWith("#V=01,,"))
+					Debug.WriteLine(line);
+					if (line.startsWith("#V=01,,"))
 						nos = 20;
 
-					Match m = Regex.Match(line, @"#V=01,N=([0-9]+)");
-					if (m.Success)
-					{
-						nos = Convert.ToInt32(m.Groups[1].Value);
-						if (pcR.dbg) Console.WriteLine("nos = {0}", nos);
-					}
+					//Matcher m = Regex.Match(line, @"#V=01,N=([0-9]+)");
+					//if (m.matches())
+					//{
+					//	nos = Integer.parseInt(m.Groups[1].Value);
+					//	Debug.WriteLine("nos = " + nos);
+					//}
 					continue;
 				}
 
-				string[] r = line.Split(',');
+				String[] r = line.split(",");
 
 				if (nos == 0)
 				{
-					if (r.Length > 20)
-						nos = r.Length - 5; // assume XYZ have been appended
+					if (r.length > 20)
+						nos = r.length - 5; // assume XYZ have been appended
 					else 
-						nos = r.Length - 2;
+						nos = r.length - 2;
 				}
 
 				if (nos > 0)
@@ -689,18 +702,18 @@ public class wckMotion
 					servo_pos = new byte[nos];
 					n++;
 
-					duration = Convert.ToInt32(r[0]);
-					steps = Convert.ToInt32(r[1]);
+					duration = Integer.parseInt(r[0]);
+					steps = Integer.parseInt(r[1]);
 
 					for (int i = 0; i < nos; i++)
-						servo_pos[i] = (byte)Convert.ToInt32(r[i + 2]);
+						servo_pos[i] = (byte)Integer.parseInt(r[i + 2]);
 
 					if (!PlayPose(duration, steps, servo_pos, (n == 1))) 
 						return false;
 				}
 
 			}
-			tr.Close();
+			tr.close();
 		}
 		catch (Exception e1)
 		{
@@ -709,14 +722,10 @@ public class wckMotion
 		}
 		return true;
 	}
-	*/
 
 	// Different type of move interpolation
 	// from http://robosavvy.com/forum/viewtopic.php?t=5306&start=30
-	// orinial by RN1AsOf091407
-
-
-
+	// original by RN1AsOf091407
 	double CalculatePos_AccelDecel(int Distance, double FractionOfMove)
 	{
 		if ( FractionOfMove < 0.5 )     // Accel:
@@ -791,6 +800,8 @@ public class wckMotion
 	{
 		return PlayPose(duration, no_steps, spod, first, cmt);
 	}
+	
+	public int cvb2i(byte x) {return (x<0)? 256+x:x;}
 
 	public boolean PlayPose(int duration, int no_steps, byte[] spod, boolean first, MoveTypes ty)
 	{
@@ -800,28 +811,25 @@ public class wckMotion
 
 		if (first || !initpos)
 		{
-			servoID_readservo(spod.length); // read start positons
+			servoID_readservo(spod.length); // read start positions
 			tcnt = 0;
 		}
 
 		duration = (int)(0.5+(double)duration * kfactor);
 
-
 		// bounds check
 		for (int n = 0; n < spod.length ; n++)
 		{
-			if (spod[n] != 255)
+			if (cvb2i(spod[n]) != 255)
 			{
 				if (n < lb_Huno.length)
 				{
-					if (spod[n] < lb_Huno[n]) spod[n] = (byte)lb_Huno[n];
-					if (spod[n] > ub_Huno[n]) spod[n] = (byte)ub_Huno[n];
+					if (cvb2i(spod[n]) < lb_Huno[n]) spod[n] = (byte)lb_Huno[n];
+					if (cvb2i(spod[n]) > ub_Huno[n]) spod[n] = (byte)ub_Huno[n];
 				}
 				cnt++;
 			}
 		}
-
-		wckReadPos(30, 8); // sampling on.
 
 		for (int s = 1; s <= no_steps; s++)
 		{
@@ -840,11 +848,7 @@ public class wckMotion
 			int td = duration / no_steps;
 			if (td<25) td=25;
 			delay_ms(td);
-
 		}
-
-		wckReadPos(30, 9); // sampling off.
-
 
 		for (int n = 0; n < spod.length; n++)
 		{
