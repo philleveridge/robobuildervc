@@ -668,21 +668,14 @@ public class RoboAndroid extends Activity implements OnClickListener, OnItemClic
 	        			wckMotion w = new wckMotion(sp);
 	            		if (m_sb.getText().equals("Basic Pose"))
 	            		{
-	                    	Debug.WriteLine("++ BUTTON POSE ++");
 	                    	w.PlayPose(1000, 10, wckMotion.basicdh, true);
 	            		}
 	            		if (m_sb.getText().equals("Wave"))
-	            		{            			
-	            			//#T	N	0	1	2	3	4	5	6	7	8	9	10	11	12	13	14	15            			
-	            			w.PlayPose(1000,	30,	new byte[] {(byte)143,	(byte)179,	(byte)198,	83,	106,	106,	69,	48,	(byte)167,	(byte)141,	47,	47,	49,	(byte)199,(byte)204,	(byte)204}, true);
-	            			w.PlayPose(1000,	30,	new byte[] {(byte)143,	(byte)179,	(byte)198,	83,	106,	106,	69,	48,	(byte)167,	(byte)141,	(byte)178,62,	6,	63,	(byte)195,	(byte)269}, false);
-	            			w.PlayPose(500,		2,	new byte[] {(byte)143,	(byte)179,	(byte)198,	83,	106,	106,	69,	48,	(byte)167,	(byte)141,	(byte)178,62,	6,	63,	(byte)195,	(byte)269}, false);
-	            			w.PlayPose(1000,	30,	new byte[] {(byte)143,	(byte)179,	(byte)198,	83,	106,	106,	69,	48,	(byte)167,	(byte)141,	70,	48,	22,	(byte)174,(byte)204,	(byte)271}, false);
-	            			w.PlayPose(1000,	30,	new byte[] {(byte)143,	(byte)152,	(byte)209,	83,	106,	106,	98,	35,	(byte)167,	(byte)141,	70,	48,	22,	(byte)174,(byte)204,	(byte)271}, false);
-	            			w.PlayPose(1000,	30,	new byte[] {(byte)143,	(byte)179,	(byte)198,	83,	106,	106,	69,	48,	(byte)167,	(byte)141,	70,	48,	22,	(byte)174,(byte)204,	(byte)271}, false);
-	            			w.PlayPose(1000,	30,	new byte[] {(byte)143,	(byte)179,	(byte)198,	83,	106,	106,	69,	48,	(byte)167,	(byte)141,	47,	47,	49,	(byte)199,(byte)204,	(byte)204}, false);            			
-	            			
-	                    	Debug.WriteLine("++ BUTTON WAVE ++");
+	            		{ 
+	            			InputStream is = getAssets().open("HunoDemo_Hi.rbm");
+	            			Motion m = new Motion();
+	            			m.LoadFile(is);
+	            			m.Play(w, 18);
 	            		}
             		}
             		catch (IOException e)
