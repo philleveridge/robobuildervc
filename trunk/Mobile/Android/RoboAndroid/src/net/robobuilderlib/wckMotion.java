@@ -3,6 +3,8 @@
 import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 
 
@@ -42,7 +44,7 @@ public class wckMotion
 
 	/**********************************************
 	 * 
-	 * direct Command mode  - wcK prorocol
+	 * direct Command mode  - wcK protocol
 	 * 
 	 * ********************************************/
 
@@ -635,8 +637,6 @@ public class wckMotion
 		PlayPose(duration, no_steps, basic_pos, true);
 	}
 	
-	
-
 	public boolean PlayFile(String filename)
 	{ 
 		return PlayFile(filename, 0, 0);
@@ -644,6 +644,20 @@ public class wckMotion
 
 	public boolean PlayFile(String filename, int startrow, int endrow)
 	{
+		try
+		{
+		    FileInputStream fstream = new FileInputStream(filename);
+		    DataInputStream in = new DataInputStream(fstream);
+		    return PlayFile(in, startrow, endrow);
+	    }
+	    catch (IOException e)
+	    {
+	    	return false;
+	    }  
+	}
+	
+	public boolean PlayFile(InputStream is, int startrow, int endrow)
+	{	
 		byte[] servo_pos;
 		int steps;
 		int duration;
@@ -654,11 +668,7 @@ public class wckMotion
 
 		try
 		{
-			//InputStream tr = new InputStreamReader();
-
-		    FileInputStream fstream = new FileInputStream(filename);
-		    DataInputStream in = new DataInputStream(fstream);
-	        BufferedReader tr = new BufferedReader(new InputStreamReader(in));	 
+	        BufferedReader tr = new BufferedReader(new InputStreamReader(is));	 
 			
 			String line = "";
 
