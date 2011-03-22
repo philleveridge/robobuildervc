@@ -22,7 +22,7 @@
               
 	<ImageView android:id="@+id/ImageView01" 
 	android:layout_width="wrap_content" 
-	android:layout_height="wrap_content" android:src="@drawable/irlogo2" android:scaleType="fitCenter" android:maxWidth="150dp">
+	android:layout_height="wrap_content" android:src="@drawable/irlogo2" android:scaleType="fitCenter" android:maxWidth="50dp">
 
 	</ImageView>
 	

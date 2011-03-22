@@ -18,14 +18,16 @@
 
 <TableLayout android:id="@+id/TableLayout01" android:layout_width="fill_parent" android:layout_height="fill_parent" xmlns:android="http://schemas.android.com/apk/res/android">
 
-<TableRow android:id="@+id/TableRow01" android:layout_width="wrap_content" android:layout_height="wrap_content">
-<Button android:id="@+id/ButtonS1" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Basic Pose"></Button>
-<Button android:id="@+id/ButtonS2" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Wave"></Button>
-</TableRow>
 
-<TableRow android:id="@+id/TableRow02" android:layout_width="wrap_content" android:layout_height="wrap_content">
-<Button android:id="@+id/ButtonS3" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Bow"></Button>
-<Button android:id="@+id/ButtonS4" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Walk Fwd"></Button>
-</TableRow>
+<TextView android:layout_height="wrap_content" android:layout_width="wrap_content" android:text="SIMPLE UI " android:id="@+id/TextViewSUI01"></TextView>
+<TextView android:id="@+id/TextViewSUI02" android:layout_width="wrap_content" android:text="TYPE &amp; VERSION " android:layout_height="wrap_content"></TextView><Button android:id="@+id/ButtonS1" android:layout_width="wrap_content" android:text="Basic Pose" android:layout_height="wrap_content"></Button><Button android:text="Wave" android:id="@+id/ButtonS2" android:layout_height="wrap_content" android:layout_width="wrap_content"></Button>
+<Button android:id="@+id/ButtonS3" android:layout_height="wrap_content" android:layout_width="wrap_content" android:text="TBC"></Button>
+
+<Button android:id="@+id/ButtonS4" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="TBC"></Button>
+
+
+
+
+
 
 </TableLayout>
