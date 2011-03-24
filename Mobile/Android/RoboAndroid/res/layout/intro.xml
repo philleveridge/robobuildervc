@@ -22,16 +22,24 @@
               
 	<ImageView android:id="@+id/ImageView01" 
 	android:layout_width="wrap_content" 
-	android:layout_height="wrap_content" android:src="@drawable/irlogo2" android:scaleType="fitCenter" android:maxWidth="50dp">
+	android:layout_height="wrap_content" android:src="@drawable/irlogo2" android:scaleType="fitCenter" android:minHeight="50dp" android:adjustViewBounds="true" android:maxHeight="200dp">
 
 	</ImageView>
 	
 	<RadioGroup android:id="@+id/RadioGroup01" android:layout_height="wrap_content" android:layout_width="wrap_content">	
-		<RadioButton android:layout_width="wrap_content" android:id="@+id/RadioButton01" android:layout_height="wrap_content" android:text="@string/cb1"></RadioButton>
-		<RadioButton android:layout_width="wrap_content" android:id="@+id/RadioButton02" android:layout_height="wrap_content" android:text="@string/cb2"></RadioButton>
-		<RadioButton android:id="@+id/RadioButton03" android:text="@string/cb3" android:layout_height="wrap_content" android:layout_width="wrap_content"></RadioButton>
-	</RadioGroup>
+		<RadioButton android:layout_width="wrap_content" android:id="@+id/RadioButton01" android:layout_height="wrap_content" android:text="@string/cb1" android:height="10dp"></RadioButton>
+		<RadioButton android:layout_width="wrap_content" android:id="@+id/RadioButton02" android:layout_height="wrap_content" android:text="@string/cb2" android:height="10dp"></RadioButton>
+	  	  <RadioButton android:id="@+id/RadioButton03" android:text="@string/cb3" android:layout_height="wrap_content" android:layout_width="wrap_content" android:height="10dp"></RadioButton>
+
+</RadioGroup>
 	
+<LinearLayout android:id="@+id/LinearLayout01" android:layout_width="wrap_content" android:layout_height="wrap_content" android:visibility="invisible">
+	
+	<CheckBox android:text="Hip Kit?"      android:id="@+id/hk" android:layout_width="wrap_content" android:layout_height="wrap_content" android:checked="true"></CheckBox>
+	<CheckBox android:text="Dance Hands?"  android:id="@+id/dh" android:layout_width="wrap_content" android:layout_height="wrap_content" android:checked="true"></CheckBox>
+
+</LinearLayout>	
+
 	<Button android:text="Go !" android:id="@+id/Button01" android:layout_width="wrap_content" android:layout_height="wrap_content"></Button>
 
 

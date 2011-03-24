@@ -27,7 +27,7 @@ class Motion
         no_scenes = 0;
     }
     
-    public boolean Play(wckMotion w, int n)
+    public boolean Play(wckMotion w, boolean hip, boolean dh)
     {
     	// simple play - each scene
     	// ignores gains and external at the moment
@@ -46,9 +46,15 @@ class Motion
     			}
     		}
     		
-    		if (n> no_servos && no_servos==16)
+    		if (hip)
     		{
     			pos[0] += 18; pos[5] -=18; // adjust for hip kit
+    		}
+    		
+    		if (dh)
+    		{
+    			pos[12] = (byte)255; // ignore
+    			pos[15] = (byte)255; // ignore
     		}
     		
     		w.PlayPose(scenes[i].TransitionTime, scenes[i].Frames, 
