@@ -14,12 +14,14 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.os.Vibrator;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -33,10 +35,12 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.Gallery;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.RadioButton;
@@ -54,9 +58,9 @@ public class RoboAndroid extends Activity implements OnClickListener, OnItemClic
 	ListView					m_lvSearch;	
 	ProgressDialog				m_progDlg;
 	
-	
 	int 						swmode					=0; //0=Basic, 1= Firm, 2= DCMP
 	int 						opmode					=0; //0=Kbd,   1= Joy,  2= Remco
+	int							rbconfig				=0; //BIT wise: (0=standard, 1=hipkit, 2=Dance hands)
 	
 	//-- Bluetooth functionality --//
 	
@@ -76,6 +80,8 @@ public class RoboAndroid extends Activity implements OnClickListener, OnItemClic
     Bitmap hotspot=null;
     
     private Vibrator vibrator; 
+    
+    boolean nobt=true; // false; //
 	
 	public static final int 	idLVFirstItem		= Menu.FIRST + 100;	
 
@@ -106,9 +112,11 @@ public class RoboAndroid extends Activity implements OnClickListener, OnItemClic
         
         //m_BT = new BTNative();
         BTDevs = new BTDev[MAX_DEVICES]; 
-        
+     
+if (!nobt){
         m_BluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         // If the adapter is null, then Bluetooth is not supported
+        
         if (m_BluetoothAdapter == null) {
             Toast.makeText(this, "Bluetooth is not available", Toast.LENGTH_LONG).show();
             finish();
@@ -128,6 +136,7 @@ public class RoboAndroid extends Activity implements OnClickListener, OnItemClic
         // Register for broadcasts when discovery has finished
         filter = new IntentFilter(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
         this.registerReceiver(mReceiver, filter); 
+} 
         
         // disable the titlebar
         requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -398,7 +407,8 @@ public class RoboAndroid extends Activity implements OnClickListener, OnItemClic
 	int StartReadThread(final int nIndex)
 	{	
 		Debug.WriteLine("StartReadThread: Connect");
-		Connect(nIndex);
+		if (!nobt)
+			Connect(nIndex);
 		
 		if (swmode==1 || swmode==2)
 		{
@@ -460,6 +470,8 @@ public class RoboAndroid extends Activity implements OnClickListener, OnItemClic
 	{
 		String r = "?";
     	Debug.WriteLine("++ ON VER ");
+    	
+    	if (nobt) return "NOBT";
 		
 		switch (swmode)
 		{
@@ -499,7 +511,9 @@ public class RoboAndroid extends Activity implements OnClickListener, OnItemClic
 			wckMotion w = new wckMotion(sp);
 			if (w.wckReadPos(30, 0)) // DCMP this return version
 			{
-				return "V=" + (int)(w.respnse[0]) + "." + (int)(w.respnse[1]);
+				String v = "V=" + (int)(w.respnse[0]) + "." + (int)(w.respnse[1]);
+				v += ", Servos=" + w.countServos();
+				return v;
 			}
 		}
 		catch (IOException e)
@@ -585,8 +599,7 @@ public class RoboAndroid extends Activity implements OnClickListener, OnItemClic
     
     protected void startIntro()
     {
-        Button    m_sb;
-    	ImageView im;    	
+        Button    m_sb;	
     	
     	Debug.WriteLine("++ INTRO ++");
     	
@@ -618,109 +631,151 @@ public class RoboAndroid extends Activity implements OnClickListener, OnItemClic
 	            	if (rb3.isChecked()) {swmode=2;}
 	            	if (swmode<0) return; //ignore click
 	            	
-	            	Debug.WriteLine("++ BUTTON CHECKED ++" + swmode);	
+	            	if (swmode==1)
+	            	{
+	            		LinearLayout l = (LinearLayout)findViewById(R.id.LinearLayout01);
+	            		if (l.getVisibility() == l.INVISIBLE)
+	            		{
+	            			l.setVisibility(l.VISIBLE);
+	            			return;
+	            		}
+	            		else
+		            	{
+		            		CheckBox t;
+		            		t = (CheckBox)findViewById(R.id.hk);
+		            		if (t.isChecked())
+		            			rbconfig |= 1;
+		            		
+		            		t = (CheckBox)findViewById(R.id.dh);
+		            		if (t.isChecked())
+		            			rbconfig |= 2;
+		            	}
+	            	}
 	            	
+	            	Debug.WriteLine("++ BUTTON CHECKED ++" + swmode +"," + rbconfig);	           	
 	            	
 	            	startKBD();	            	            	
-	    			startDiscoverBluetoothDevices();		
+	    			if (nobt) 
+	    				StartReadThread(0); // debugmode
+	    			else
+	    				startDiscoverBluetoothDevices();		
 	            }
 	        });
-        }
-        
+        }      
     }
-    
+ 
     
     protected void startSimple()
     {
+        String[] Actions = new String[]{
+    		"Getup A",
+    		"Getup B",
+    		"Turn Left",
+    		"Forward",
+    		"Turn Right",
+    		"Move Left",
+    		"Basic Posture",
+    		"Move Right",
+    		"Attack Left",
+    		"Move Backward",
+    		"Attack Right",
+    		"User defined 1",
+    		"User defined 2",
+    		"User defined 3",
+    		"User defined 4",
+    		"User defined 5",
+    		"User defined 6"
+            };
+        
         LayoutInflater li = (LayoutInflater)this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         FrameLayout contentPane = (FrameLayout)findViewById(R.id.FrameLayout01);  
  
-        contentPane.removeAllViews();
-        contentPane.addView( li.inflate(R.layout.simpleui, null) );
+        contentPane.removeAllViews();      
+        contentPane.addView( li.inflate(R.layout.picklist, null) );
         
-        if (swmode==0 || m_btSck == null) 
+        if (swmode==0 || (m_btSck == null && !nobt)) 
         	return; // not BASIC
         
-        TextView tv = (TextView) findViewById(R.id.TextViewSUI02);      
+        TextView tv = (TextView) findViewById(R.id.pln);    
         
+      	
+        ListView lv = (ListView) findViewById(R.id.list);   
+     
         if (swmode==1)
         {
         	tv.setText("DCMP " + checkVersion());
+			//startActivity(new Intent(this, mfiles.class));    
+        	
+            /* ------------------------------*/
+            
+            AssetManager assetManager = getAssets();
+            	        Actions = null;
+            	        try {
+            	            Actions = assetManager.list("");
+            	        } catch (IOException e) {
+            	            Log.e("tag", e.getMessage());
+            	        }
+            	        
+            for (int i=0; i<Actions.length; i++)
+            	Actions[i] = Actions[i].replace(".rbm", "");
+            
+        	lv.setOnItemClickListener(new OnItemClickListener() {
+
+    			@Override
+    			public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
+    				
+
+    				String s = (arg0.getAdapter().getItem(arg2)).toString();  		        
+    				Debug.WriteLine("++ CLICK= " + arg2 + "=" + s );
+    				
+    		        BluetoothSocket m_btSck  =null;
+    		        int             rbconfig =0;
+    		        
+    		        try {     
+    					Serial sp = new Serial(m_btSck.getInputStream(),m_btSck.getOutputStream());
+    					wckMotion w = new wckMotion(sp);
+    			 
+    					InputStream is = getAssets().open(s +".rbm");
+    					Motion m = new Motion();
+    					m.LoadFile(is);
+    					m.Play(w, (rbconfig&1)==1, (rbconfig&2)==2);
+    		        }
+    		        catch (IOException e)
+    		        {
+    		        }  				   			   				
+    			}});
+        
         }
         
         if (swmode==2)
         { 
         	tv.setText("FIRMWARE " + checkVersion());
-        }
-        
-        OnClickListener ocl = new OnClickListener() {
-            public void onClick(View v) {
-                // Send
-            	Debug.WriteLine("++ BUTTON CLICK ++");
+        	
+        	lv.setOnItemClickListener(new OnItemClickListener() {
 
-                Button    m_sb = (Button) findViewById(v.getId());
-            	Debug.WriteLine("++ BUTTON CLICK =" + m_sb.getText());
-            	
-            	if (swmode==1)
-            	{
-            		try {
-	        			Serial sp = new Serial(m_btSck.getInputStream(),m_btSck.getOutputStream());
-	        			wckMotion w = new wckMotion(sp);
-	            		if (m_sb.getText().equals("Basic Pose"))
-	            		{
-	                    	w.PlayPose(1000, 10, wckMotion.basicdh, true);
-	            		}
-	            		if (m_sb.getText().equals("Wave"))
-	            		{ 
-	            			InputStream is = getAssets().open("HunoDemo_Hi.rbm");
-	            			Motion m = new Motion();
-	            			m.LoadFile(is);
-	            			m.Play(w, 18);
-	            		}
-            		}
-            		catch (IOException e)
-            		{
-                    	Debug.WriteLine("++ IO EXCEPTION ++");
-            		}
-            	}
-            	
-            	if (swmode==2)
-            	{
-            		try {
-            			Serial sp = new Serial(m_btSck.getInputStream(),m_btSck.getOutputStream());
-            			pcRemote pc = new pcRemote(sp);
-	            		if (m_sb.getText().equals("Basic Pose"))
-	            		{
-	                    	Debug.WriteLine("++ BUTTON POSE ++");
-	                    	pc.basic();
-	            		}
-	            		if (m_sb.getText().equals("Wave"))
-	            		{ 
-	                    	Debug.WriteLine("++ BUTTON WAVE (Attack right) ++");
-	                    	pc.run(8); //attack right !
-	            		}
-            			
-            		}
-            		catch (IOException e)
-            		{
-                    	Debug.WriteLine("++ IO EXCEPTION ++");
-                    }
-            	}
-            }
-        };
-        
-        Button    m_sb;
-        if ((m_sb = (Button) findViewById(R.id.ButtonS1))  == null)
-        {
-        	Debug.WriteLine("++ BUTTON 1 FAILED ++");
-        }
-        m_sb.setOnClickListener(ocl);
-        
-        if ((m_sb = (Button) findViewById(R.id.ButtonS2))  == null)
-        {
-        	Debug.WriteLine("++ BUTTON 2 FAILED ++");
-        }
-        m_sb.setOnClickListener(ocl);
+    			@Override
+    			public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,
+    					long arg3) {
+    				// TODO Auto-generated method stub
+    				
+    				Debug.WriteLine("++ CLICK=" + arg2);			
+    				
+        			Serial sp;
+					try {
+						sp = new Serial(m_btSck.getInputStream(),m_btSck.getOutputStream());
+	        			pcRemote pc = new pcRemote(sp);
+                    	pc.run(arg2+1); //built in motion
+	        			
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}       			
+  				
+    			}});
+            
+
+        }       
+        lv.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, Actions));
     }
     
     

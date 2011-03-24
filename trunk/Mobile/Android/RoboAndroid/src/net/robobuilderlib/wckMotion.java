@@ -80,6 +80,18 @@ public class wckMotion
 		}
 		return -1;
 	}
+	
+    public int countServos()
+    {
+        for (int i = 0; i < MAX_SERVOS; i++)
+        {
+            if (!wckReadPos(i))
+            {
+                return i;
+            }
+        }
+        return MAX_SERVOS;
+    } 
 
 	public void set_kfactor(double k)
 	{
