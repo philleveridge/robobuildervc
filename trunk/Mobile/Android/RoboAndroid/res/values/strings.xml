@@ -39,4 +39,23 @@
 <item>DCMP (v3.10 or above)</item>
 <item>RB Firmware (2.24 or above)</item>
 </string-array>
+<string-array name="actions">
+<item>Getup A</item>
+<item>Getup B</item>
+<item>Turn Left</item>
+<item>Forward</item>
+<item>Turn Right</item>
+<item>Move Left</item>
+<item>Basic Posture</item>
+<item>Move Right</item>
+<item>Attack Left</item>
+<item>Move Backward</item>
+<item>Attack Right</item>
+<item>User defined 1</item>
+<item>User defined 2</item>
+<item>User defined 3</item>
+<item>User defined 4</item>
+<item>User defined 5</item>
+<item>User defined 6</item>
+</string-array>
 </resources>

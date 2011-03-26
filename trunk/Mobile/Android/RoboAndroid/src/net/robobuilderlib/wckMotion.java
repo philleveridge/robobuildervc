@@ -195,6 +195,7 @@ public class wckMotion
 		catch (Exception e1)
 		{
 			Message = "Failed" + e1.getMessage();
+			Debug.WriteLine(Message);
 			return false;
 		}
 	}
@@ -698,14 +699,13 @@ public class wckMotion
 				{
 					Debug.WriteLine(line);
 					if (line.startsWith("#V=01,,"))
+						nos = 218;
+					if (line.startsWith("#V=01,18,"))
+						nos = 18;
+					if (line.startsWith("#V=01,16,"))
+						nos = 16;
+					if (line.startsWith("#V=01,20,"))
 						nos = 20;
-
-					//Matcher m = Regex.Match(line, @"#V=01,N=([0-9]+)");
-					//if (m.matches())
-					//{
-					//	nos = Integer.parseInt(m.Groups[1].Value);
-					//	Debug.WriteLine("nos = " + nos);
-					//}
 					continue;
 				}
 

@@ -78,10 +78,8 @@ public class RoboAndroid extends Activity implements OnClickListener, OnItemClic
     Thread						m_hReadThread;   
     
     Bitmap hotspot=null;
-    
-    private Vibrator vibrator; 
-    
-    boolean nobt=true; // false; //
+      
+    boolean nobt=false; // true; // 
 	
 	public static final int 	idLVFirstItem		= Menu.FIRST + 100;	
 
@@ -448,7 +446,6 @@ if (!nobt){
 	                    // Send the obtained bytes to the UI Activity
 	        			Debug.WriteLine("StartReadThread: Data received:" + r);
 	                    
-	        			//m_Handler.post(mUpdateText);
 	                    Message m = Message.obtain(m_Handler);
 	                    m.obj = (Object)r;
 	                    
@@ -512,7 +509,7 @@ if (!nobt){
 			if (w.wckReadPos(30, 0)) // DCMP this return version
 			{
 				String v = "V=" + (int)(w.respnse[0]) + "." + (int)(w.respnse[1]);
-				v += ", Servos=" + w.countServos();
+				//v += ", Servos=" + w.countServos();
 				return v;
 			}
 		}
@@ -667,25 +664,7 @@ if (!nobt){
     
     protected void startSimple()
     {
-        String[] Actions = new String[]{
-    		"Getup A",
-    		"Getup B",
-    		"Turn Left",
-    		"Forward",
-    		"Turn Right",
-    		"Move Left",
-    		"Basic Posture",
-    		"Move Right",
-    		"Attack Left",
-    		"Move Backward",
-    		"Attack Right",
-    		"User defined 1",
-    		"User defined 2",
-    		"User defined 3",
-    		"User defined 4",
-    		"User defined 5",
-    		"User defined 6"
-            };
+        String[] Actions=null;
         
         LayoutInflater li = (LayoutInflater)this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         FrameLayout contentPane = (FrameLayout)findViewById(R.id.FrameLayout01);  
@@ -696,15 +675,12 @@ if (!nobt){
         if (swmode==0 || (m_btSck == null && !nobt)) 
         	return; // not BASIC
         
-        TextView tv = (TextView) findViewById(R.id.pln);    
-        
-      	
+        TextView tv = (TextView) findViewById(R.id.pln);                	
         ListView lv = (ListView) findViewById(R.id.list);   
      
         if (swmode==1)
         {
         	tv.setText("DCMP " + checkVersion());
-			//startActivity(new Intent(this, mfiles.class));    
         	
             /* ------------------------------*/
             
@@ -715,30 +691,66 @@ if (!nobt){
             	        } catch (IOException e) {
             	            Log.e("tag", e.getMessage());
             	        }
-            	        
+            	       
+            int f=0; 	        
             for (int i=0; i<Actions.length; i++)
-            	Actions[i] = Actions[i].replace(".rbm", "");
+            {
+            	if (Actions[i].endsWith(".rbm") || Actions[i].endsWith(".csv")|| Actions[i].endsWith("!") )
+            	{
+            		Actions[f] = Actions[i];
+	            	Actions[f] = Actions[f].replace(".rbm", "");
+	            	Actions[f] = Actions[f].replace(".csv", "");
+	            	Actions[f] = Actions[f].replace("_", " ");
+	            	f++;
+            	}
+            	else
+            	{
+            		Actions[i]="";
+            	}
+            }
             
         	lv.setOnItemClickListener(new OnItemClickListener() {
-
     			@Override
-    			public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
-    				
-
+    			public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) 
+    			{				
+    				Serial sp=null;;
     				String s = (arg0.getAdapter().getItem(arg2)).toString();  		        
     				Debug.WriteLine("++ CLICK= " + arg2 + "=" + s );
-    				
-    		        BluetoothSocket m_btSck  =null;
-    		        int             rbconfig =0;
     		        
     		        try {     
-    					Serial sp = new Serial(m_btSck.getInputStream(),m_btSck.getOutputStream());
+    					if (!nobt) sp = new Serial(m_btSck.getInputStream(),m_btSck.getOutputStream());
     					wckMotion w = new wckMotion(sp);
-    			 
-    					InputStream is = getAssets().open(s +".rbm");
-    					Motion m = new Motion();
-    					m.LoadFile(is);
-    					m.Play(w, (rbconfig&1)==1, (rbconfig&2)==2);
+    					
+    					if (s.equals("BASIC POSE!"))
+    					{
+    						if ((rbconfig & 2)==2) 
+    							w.PlayPose(1000, 10, wckMotion.basicdh, true);
+    						else if ((rbconfig & 1)==1) 
+    							w.PlayPose(1000, 10, wckMotion.basic18, true);
+    						else if (rbconfig==0)       
+    							w.PlayPose(1000, 10, wckMotion.basic16, true);
+    					}
+    					else
+    					{ 
+    						s.replace(" ", "_");
+    						if (s.endsWith(".dh") && (rbconfig&2)==2)
+    						{
+		    					InputStream is = getAssets().open(s +".csv");
+		    					w.PlayFile(is, 0, 0); 
+    						}
+    						else if (s.endsWith(".18") && (rbconfig&1)==1)
+    						{
+		    					InputStream is = getAssets().open(s +".csv");
+		    					w.PlayFile(is, 0, 0); 
+    						}
+    						else
+    						{
+		    					InputStream is = getAssets().open(s +".rbm");
+		    					Motion m = new Motion();
+		    					m.LoadFile(is);
+		    					m.Play(w, (rbconfig&1)==1, (rbconfig&2)==2);
+    						}
+    					}
     		        }
     		        catch (IOException e)
     		        {
@@ -751,11 +763,12 @@ if (!nobt){
         { 
         	tv.setText("FIRMWARE " + checkVersion());
         	
+        	Actions = this.getResources().getStringArray(R.array.actions);
+        	
         	lv.setOnItemClickListener(new OnItemClickListener() {
-
     			@Override
-    			public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,
-    					long arg3) {
+    			public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,long arg3) 
+    			{
     				// TODO Auto-generated method stub
     				
     				Debug.WriteLine("++ CLICK=" + arg2);			
@@ -769,15 +782,11 @@ if (!nobt){
 					} catch (IOException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
-					}       			
-  				
+					}       							
     			}});
-            
-
         }       
         lv.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, Actions));
-    }
-    
+    }    
     
     protected void startKBD()
     {
