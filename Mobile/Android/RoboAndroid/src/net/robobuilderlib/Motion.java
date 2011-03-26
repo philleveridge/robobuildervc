@@ -57,8 +57,11 @@ class Motion
     			pos[15] = (byte)255; // ignore
     		}
     		
-    		w.PlayPose(scenes[i].TransitionTime, scenes[i].Frames, 
-    				pos, (i==0));
+    		for (int p=0; p<no_servos; p++) 
+    			Debug.WriteLine(pos[p]+":");
+    		
+    		Debug.WriteLine( "T=" + scenes[i].TransitionTime + ", S=" +scenes[i].Frames); 		
+    		w.PlayPose(scenes[i].TransitionTime, scenes[i].Frames, 	pos, (i==0));
     	}  	
     	return true;
     }
@@ -122,8 +125,9 @@ class Motion
             while ((line = tr.readLine()) != null)
             {
                 line = line.trim();
-                //Console.WriteLine(line);
+
                 String[] a = line.split(":");
+                //Debug.WriteLine(a.length + " -> " + line);
 
                 Debug.WriteLine("Motion file: " + a[6]);
                 name = a[6];
@@ -154,21 +158,26 @@ class Motion
 
                 int s = 0;
 
-                while (c + no_servos * 6 + 5 <= a.length + 1)
+                while (c + no_servos * 6 + 5 <= (a.length + 2))
                 {
+
                     if (s == no_scenes) break;
-                    Debug.WriteLine("Scene " + s + ": " + a[c]);
+  
                     scenes[s] = new Scene();
                     scenes[s].name = a[c];
                     scenes[s].TransitionTime = Integer.parseInt(a[c + 2]);
                     scenes[s].Frames = Integer.parseInt(a[c + 1]);
+                    
+                    Debug.WriteLine("S=" + scenes[s].name);
 
                     scenes[s].mExternalData = new int[no_servos];
                     scenes[s].mPositions = new int[no_servos];  // scene end positions
-                    scenes[s].mTorque = new int[no_servos];
+                    scenes[s].mTorque = new int[no_servos];                
 
                     for (int i = 0; i < no_servos; i++)
                     {
+                        //Debug.WriteLine("read " + i + "," + s + "," + c);
+                        
                         scenes[s].mPositions[i] = Integer.parseInt(a[c + 6 + i * 6]);
                         scenes[s].mTorque[i] = Integer.parseInt(a[c + 7 + i * 6]);
                         scenes[s].mExternalData[i] = Integer.parseInt(a[c + 8 + i * 6]);
@@ -176,8 +185,10 @@ class Motion
                     c += no_servos * 6 + 5;
                     s = s + 1;
                 }
+                //Debug.WriteLine("Line read");
             }
             tr.close();
+            Debug.WriteLine("Done");
         }
         catch (IOException e1)
         {

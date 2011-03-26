@@ -21,9 +21,10 @@
     android:scrollbars="vertical">
     
     <TextView android:layout_height="wrap_content" android:text="@+id/TextView01" android:scrollbars="vertical"  android:layout_width="wrap_content" android:id="@+id/TextView01" android:scrollbarAlwaysDrawVerticalTrack="true"></TextView>
-    <ListView android:stackFromBottom="true" android:layout_height="fill_parent" android:scrollbars="vertical" android:layout_weight="1" android:transcriptMode="alwaysScroll" android:layout_width="fill_parent" android:id="@+id/in"></ListView>
+    
     <LinearLayout android:orientation="horizontal" android:id="@+id/LinearLayout01" android:layout_width="fill_parent" android:layout_height="wrap_content">
         <EditText android:layout_width="wrap_content" android:text="@+id/EditText01" android:id="@+id/edit_text_out" android:layout_weight="1" android:layout_height="wrap_content" android:layout_gravity="bottom"></EditText>
         <Button android:id="@+id/button_send" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/send"></Button>
     </LinearLayout>
+<ListView android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/in"></ListView>
 </LinearLayout>
