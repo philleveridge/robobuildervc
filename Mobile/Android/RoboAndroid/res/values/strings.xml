@@ -58,4 +58,6 @@
 <item>User defined 5</item>
 <item>User defined 6</item>
 </string-array>
+<color name="white">#FFFFFF</color>
+
 </resources>

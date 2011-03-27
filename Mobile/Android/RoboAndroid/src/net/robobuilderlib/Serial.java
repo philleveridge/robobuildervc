@@ -16,8 +16,8 @@ import java.util.concurrent.TimeoutException;
 public class Serial 
 {
 	public  boolean IsOpen = false;
-	public int WriteTimeout;
-	public int ReadTimeout;
+	public int WriteTimeout=500;
+	public int ReadTimeout=500;
 	
 	InputStream in;
 	OutputStream out;
@@ -50,7 +50,7 @@ public class Serial
 			return ;
 	    }		
 	}
-/*	
+
 	public byte ReadByte()  throws Exception
 	{
 		if (!IsOpen) return 0;
@@ -64,9 +64,8 @@ public class Serial
     	Debug.Write("RBYTE: " + b);
     	return b.byteValue();
     }
-    */
 
-	public byte ReadByte() {
+	public byte ReadByte_b() {
 		if (!IsOpen) return 0;
 		
 		try {

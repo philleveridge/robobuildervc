@@ -2,8 +2,12 @@ package net.robobuilderlib;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.UUID;
+
+import net.robobuilderlib.RoboAndroid.SwModes;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
@@ -49,20 +53,20 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 
-public class RoboAndroid extends Activity implements OnClickListener, OnItemClickListener {
-	//-- ROBOT --//	
-	final static String			ROBO_BTADDR				= "00:01:95:09:0B:65"; // My Robot       
-    
-	//-- GUI --//
-	final static String			m_szAppTitle			= "MoboRobo";
-	ListView					m_lvSearch;	
-	ProgressDialog				m_progDlg;
+public class RoboAndroid extends Activity implements OnClickListener, OnItemClickListener 
+{   	
+	public  enum 	SwModes 				{ Notset, Basic, RBFirmware, DCMP };
+	public  enum 	OpModes 				{ Notset, Kbd,   Joystick,   Remco };
 	
-	int 						swmode					=0; //0=Basic, 1= Firm, 2= DCMP
-	int 						opmode					=0; //0=Kbd,   1= Joy,  2= Remco
-	int							rbconfig				=0; //BIT wise: (0=standard, 1=hipkit, 2=Dance hands)
+	ListView		m_lvSearch;	
+	ProgressDialog	m_progDlg;
+	
+	SwModes 		swmode					= SwModes.Notset; 
+	OpModes 		opmode					= OpModes.Notset; 	
+	int				rbconfig				= 0; 				//BIT wise: (0=standard, 1=hipkit, 2=Dance hands)
 	
 	//-- Bluetooth functionality --//
+    boolean 					nobt					=true; // =false; // 
 	
 	final static int			MAX_DEVICES				= 50;
 	 
@@ -77,9 +81,8 @@ public class RoboAndroid extends Activity implements OnClickListener, OnItemClic
     private static final UUID 	SPP_UUID 				= UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
     Thread						m_hReadThread;   
     
-    Bitmap hotspot=null;
-      
-    boolean nobt=false; // true; // 
+    Bitmap hotspot	=null;
+    Menu   mymenu	=null;
 	
 	public static final int 	idLVFirstItem		= Menu.FIRST + 100;	
 
@@ -98,8 +101,6 @@ public class RoboAndroid extends Activity implements OnClickListener, OnItemClic
 	}
 	BTDev	BTDevs[];
 	int		BTCount;
-	 
-
     
 	 /** Called when the activity is first created. */
     @Override
@@ -141,7 +142,7 @@ if (!nobt){
         // create the interface
         Debug.WriteLine("++ VIEW START ++");
         
-        setContentView(R.layout.main);
+        setContentView(R.layout.main);           
         
         startIntro(); 
     }
@@ -186,7 +187,7 @@ if (!nobt){
 					; //this is a duplicate
 				else
 				{
-					if (device.getAddress().compareTo(ROBO_BTADDR) == 0)
+					if (device.getName().startsWith("ESD200"))
 						BTDevs[BTCount] = new BTDev(device.getName(), device.getAddress(), 1);
 					else
 						BTDevs[BTCount] = new BTDev(device.getName(), device.getAddress(), 0);
@@ -239,21 +240,25 @@ if (!nobt){
         
 		ArrayList<Device> m_Devices = new ArrayList<Device>();
 		Device device;
-        for (int i=0;i<BTCount;i++) {
-        	if (BTDevs[i].m_szAddress.compareTo(RoboAndroid.ROBO_BTADDR) == 0) {
+        for (int i=0;i<BTCount;i++) 
+        {
+        	if (BTDevs[i].m_szName.startsWith("ESD200")) 
+        	{
         		BTDevs[i].m_nBTDEVType = 1;
         		m_nRoboDev = i;
         	}
         	else 
+        	{
         		BTDevs[i].m_nBTDEVType = 0;
+        	}
         	device = new Device(BTDevs[i].m_szName, 
         			BTDevs[i].m_szAddress, 
         			BTDevs[i].m_nBTDEVType,
         			0, 
         			idLVFirstItem+i);
+        	
         	m_Devices.add(device);
-        }
-        
+        }       
         
         if ((m_lvSearch =(ListView) findViewById(R.id.in))  == null)
         {
@@ -301,8 +306,7 @@ if (!nobt){
     };
     protected void startDiscoverBluetoothDevices() {
     	// Show Please wait dialog
-    	m_progDlg = ProgressDialog.show(this,
-    			m_szAppTitle, "Scanning, please wait",
+    	m_progDlg = ProgressDialog.show(this, getString(R.string.app_name), "Scanning, please wait",
     			true);
     	
     	// Fire off a thread to do some work that we shouldn't do directly in the UI thread
@@ -408,7 +412,7 @@ if (!nobt){
 		if (!nobt)
 			Connect(nIndex);
 		
-		if (swmode==1 || swmode==2)
+		if (swmode==SwModes.DCMP || swmode==SwModes.RBFirmware)
 		{
 			startSimple();
 			return 0;
@@ -472,13 +476,13 @@ if (!nobt){
 		
 		switch (swmode)
 		{
-		case 0:
+		case Basic:
 			r = checkVersionBasic();
 			break;		
-		case 1:
+		case DCMP:
 			r = checkVersionDCMP();
 			break;		
-		case 2:
+		case RBFirmware:
 			r = checkVersionFirmware();
 			break;
 		}	
@@ -598,7 +602,7 @@ if (!nobt){
     {
         Button    m_sb;	
     	
-    	Debug.WriteLine("++ INTRO ++");
+    	Debug.WriteLine("++ INTRO ++");   	
     	
         LayoutInflater li = (LayoutInflater)this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         FrameLayout contentPane = (FrameLayout)findViewById(R.id.FrameLayout01); 
@@ -622,18 +626,27 @@ if (!nobt){
 	            	RadioButton rb1 = (RadioButton) findViewById(R.id.RadioButton01);
 	            	RadioButton rb2 = (RadioButton) findViewById(R.id.RadioButton02);
 	            	RadioButton rb3 = (RadioButton) findViewById(R.id.RadioButton03);
-	            	swmode=-1;
-	            	if (rb1.isChecked()) {swmode=0;}
-	            	if (rb2.isChecked()) {swmode=1;}
-	            	if (rb3.isChecked()) {swmode=2;}
-	            	if (swmode<0) return; //ignore click
+	            	swmode=SwModes.Notset;
+	            	if (rb1.isChecked()) {swmode=SwModes.Basic;}
+	            	if (rb2.isChecked()) {swmode=SwModes.DCMP;}
+	            	if (rb3.isChecked()) {swmode=SwModes.RBFirmware;}
 	            	
-	            	if (swmode==1)
+	            	if (swmode==SwModes.Notset) 
+	            		return; //ignore click
+	            	
+	            	if (swmode==SwModes.DCMP)
 	            	{
 	            		LinearLayout l = (LinearLayout)findViewById(R.id.LinearLayout01);
-	            		if (l.getVisibility() == l.INVISIBLE)
+	            		if (l.getVisibility() == View.INVISIBLE)
 	            		{
-	            			l.setVisibility(l.VISIBLE);
+	            			l.setVisibility(View.VISIBLE);
+	            			
+		            		CheckBox t;
+		            		t = (CheckBox)findViewById(R.id.hk);
+		            		t.setChecked((rbconfig& 1)==1);
+		            		
+		            		t = (CheckBox)findViewById(R.id.dh);
+		            		t.setChecked((rbconfig& 2)==2);		        		            		
 	            			return;
 	            		}
 	            		else
@@ -672,13 +685,15 @@ if (!nobt){
         contentPane.removeAllViews();      
         contentPane.addView( li.inflate(R.layout.picklist, null) );
         
-        if (swmode==0 || (m_btSck == null && !nobt)) 
+        setMenus();
+        
+        if (swmode==SwModes.Basic || (m_btSck == null && !nobt)) 
         	return; // not BASIC
         
         TextView tv = (TextView) findViewById(R.id.pln);                	
         ListView lv = (ListView) findViewById(R.id.list);   
      
-        if (swmode==1)
+        if (swmode==SwModes.DCMP)
         {
         	tv.setText("DCMP " + checkVersion());
         	
@@ -701,13 +716,25 @@ if (!nobt){
 	            	Actions[f] = Actions[f].replace(".rbm", "");
 	            	Actions[f] = Actions[f].replace(".csv", "");
 	            	Actions[f] = Actions[f].replace("_", " ");
-	            	f++;
+	            	
+	            	if ((Actions[i].endsWith(".dh") && !((rbconfig & 2)==2)) || (Actions[i].endsWith(".18") && !((rbconfig & 1)==1)))
+	            		;	
+	            	else
+	            		f++;
             	}
             	else
             	{
             		Actions[i]="";
             	}
             }
+            
+            String[] newArray = new String[f];
+            for (int i=0; i<f; i++)
+            	newArray[i] = Actions[i];
+            
+            java.util.Arrays.sort(newArray,String.CASE_INSENSITIVE_ORDER);            
+            lv.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, newArray));
+           
             
         	lv.setOnItemClickListener(new OnItemClickListener() {
     			@Override
@@ -716,12 +743,16 @@ if (!nobt){
     				Serial sp=null;;
     				String s = (arg0.getAdapter().getItem(arg2)).toString();  		        
     				Debug.WriteLine("++ CLICK= " + arg2 + "=" + s );
+    				
+    				if (nobt) return;
+    				
+    				if (s.equals("")) return; // ignore blanks
     		        
     		        try {     
     					if (!nobt) sp = new Serial(m_btSck.getInputStream(),m_btSck.getOutputStream());
     					wckMotion w = new wckMotion(sp);
     					
-    					if (s.equals("BASIC POSE!"))
+    					if (s.equals("$BASIC POSE!"))
     					{
     						if ((rbconfig & 2)==2) 
     							w.PlayPose(1000, 10, wckMotion.basicdh, true);
@@ -729,6 +760,21 @@ if (!nobt){
     							w.PlayPose(1000, 10, wckMotion.basic18, true);
     						else if (rbconfig==0)       
     							w.PlayPose(1000, 10, wckMotion.basic16, true);
+    					}
+    					else if (s.equals("$OPEN GRIPPER!"))
+    					{
+    						Grip x = new Grip(w);
+    						x.opengripper(4);
+    					}
+    					else if (s.equals("$CLOSE GRIPPER!"))
+    					{
+    						Grip x = new Grip(w);
+    						x.closegripper(4);
+    					}
+    					else if (s.equals("$FORWARD!"))
+    					{
+    						Walk x = new Walk(w);
+    						x.forward((rbconfig&1)==1?18:16); 
     					}
     					else
     					{ 
@@ -759,11 +805,13 @@ if (!nobt){
         
         }
         
-        if (swmode==2)
+        if (swmode==SwModes.RBFirmware)
         { 
         	tv.setText("FIRMWARE " + checkVersion());
         	
         	Actions = this.getResources().getStringArray(R.array.actions);
+        	
+            lv.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, Actions));
         	
         	lv.setOnItemClickListener(new OnItemClickListener() {
     			@Override
@@ -775,18 +823,34 @@ if (!nobt){
     				
         			Serial sp;
 					try {
-						sp = new Serial(m_btSck.getInputStream(),m_btSck.getOutputStream());
-	        			pcRemote pc = new pcRemote(sp);
-                    	pc.run(arg2+1); //built in motion
-	        			
+						if (m_btSck != null) {
+							sp = new Serial(m_btSck.getInputStream(),m_btSck.getOutputStream());
+		        			pcRemote pc = new pcRemote(sp);
+	                    	pc.run(arg2+1); //built in motion
+						}							        			
 					} catch (IOException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}       							
     			}});
         }       
-        lv.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, Actions));
+
     }    
+    
+    void setMenus()
+    {
+    	//swmod 0=Basic, 1= Firm, 2= DCMP
+    	//j,r,k,s
+    	Debug.Write("++ MENUS ENABLED");
+    	
+    	if (mymenu != null && swmode!=SwModes.Notset)
+    	{
+    		mymenu.getItem(0).setEnabled((swmode==SwModes.Basic) || (swmode==SwModes.RBFirmware));  //joy
+    		mymenu.getItem(1).setEnabled(false);  //remco
+    		mymenu.getItem(2).setEnabled((swmode==SwModes.Basic)); //kbd
+    		mymenu.getItem(3).setEnabled(!(swmode==SwModes.Basic)); //simple
+    	}
+    }
     
     protected void startKBD()
     {
@@ -798,6 +862,8 @@ if (!nobt){
         
         contentPane.removeAllViews();
         contentPane.addView( li.inflate(R.layout.kbdui, null) );
+        
+        setMenus();
         
     	hotspot=null;
     	
@@ -834,7 +900,7 @@ if (!nobt){
         }
     }
     
-    protected void startJoystick(int n)
+    protected void startJoystick(OpModes n)
     {
     	ImageView im;    	
     	opmode = n;
@@ -843,7 +909,7 @@ if (!nobt){
         LayoutInflater li = (LayoutInflater)this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         FrameLayout contentPane = (FrameLayout)findViewById(R.id.FrameLayout01);    
         contentPane.removeAllViews();
-        if (n==0)
+        if (n==OpModes.Kbd)
         {
         	startKBD();
         	hotspot=null;
@@ -851,7 +917,8 @@ if (!nobt){
         }
         else
         {
-            contentPane.addView( li.inflate(R.layout.touchui, null) );     
+            contentPane.addView( li.inflate(R.layout.touchui, null) );                 
+            setMenus();
         }
     		
         if ((im =(ImageView) findViewById(R.id.ImageView01))  == null)
@@ -860,11 +927,11 @@ if (!nobt){
             return;
         }
 
-        if (n==1) {
+        if (n==OpModes.Joystick) {
         	im.setImageResource(R.drawable.joy);
             hotspot = BitmapFactory.decodeResource(getResources(), R.drawable.joyb);      
         }
-        if (n==2) {
+        if (n==OpModes.Remco) {
         	im.setImageResource(R.drawable.remote);
             hotspot = BitmapFactory.decodeResource(getResources(), R.drawable.remoteb);
         }
@@ -879,21 +946,49 @@ if (!nobt){
                 Debug.WriteLine("Clicked" + x + "," + y);
                 if (hotspot != null)
                 {
+                	int hx = hotspot.getWidth();
+                 	int hy = hotspot.getHeight();
+                 	int vx = v.getWidth();
+                 	int vy = v.getHeight();             	
+                 	
+                 	x=(hx*x)/vx;
+                 	y=(hy*y)/vy;
+                 	
                 	int n=hotspot.getPixel(x, y);
                 	n = (n &0xFF0000)>>16;               	
                 	Debug.Write("Pixel=" + n);     
                 	if (n>0 && n<20)
                 	{
                 		//Vibrator.this.vibrate(50);
+                		//                 0 1 2 3  4 5 6  7 8 9 0 1 2 3 4 5 6 7 8 9 
+						int act=new int[] {0,7,7,11,5,3,9,10,2,4,5,7,7,7,7,7,7,7,7,7}[n]; //map pixel to remco action
+							 
                 		switch (swmode)
                 		{
-                		case 0: // Basic
-                			String m= "" + ('A'+n);
-                			sendMessage(m);
+                		case Basic: // Basic
+                			String m=  ""+(char)('A'+act);
+                			if (nobt)
+                            	Debug.Write("M=" + m);  
+                			else
+                				sendMessage(m);
                 			break;
-                		case 1: //
+                		case DCMP: // DCMP
                 			break;
-                		case 2: //
+                		case RBFirmware: // FIRMWARE
+                			Serial sp;
+        					try {
+        						if (m_btSck != null) {
+        							sp = new Serial(m_btSck.getInputStream(),m_btSck.getOutputStream());
+        		        			pcRemote pc = new pcRemote(sp);
+        	                    	pc.run(act); //built in motion
+        						}							        			
+        					} catch (IOException e) {
+        						// TODO Auto-generated catch block
+        						e.printStackTrace();
+        					} 
+                			break;
+                		case Notset: //
+            	            Toast.makeText(v.getContext(), "Please connect", Toast.LENGTH_SHORT).show();
                 			break;
                 		}
                 	}              		
@@ -901,14 +996,16 @@ if (!nobt){
                 return true;
             }
         });
-    }
-    
+    }   
 	
     @Override
     public boolean onCreateOptionsMenu(Menu menu) 
     {
+        Debug.WriteLine("++ CREATE MENU  ++");
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.option_menu, menu);
+        mymenu=menu;
+        setMenus();
         return true;
     }
 
@@ -920,16 +1017,16 @@ if (!nobt){
         switch (item.getItemId()) 
         {
         case R.id.joy:		
-        	startJoystick(1);
+        	if (opmode!=OpModes.Joystick)
+        		startJoystick(OpModes.Joystick);
+        	else
+        		startJoystick(OpModes.Remco);
             return true;            
         case R.id.remco:		
-        	startJoystick(2);
+        	startJoystick(OpModes.Remco);
             return true;        
         case R.id.kbd:		
-        	startJoystick(0);
-            return true;
-        case R.id.scan:
-			startDiscoverBluetoothDevices();		
+        	startJoystick(OpModes.Kbd);
             return true;
         case R.id.simple:
 			startSimple();		
