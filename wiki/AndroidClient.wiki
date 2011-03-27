@@ -1,0 +1,17 @@
+#summary Android Mobile Client
+
+= Introduction =
+
+Java port of the robobuilderlib files with a basic Android front end and Bluetooth connection. 
+
+Download from here: http://robobuildervc.googlecode.com/files/RoboAndroid.apk
+
+
+= Details =
+
+||http://robobuildervc.googlecode.com/svn/trunk/Mobile/Android/as1.png||http://robobuildervc.googlecode.com/svn/trunk/Mobile/Android/as2.png||
+||http://robobuildervc.googlecode.com/svn/trunk/Mobile/Android/as4.png||http://robobuildervc.googlecode.com/svn/trunk/Mobile/Android/as3.png||
+
+||http://robobuildervc.googlecode.com/svn/trunk/Mobile/Android/as6.png||http://robobuildervc.googlecode.com/svn/trunk/Mobile/Android/as5.png||
+
+||http://robobuildervc.googlecode.com/svn/trunk/Mobile/Android/as7.png||http://robobuildervc.googlecode.com/svn/trunk/Mobile/Android/as8.png||
