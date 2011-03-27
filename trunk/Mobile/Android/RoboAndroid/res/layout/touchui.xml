@@ -19,9 +19,7 @@
      xmlns:android="http://schemas.android.com/apk/res/android">
      
 	<ImageView android:id="@+id/ImageView01" 
-	android:layout_height="wrap_content" 
-	android:layout_width="wrap_content" 
-	android:src="@drawable/joy" android:fitsSystemWindows="true" android:adjustViewBounds="true" android:hapticFeedbackEnabled="true" android:padding="20dp" android:scaleType="fitCenter" android:soundEffectsEnabled="true">
+	android:src="@drawable/joy" android:fitsSystemWindows="true" android:adjustViewBounds="true" android:hapticFeedbackEnabled="true" android:padding="20dp" android:soundEffectsEnabled="true" android:layout_height="fill_parent" android:layout_width="fill_parent" android:scaleType="fitCenter" android:background="@color/white">
 	</ImageView>
 
 </LinearLayout>

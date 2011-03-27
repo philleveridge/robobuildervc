@@ -699,12 +699,12 @@ public class wckMotion
 				{
 					Debug.WriteLine(line);
 					if (line.startsWith("#V=01,,"))
-						nos = 218;
-					if (line.startsWith("#V=01,18,"))
 						nos = 18;
-					if (line.startsWith("#V=01,16,"))
+					if (line.startsWith("#V=01,N=18,"))
+						nos = 18;
+					if (line.startsWith("#V=01,N=16,"))
 						nos = 16;
-					if (line.startsWith("#V=01,20,"))
+					if (line.startsWith("#V=01,N=20,"))
 						nos = 20;
 					continue;
 				}
@@ -861,7 +861,7 @@ public class wckMotion
 				if (spod[n] == 255)
 					temp[n] = pos[n];
 				else
-					temp[n] = (byte)GetMoveValue(ty, pos[n], spod[n], (double)s / (double)no_steps);
+					temp[n] = (byte)GetMoveValue(ty, cvb2i(pos[n]), cvb2i(spod[n]), (double)s / (double)no_steps);
 
 			}
 
