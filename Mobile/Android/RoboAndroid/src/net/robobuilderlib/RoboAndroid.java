@@ -85,6 +85,8 @@ public class RoboAndroid extends Activity implements OnClickListener, OnItemClic
     Menu   mymenu	=null;
 	
 	public static final int 	idLVFirstItem		= Menu.FIRST + 100;	
+	
+	static final String ver = "$Revision:   $";
 
 	class BTDev {
 		String 	m_szName;
@@ -611,6 +613,9 @@ if (!nobt){
         
         contentPane.removeAllViews();
         contentPane.addView( li.inflate(R.layout.intro, null) );          
+        
+        TextView tv = (TextView)findViewById(R.id.Version); 
+        tv.setText(ver);
         
         if ((m_sb = (Button) findViewById(R.id.Button01))  == null)
         {

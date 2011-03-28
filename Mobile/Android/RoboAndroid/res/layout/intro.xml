@@ -21,12 +21,11 @@
     android:scrollbars="vertical">
               
 	<ImageView android:id="@+id/ImageView01" 
-	android:layout_width="wrap_content" 
-	android:layout_height="wrap_content" android:src="@drawable/irlogo2" android:scaleType="fitCenter" android:minHeight="50dp" android:adjustViewBounds="true" android:maxHeight="150dp" android:paddingLeft="60dp">
+	android:layout_height="wrap_content" android:src="@drawable/irlogo2" android:scaleType="fitCenter" android:minHeight="50dp" android:adjustViewBounds="true" android:maxHeight="150dp" android:layout_width="fill_parent" android:contentDescription="test">
 
 	</ImageView>
 	
-	<RadioGroup android:id="@+id/RadioGroup01" android:layout_height="wrap_content" android:layout_width="wrap_content">	
+	<TextView android:text="@+id/TextView01" android:layout_height="wrap_content" android:layout_width="fill_parent" android:id="@+id/Version"></TextView><RadioGroup android:id="@+id/RadioGroup01" android:layout_height="wrap_content" android:layout_width="wrap_content">	
 		<RadioButton android:layout_width="wrap_content" android:id="@+id/RadioButton01" android:layout_height="wrap_content" android:text="@string/cb1" android:height="10dp"></RadioButton>
 		<RadioButton android:layout_width="wrap_content" android:id="@+id/RadioButton02" android:layout_height="wrap_content" android:text="@string/cb2" android:height="10dp"></RadioButton>
 	  	  <RadioButton android:id="@+id/RadioButton03" android:text="@string/cb3" android:layout_height="wrap_content" android:layout_width="wrap_content" android:height="10dp"></RadioButton>
@@ -41,6 +40,7 @@
 </LinearLayout>	
 
 	<Button android:text="Go !" android:id="@+id/Button01" android:layout_width="wrap_content" android:layout_height="wrap_content" android:width="200dp"></Button>
+
 
 
 </LinearLayout>
