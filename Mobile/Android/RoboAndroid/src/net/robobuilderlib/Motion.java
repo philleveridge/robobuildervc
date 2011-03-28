@@ -42,19 +42,17 @@ class Motion
     		{
     			if (j<no_servos)
     			{
-    				pos[j]=(byte)scenes[i].mPositions[j];
+    				int p = scenes[i].mPositions[j];
+    				if (hip && j==0)  p=p+18;  // adjust for hip kit
+    				if (hip && j==5)  p=p-18;
+    				pos[j]=(byte)p;
     			}
-    		}
-    		
-    		if (hip)
-    		{
-    			pos[0] += 18; pos[5] -=18; // adjust for hip kit
     		}
     		
     		if (dh)
     		{
-    			pos[12] = (byte)255; // ignore
-    			pos[15] = (byte)255; // ignore
+    			pos[12] = (byte)255; // ignore for dh
+    			pos[15] = (byte)255; // ignore for dh
     		}
     		
     		for (int p=0; p<no_servos; p++) 

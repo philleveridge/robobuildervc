@@ -103,6 +103,8 @@ public class RoboAndroid extends Activity implements OnClickListener, OnItemClic
 	}
 	BTDev	BTDevs[];
 	int		BTCount;
+	
+	Walk walk=null;
     
 	 /** Called when the activity is first created. */
     @Override
@@ -114,30 +116,30 @@ public class RoboAndroid extends Activity implements OnClickListener, OnItemClic
         //m_BT = new BTNative();
         BTDevs = new BTDev[MAX_DEVICES]; 
      
-if (!nobt){
-        m_BluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-        // If the adapter is null, then Bluetooth is not supported
-        
-        if (m_BluetoothAdapter == null) {
-            Toast.makeText(this, "Bluetooth is not available", Toast.LENGTH_LONG).show();
-            finish();
-            return;
-        }
-        if (!m_BluetoothAdapter.isEnabled()) 
-        {
-        	// enable bluetooth
-            Intent enableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-            startActivityForResult(enableIntent, REQUEST_ENABLE_BT);
-        }       
-        
-        // Register for broadcasts when a device is discovered
-        IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
-        this.registerReceiver(mReceiver, filter);
-
-        // Register for broadcasts when discovery has finished
-        filter = new IntentFilter(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
-        this.registerReceiver(mReceiver, filter); 
-} 
+		if (!nobt){
+	        m_BluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+	        // If the adapter is null, then Bluetooth is not supported
+	        
+	        if (m_BluetoothAdapter == null) {
+	            Toast.makeText(this, "Bluetooth is not available", Toast.LENGTH_LONG).show();
+	            finish();
+	            return;
+	        }
+	        if (!m_BluetoothAdapter.isEnabled()) 
+	        {
+	        	// enable bluetooth
+	            Intent enableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+	            startActivityForResult(enableIntent, REQUEST_ENABLE_BT);
+	        }       
+	        
+	        // Register for broadcasts when a device is discovered
+	        IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
+	        this.registerReceiver(mReceiver, filter);
+	
+	        // Register for broadcasts when discovery has finished
+	        filter = new IntentFilter(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
+	        this.registerReceiver(mReceiver, filter); 
+		} 
         
         // disable the titlebar
         requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -420,8 +422,16 @@ if (!nobt){
 			return 0;
 		}
 		
-		updateText("\0332JCONNECT - " + checkVersion() + "\n");				
-	
+		String v = checkVersionBasic();
+		
+		if (v.startsWith("?"))
+		{
+            Toast.makeText(this, "Version not recognised", Toast.LENGTH_SHORT).show();
+			return 0;
+		}
+		
+		updateText("\0332JCONNECT - " + v + "\n");		
+			
 		m_hReadThread = new Thread() {
 	        public void run() 
 	        {        	
@@ -469,36 +479,16 @@ if (!nobt){
 		return 0;
 	}
 	
-	private String  checkVersion()
-	{
-		String r = "?";
-    	Debug.WriteLine("++ ON VER ");
-    	
-    	if (nobt) return "NOBT";
-		
-		switch (swmode)
-		{
-		case Basic:
-			r = checkVersionBasic();
-			break;		
-		case DCMP:
-			r = checkVersionDCMP();
-			break;		
-		case RBFirmware:
-			r = checkVersionFirmware();
-			break;
-		}	
-    	Debug.WriteLine("++ ON VER =" + r);
-		return r;
-	}
-	
 	private String checkVersionFirmware()
 	{
     	Debug.WriteLine("++ CHK FIRMWRE ");
+    	if (nobt) return "NOBT";
 		try {
 			Serial sp = new Serial(m_btSck.getInputStream(),m_btSck.getOutputStream());
 			pcRemote p = new pcRemote(sp);
-			return p.readVer();
+			String v = p.readVer();
+			if (v.equals("0"))
+				v="?";
 		}
 		catch (IOException e)
 		{
@@ -509,13 +499,22 @@ if (!nobt){
 	private String  checkVersionDCMP()
 	{
     	Debug.WriteLine("++ CHK DCMP ");
+    	if (nobt) return "NOBT";
+    	
 		try {
 			Serial sp = new Serial(m_btSck.getInputStream(),m_btSck.getOutputStream());
 			wckMotion w = new wckMotion(sp);
 			if (w.wckReadPos(30, 0)) // DCMP this return version
 			{
-				String v = "V=" + (int)(w.respnse[0]) + "." + (int)(w.respnse[1]);
-				//v += ", Servos=" + w.countServos();
+				int mv =  (int)(w.respnse[0]);
+				int lv =  (int)(w.respnse[1]);
+				
+				String v;
+				if (mv==3 && lv>10)
+					v = "V=" + mv + "." + lv;
+				else
+					v = "? V=" + mv + "." + lv;					
+
 				return v;
 			}
 		}
@@ -528,6 +527,7 @@ if (!nobt){
 	private String  checkVersionBasic()
 	{
     	Debug.WriteLine("++ CHK BASIC ");
+    	if (nobt) return "NOBT";
     	
 		byte[] buffer = new byte[1024]; 
 		int bread;
@@ -566,7 +566,7 @@ if (!nobt){
 			}
 		}
 		catch (IOException e) {
-        	r= "No response";
+        	r= "?No response";
         }
 		return r;
 	}
@@ -700,7 +700,16 @@ if (!nobt){
      
         if (swmode==SwModes.DCMP)
         {
-        	tv.setText("DCMP " + checkVersion());
+    		String v = checkVersionDCMP();
+
+    		
+    		if (v.startsWith("?"))
+    		{
+                Toast.makeText(this, "Version not recognised", Toast.LENGTH_SHORT).show();
+    			return ;
+    		}
+    		
+        	tv.setText("DCMP " + v);
         	
             /* ------------------------------*/
             
@@ -749,12 +758,10 @@ if (!nobt){
     				String s = (arg0.getAdapter().getItem(arg2)).toString();  		        
     				Debug.WriteLine("++ CLICK= " + arg2 + "=" + s );
     				
-    				if (nobt) return;
-    				
-    				if (s.equals("")) return; // ignore blanks
+    				if (nobt || s.equals("")) return; // ignore blanks
     		        
     		        try {     
-    					if (!nobt) sp = new Serial(m_btSck.getInputStream(),m_btSck.getOutputStream());
+    					sp = new Serial(m_btSck.getInputStream(),m_btSck.getOutputStream());
     					wckMotion w = new wckMotion(sp);
     					
     					if (s.equals("$BASIC POSE!"))
@@ -769,17 +776,26 @@ if (!nobt){
     					else if (s.equals("$OPEN GRIPPER!"))
     					{
     						Grip x = new Grip(w);
-    						x.opengripper(4);
+    						x.opengripper(5);
     					}
     					else if (s.equals("$CLOSE GRIPPER!"))
     					{
     						Grip x = new Grip(w);
-    						x.closegripper(4);
+    						x.closegripper(5);
     					}
     					else if (s.equals("$FORWARD!"))
     					{
-    						Walk x = new Walk(w);
-    						x.forward((rbconfig&1)==1?18:16); 
+    						if (walk==null) 
+    							walk = new Walk(w);
+    						
+    						walk.forward((rbconfig&1)==1?18:16); 
+    					}
+    					else if (s.equals("$STOP!"))
+    					{
+    						if (walk==null) 
+    							return;
+    						
+    						walk.stop();
     					}
     					else
     					{ 
@@ -812,7 +828,15 @@ if (!nobt){
         
         if (swmode==SwModes.RBFirmware)
         { 
-        	tv.setText("FIRMWARE " + checkVersion());
+    		String v = checkVersionFirmware();
+    		
+    		if (v.startsWith("?"))
+    		{
+                Toast.makeText(this, "Version not recognised", Toast.LENGTH_SHORT).show();
+    			return ;
+    		}
+    		
+        	tv.setText("FIRMWARE " + v);
         	
         	Actions = this.getResources().getStringArray(R.array.actions);
         	
