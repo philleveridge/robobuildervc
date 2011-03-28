@@ -86,7 +86,7 @@ public class RoboAndroid extends Activity implements OnClickListener, OnItemClic
 	
 	public static final int 	idLVFirstItem		= Menu.FIRST + 100;	
 	
-	static final String ver = "$Revision:   $";
+	static final String ver = "$Revision$";
 
 	class BTDev {
 		String 	m_szName;
