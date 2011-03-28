@@ -66,7 +66,7 @@ public class RoboAndroid extends Activity implements OnClickListener, OnItemClic
 	int				rbconfig				= 0; 				//BIT wise: (0=standard, 1=hipkit, 2=Dance hands)
 	
 	//-- Bluetooth functionality --//
-    boolean 					nobt					=true; // =false; // 
+    boolean 					nobt					=false; // =true; // 
 	
 	final static int			MAX_DEVICES				= 50;
 	 
