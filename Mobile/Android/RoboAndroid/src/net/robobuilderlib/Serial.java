@@ -60,8 +60,6 @@ public class Serial
             {
     			return (Integer)in.read();
             }} , ReadTimeout, TimeUnit.MILLISECONDS);
-
-    	Debug.Write("RBYTE: " + b);
     	return b.byteValue();
     }
 

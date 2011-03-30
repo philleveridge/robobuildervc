@@ -482,18 +482,21 @@ public class RoboAndroid extends Activity implements OnClickListener, OnItemClic
 	private String checkVersionFirmware()
 	{
     	Debug.WriteLine("++ CHK FIRMWRE ");
+    	String v="?";
+    	
     	if (nobt) return "NOBT";
 		try {
 			Serial sp = new Serial(m_btSck.getInputStream(),m_btSck.getOutputStream());
 			pcRemote p = new pcRemote(sp);
-			String v = p.readVer();
+			v = p.readVer();
 			if (v.equals("0"))
-				v="?";
+				v="? " + p.message;
 		}
 		catch (IOException e)
 		{
+			v="? IO error";
 		}		
-		return "?";
+		return v;
 	}
 	
 	private String  checkVersionDCMP()
@@ -832,7 +835,7 @@ public class RoboAndroid extends Activity implements OnClickListener, OnItemClic
     		
     		if (v.startsWith("?"))
     		{
-                Toast.makeText(this, "Version not recognised", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Version not recognised [" + v + "]", Toast.LENGTH_SHORT).show();
     			return ;
     		}
     		
@@ -965,9 +968,6 @@ public class RoboAndroid extends Activity implements OnClickListener, OnItemClic
             hotspot = BitmapFactory.decodeResource(getResources(), R.drawable.remoteb);
         }
         
-        im.setAdjustViewBounds(true); // set the ImageView bounds to match the Drawable's dimensions
-        //im.setLayoutParams(new Gallery.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
-        
         im.setOnTouchListener(new View.OnTouchListener() {
             public boolean onTouch(View v,MotionEvent event) {
                 int x = (int)event.getX();
@@ -975,20 +975,33 @@ public class RoboAndroid extends Activity implements OnClickListener, OnItemClic
                 Debug.WriteLine("Clicked" + x + "," + y);
                 if (hotspot != null)
                 {
-                	int hx = hotspot.getWidth();
-                 	int hy = hotspot.getHeight();
-                 	int vx = v.getWidth();
-                 	int vy = v.getHeight();             	
+                	double hx = hotspot.getWidth();
+                	double hy = hotspot.getHeight();
+                	double vx = v.getWidth();
+                	double vy = v.getHeight();                      	
+                 	double sc = (double)hy/(double)vy;
+                 	double o = (vx - (hx/sc))/2;
+
+                 	x= (int)(sc*x)-(int)o;
+                 	y= (int)(sc*y);
                  	
-                 	x=(hx*x)/vx;
-                 	y=(hy*y)/vy;
+                 	if (x<0) x=0;
+                 	if (x>hx) x=(int)hx-1;
+                 	if (y>hy) y=(int)hy-1;
                  	
                 	int n=hotspot.getPixel(x, y);
-                	n = (n &0xFF0000)>>16;               	
-                	Debug.Write("Pixel=" + n);     
+    
+                	n = (n &0xFF0000)>>16;   
+                	Debug.Write("Pixel (" + x + "," + y + ")=" + n);     
+                             	
+            		Vibrator vib = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);               		 
+            		vib.vibrate(300);
+                	
+                	if (opmode == OpModes.Remco) // not implement yet                		
+                		return true; 
+                	
                 	if (n>0 && n<20)
-                	{
-                		//Vibrator.this.vibrate(50);
+                	{               		
                 		//                 0 1 2 3  4 5 6  7 8 9 0 1 2 3 4 5 6 7 8 9 
 						int act=new int[] {0,7,7,11,5,3,9,10,2,4,5,7,7,7,7,7,7,7,7,7}[n]; //map pixel to remco action
 							 

@@ -142,7 +142,7 @@ public class pcRemote
         {
             command_1B((byte)0x12, (byte)0x01);
             if (displayResponse(false))
-                r = respnse[14] + "." + respnse[15];
+                r = (int)respnse[14] + "." + (int)respnse[15];
         }
         return r;
     }
