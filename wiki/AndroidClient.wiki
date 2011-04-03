@@ -17,3 +17,11 @@ _Note: when selecting motions with standard firmware - you must first do "Basic 
 ||http://robobuildervc.googlecode.com/svn/trunk/Mobile/Android/as6.png||http://robobuildervc.googlecode.com/svn/trunk/Mobile/Android/as5.png||
 
 ||http://robobuildervc.googlecode.com/svn/trunk/Mobile/Android/as7.png||http://robobuildervc.googlecode.com/svn/trunk/Mobile/Android/as8.png||
+
+<img src="http://robobuilderlib.googlecode.com/files/bc.jpg" width="500">
+
+= Images =
+||<img src="http://robobuildervc.googlecode.com/svn/trunk/Mobile/Android/015.jpg" width="500">||
+||<img src="http://robobuildervc.googlecode.com/svn/trunk/Mobile/Android/021.jpg" width="500">||
+||<img src="http://robobuildervc.googlecode.com/svn/trunk/Mobile/Android/024.jpg" width="500">||
+||<img src="http://robobuildervc.googlecode.com/svn/trunk/Mobile/Android/027.jpg" width="500">||
