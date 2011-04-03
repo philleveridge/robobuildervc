@@ -789,9 +789,9 @@ public class RoboAndroid extends Activity implements OnClickListener, OnItemClic
     					else if (s.equals("$FORWARD!"))
     					{
     						if (walk==null) 
-    							walk = new Walk(w);
+    							walk = new Walk(w,(rbconfig&1)==1, (rbconfig&2)==2);
     						
-    						walk.forward((rbconfig&1)==1?18:16); 
+    						walk.forward(); 
     					}
     					else if (s.equals("$STOP!"))
     					{

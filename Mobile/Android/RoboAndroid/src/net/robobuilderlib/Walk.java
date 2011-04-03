@@ -2,15 +2,18 @@
 
 class Walk
 {
-    boolean first = false;
     wckMotion w;
-    int n_of_s;
+    
+    boolean first = false;
+    boolean hip, dh, done;
     
     Thread	wThread;  
 
-    public Walk(wckMotion a)
+    public Walk(wckMotion a, boolean h, boolean d)
     {
         w = a;
+        wThread = null;
+        hip=h; dh=d;
     }
 
     int[][] step = new int[][] {
@@ -44,17 +47,22 @@ class Walk
 
     byte[] cv18(int[] a) // hip conversion
     {
-        byte[] r = new byte[a.length];
-        
-        if (n_of_s > 16)
-        {
-            a[0] += 18;
-            a[5] -= 20;
-        }
+        byte[] r = new byte[a.length];       
 
         for (int i = 0; i < a.length; i++)
-            r[i] = (byte)a[i];
-
+        {
+        	int v = a[i];
+        	
+            if (hip && i==0) v += 18;
+            if (hip && i==5) v -= 18;
+            
+            r[i] = (byte)v;
+        }
+        
+        if (dh)
+        {
+        	r[15] = r[12]=(byte)255; //
+        }
         return r;
     }
 
@@ -72,16 +80,13 @@ class Walk
         
     	if (wThread != null)
     	{
-    		wThread.stop();
-    		wThread = null;
+    		done = true;
     	}
     }
 
-    public void forward (int p)
+    public void forward ()
     {
-        n_of_s = p;
-
-        Debug.WriteLine("Continuous walk - reverses if PSD < 15");
+        Debug.WriteLine("Continuous walk - reverses if PSD < 25");
         
         if (wThread!= null)
         	stop();
@@ -89,30 +94,32 @@ class Walk
 		wThread = new Thread() {
 	        public void run() 
 	        {   	            
-	            int dely = 25;
+	            int dely = 20;
 	            
 	            int[][] step_r = reverse(step);
 	            
 	            int count = 0;
 	            
 	            int[][] nxt = step;
+	            done = false;
 	            
 	            
-		        while (true)
+		        while (!done)
 		        {
-		            int d = readdistance();
-		            Debug.WriteLine("PSD=" + d);
-		            
-		            if (d==0) break;
-
-		            if (d > 15 && (count==0 || count==8))
-		            {
-		            	nxt = step;
-		            }
-		            else
-		            {
-		            	nxt = step_r;
-		            }
+		        	if (count==0)
+		        	{
+			            int d = readdistance();
+			            Debug.WriteLine("PSD=" + d);
+			            	
+			            if (d > 25)
+			            {
+			            	nxt = step;
+			            }
+			            else
+			            {
+			            	nxt = step_r;
+			            }
+		        	}
 	                w.PlayPose(dely, 1, cv18(nxt[count]), first);
 	                count++;
 	                if (count>15) count=0;
