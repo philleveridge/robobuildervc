@@ -842,7 +842,7 @@ public class wckMotion
 		// bounds check
 		for (int n = 0; n < spod.length ; n++)
 		{
-			if (cvb2i(spod[n]) != 255)
+			if (spod[n] != (byte)255)
 			{
 				if (n < lb_Huno.length)
 				{
@@ -858,7 +858,7 @@ public class wckMotion
 			//
 			for (int n = 0; n < spod.length; n++) 
 			{
-				if (spod[n] == 255)
+				if (spod[n] == (byte)255)
 					temp[n] = pos[n];
 				else
 					temp[n] = (byte)GetMoveValue(ty, cvb2i(pos[n]), cvb2i(spod[n]), (double)s / (double)no_steps);
@@ -874,7 +874,8 @@ public class wckMotion
 
 		for (int n = 0; n < spod.length; n++)
 		{
-			pos[n] = spod[n];
+			if (spod[n] != (byte)255)
+				pos[n] = spod[n];
 		}
 
 		return true; // complete
