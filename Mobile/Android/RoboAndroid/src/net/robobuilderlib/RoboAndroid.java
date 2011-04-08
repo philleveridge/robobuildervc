@@ -21,6 +21,10 @@ import android.content.IntentFilter;
 import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -87,6 +91,8 @@ public class RoboAndroid extends Activity implements OnClickListener, OnItemClic
 	public static final int 	idLVFirstItem		= Menu.FIRST + 100;	
 	
 	static final String ver = "$Revision$";
+	
+	String[] newArray;
 
 	class BTDev {
 		String 	m_szName;
@@ -717,12 +723,12 @@ public class RoboAndroid extends Activity implements OnClickListener, OnItemClic
             /* ------------------------------*/
             
             AssetManager assetManager = getAssets();
-            	        Actions = null;
-            	        try {
-            	            Actions = assetManager.list("");
-            	        } catch (IOException e) {
-            	            Log.e("tag", e.getMessage());
-            	        }
+	        Actions = null;
+	        try {
+	            Actions = assetManager.list("");
+	        } catch (IOException e) {
+	            Log.e("tag", e.getMessage());
+	        }
             	       
             int f=0; 	        
             for (int i=0; i<Actions.length; i++)
@@ -745,11 +751,18 @@ public class RoboAndroid extends Activity implements OnClickListener, OnItemClic
             	}
             }
             
-            String[] newArray = new String[f];
-            for (int i=0; i<f; i++)
-            	newArray[i] = Actions[i];
+            java.util.Arrays.sort(Actions,String.CASE_INSENSITIVE_ORDER);  
             
-            java.util.Arrays.sort(newArray,String.CASE_INSENSITIVE_ORDER);            
+            newArray = new String[f+5];
+            newArray[0] = "BASIC POSE";
+            newArray[1] = "FORWARD";
+            newArray[2] = "OPEN GRIPPER";
+            newArray[3] = "CLOSE GRIPPER";
+            newArray[4] = "ACC CONTROL";
+            
+            for (int i=5; i<f+5; i++)
+            	newArray[i] = Actions[i-5];
+                    
             lv.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, newArray));
            
             
@@ -767,7 +780,7 @@ public class RoboAndroid extends Activity implements OnClickListener, OnItemClic
     					sp = new Serial(m_btSck.getInputStream(),m_btSck.getOutputStream());
     					wckMotion w = new wckMotion(sp);
     					
-    					if (s.equals("$BASIC POSE!"))
+    					if (s.equals("BASIC POSE"))
     					{
     						if ((rbconfig & 2)==2) 
     							w.PlayPose(1000, 10, wckMotion.basicdh, true);
@@ -776,30 +789,59 @@ public class RoboAndroid extends Activity implements OnClickListener, OnItemClic
     						else if (rbconfig==0)       
     							w.PlayPose(1000, 10, wckMotion.basic16, true);
     					}
-    					else if (s.equals("$OPEN GRIPPER!"))
+    					else if (s.equals("OPEN GRIPPER"))
     					{
     						Grip x = new Grip(w);
     						x.opengripper(5);
     					}
-    					else if (s.equals("$CLOSE GRIPPER!"))
+    					else if (s.equals("CLOSE GRIPPER"))
     					{
     						Grip x = new Grip(w);
     						x.closegripper(5);
     					}
-    					else if (s.equals("$FORWARD!"))
+    					else if (s.equals("FORWARD"))
     					{
     						if (walk==null) 
+    						{
+    				            newArray[1] = "STOP";
     							walk = new Walk(w,(rbconfig&1)==1, (rbconfig&2)==2);
+    						}
     						
     						walk.forward(); 
     					}
-    					else if (s.equals("$STOP!"))
+    					else if (s.equals("STOP"))
     					{
+				            newArray[1] = "FORWARD";
     						if (walk==null) 
     							return;
     						
     						walk.stop();
     					}
+    					else if (s.equals("ACC CONTROL"))
+    					{
+    				        SensorManager mS = (SensorManager) getSystemService(SENSOR_SERVICE);
+    				        Sensor mA        = mS.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+    				        
+    			            mS.registerListener(new SensorEventListener() {
+
+								@Override
+								public void onAccuracyChanged(Sensor sensor,
+										int accuracy) {
+									// TODO Auto-generated method stub
+									
+								}
+
+								@Override
+								public void onSensorChanged(SensorEvent event) {
+									// 
+						            if (event.sensor.getType() != Sensor.TYPE_ACCELEROMETER)
+						                return;
+						            
+						            Debug.WriteLine("ACC=" + event.values[0] +", "+ event.values[1] +", "+ event.values[2] );
+									
+								}}, mA, SensorManager.SENSOR_DELAY_UI);
+
+    					}				
     					else
     					{ 
     						s.replace(" ", "_");
