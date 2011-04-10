@@ -519,7 +519,11 @@ public class wckMotion
 		return i;
 	}*/
 	
-	public int cbyte(byte b) {return (int)b;} // in java bytes are signed
+	//public int cbyte(byte b) {return (int)b;} // in java bytes are signed
+	
+	public int cvb2i(byte x) {return (x<0)? 256+x:x;}
+	
+	
 
 	public boolean I2C_write(int addr, byte[] outbuff)
 	{
@@ -822,8 +826,6 @@ public class wckMotion
 	{
 		return PlayPose(duration, no_steps, spod, first, cmt);
 	}
-	
-	public int cvb2i(byte x) {return (x<0)? 256+x:x;}
 
 	public boolean PlayPose(int duration, int no_steps, byte[] spod, boolean first, MoveTypes ty)
 	{

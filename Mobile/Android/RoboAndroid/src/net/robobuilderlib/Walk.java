@@ -4,7 +4,7 @@ class Walk
 {
     wckMotion w;
     
-    boolean first = false;
+    boolean first = true;
     boolean hip, dh, done;
     
     Thread	wThread;  
@@ -53,8 +53,8 @@ class Walk
         {
         	int v = a[i];
         	
-            if (hip && i==0) v += 18;
-            if (hip && i==5) v -= 18;
+            if (hip && (i==0)) v += 18;
+            if (hip && (i==5)) v -= 18;
             
             r[i] = (byte)v;
         }
@@ -62,6 +62,8 @@ class Walk
         if (dh)
         {
         	r[15] = r[12]=(byte)255; //
+        	r[14] = r[11]=(byte)255; //
+        	//r[13] = r[10]=(byte)255; //
         }
         return r;
     }
@@ -102,9 +104,10 @@ class Walk
 	            
 	            int[][] nxt = step;
 	            done = false;
+	            first= true;
 	            
 	            
-		        while (!done)
+		        while (done==false || count !=0)
 		        {
 		        	if (count==0)
 		        	{
@@ -121,6 +124,7 @@ class Walk
 			            }
 		        	}
 	                w.PlayPose(dely, 1, cv18(nxt[count]), first);
+	                if (first) first=false;
 	                count++;
 	                if (count>15) count=0;
 		        }
