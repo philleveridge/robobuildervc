@@ -24,6 +24,7 @@ import android.graphics.BitmapFactory;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
+import android.hardware.SensorListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.os.Handler;
@@ -42,6 +43,7 @@ import android.view.View.OnClickListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
+import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
@@ -93,6 +95,8 @@ public class RoboAndroid extends Activity implements OnClickListener, OnItemClic
 	static final String ver = "$Revision$";
 	
 	String[] newArray;
+	
+	ArrayAdapter<String> ad1;
 
 	class BTDev {
 		String 	m_szName;
@@ -111,6 +115,12 @@ public class RoboAndroid extends Activity implements OnClickListener, OnItemClic
 	int		BTCount;
 	
 	Walk walk=null;
+	
+	// Sensors
+    SensorManager mS = null;
+    Sensor mA        = null;
+	SensorEventListener mL = null;
+	long lastUpdate = -1;
     
 	 /** Called when the activity is first created. */
     @Override
@@ -758,13 +768,14 @@ public class RoboAndroid extends Activity implements OnClickListener, OnItemClic
             newArray[1] = "FORWARD";
             newArray[2] = "OPEN GRIPPER";
             newArray[3] = "CLOSE GRIPPER";
-            newArray[4] = "ACC CONTROL";
+            newArray[4] = "ACC CONTROL On";
             
             for (int i=5; i<f+5; i++)
             	newArray[i] = Actions[i-5];
-                    
-            lv.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, newArray));
-           
+            
+            ad1 = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, newArray);                   
+            lv.setAdapter(ad1);
+          
             
         	lv.setOnItemClickListener(new OnItemClickListener() {
     			@Override
@@ -789,7 +800,7 @@ public class RoboAndroid extends Activity implements OnClickListener, OnItemClic
     						else if (rbconfig==0)       
     							w.PlayPose(1000, 10, wckMotion.basic16, true);
     					}
-    					else if (s.equals("OPEN GRIPPER"))
+    					else if (s.startsWith("OPEN GRIPPER"))
     					{
     						Grip x = new Grip(w);
     						x.opengripper(5);
@@ -803,44 +814,91 @@ public class RoboAndroid extends Activity implements OnClickListener, OnItemClic
     					{
     						if (walk==null) 
     						{
-    				            newArray[1] = "STOP";
     							walk = new Walk(w,(rbconfig&1)==1, (rbconfig&2)==2);
     						}
+    						
+				            newArray[1] = "STOP";
+				            ad1.notifyDataSetChanged();
     						
     						walk.forward(); 
     					}
     					else if (s.equals("STOP"))
     					{
 				            newArray[1] = "FORWARD";
+				            ad1.notifyDataSetChanged();
     						if (walk==null) 
     							return;
     						
     						walk.stop();
     					}
-    					else if (s.equals("ACC CONTROL"))
+    					else if (s.startsWith("ACC CONTROL"))
     					{
-    				        SensorManager mS = (SensorManager) getSystemService(SENSOR_SERVICE);
-    				        Sensor mA        = mS.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-    				        
-    			            mS.registerListener(new SensorEventListener() {
+							if (mS == null)
+    						{
+	    				        mS = (SensorManager) getSystemService(SENSOR_SERVICE);
+	    				        mA = mS.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+	    			            mL = new SensorEventListener() {
+									@Override
+									public void onAccuracyChanged(Sensor sensor,
+											int accuracy) {
+										// TODO Auto-generated method stub
+										
+									}
+									@Override
+									public void onSensorChanged(SensorEvent event) {
+										// 
+							            if (event.sensor.getType() != Sensor.TYPE_ACCELEROMETER)
+							                return;
+							            
+							            // Debug.WriteLine("ACC=" + event.values[0] +", "+ event.values[1] +", "+ event.values[2] );
+							            
+							    	    long curTime = System.currentTimeMillis();
+							    	    
+							    	    if ((curTime - lastUpdate) < 200) {
+							    	    	return;
+							    	    }
+						    			lastUpdate = curTime;
+							            
+							            Serial sp;
+										try {
+											sp = new Serial(m_btSck.getInputStream(),m_btSck.getOutputStream());
+					    					wckMotion w = new wckMotion(sp);
+					    					
+					    					//if (w.wckReadPos(10))
+					    					//{
+					    					//	int b = w.cvb2i(w.respnse[1]);
+					    					//	b = b + (int)event.values[0];
+					    					//	w.wckMovePos(10, (byte)b, 4);
+					    					//}
+					    					if (w.wckReadPos(13))
+					    					{
+					    						int b = w.cvb2i(w.respnse[1]);
+					    						b = b + (int)event.values[0];
+					    						w.wckMovePos(13, (byte)b, 4);
+					    					}
+					    					
+					    					
+										} catch (IOException e) {
+											// TODO Auto-generated catch block
+											e.printStackTrace();
+										}
 
-								@Override
-								public void onAccuracyChanged(Sensor sensor,
-										int accuracy) {
-									// TODO Auto-generated method stub
-									
-								}
-
-								@Override
-								public void onSensorChanged(SensorEvent event) {
-									// 
-						            if (event.sensor.getType() != Sensor.TYPE_ACCELEROMETER)
-						                return;
-						            
-						            Debug.WriteLine("ACC=" + event.values[0] +", "+ event.values[1] +", "+ event.values[2] );
-									
-								}}, mA, SensorManager.SENSOR_DELAY_UI);
-
+				    					
+							            
+		    				            newArray[4] = "ACC CONTROL (" + event.values[0] +", "+ event.values[1] +", "+ event.values[2] + ")";
+		    				            ad1.notifyDataSetChanged();
+										
+									}};
+								mS.registerListener(mL, mA, SensorManager.SENSOR_DELAY_UI);
+								
+    						}
+    						else
+    						{
+    							mS.unregisterListener(mL);
+    				            newArray[4] = "ACC CONTROL On";
+    				            ad1.notifyDataSetChanged();
+    				            mS = null;
+    						}    				      
     					}				
     					else
     					{ 
