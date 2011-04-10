@@ -24,7 +24,6 @@ import android.graphics.BitmapFactory;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
-import android.hardware.SensorListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.os.Handler;
@@ -72,7 +71,7 @@ public class RoboAndroid extends Activity implements OnClickListener, OnItemClic
 	int				rbconfig				= 0; 				//BIT wise: (0=standard, 1=hipkit, 2=Dance hands)
 	
 	//-- Bluetooth functionality --//
-    boolean 					nobt					=false; // =true; // 
+    boolean 					nobt					 =true; // =false; //
 	
 	final static int			MAX_DEVICES				= 50;
 	 
