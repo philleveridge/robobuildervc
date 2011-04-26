@@ -135,6 +135,8 @@ namespace RobobuilderLib
             videoSource.DesiredFrameSize = new Size(320, 240);
             videoSource.DesiredFrameRate = 15;
 
+            //videoSource.
+
             videoSourcePlayer.VideoSource = videoSource;
             videoSourcePlayer.Start();
             cmdPause.Visible = true;

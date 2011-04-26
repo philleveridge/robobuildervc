@@ -1083,7 +1083,7 @@ namespace RobobuilderLib
 
             for (int n = 0; n < spod.Length; n++)
             {
-                pos[n] = spod[n];
+                if (spod[n] != 255) pos[n] = spod[n];
             }
 
             return true; // complete

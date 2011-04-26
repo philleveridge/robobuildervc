@@ -201,9 +201,41 @@ namespace RobobuilderLib
             Console.WriteLine(x);
         }
 
+        private int testIR()
+        {
+            if (wckm.wckReadPos(30, 7))
+            {
+                return wckm.respnse[0];
+            }
+            return -1;
+        }
+
+        private int testBttn()
+        {
+            if (wckm.wckReadPos(30, 7))
+            {
+                return wckm.respnse[1];
+            }
+            return -1;
+        }
+
+
         private PCremote.RemoCon readIR()
         {
             PCremote.RemoCon r;
+
+            if (wckm.wckReadPos(30, 7))
+            {
+                while (wckm.respnse[0] == 255)
+                {
+                    Application.DoEvents(); 
+                    if (!wckm.wckReadPos(30, 7)) break;
+                    this.wait(250);
+                }
+                return (PCremote.RemoCon)wckm.respnse[0];
+
+            }
+
             while (ir_val == PCremote.RemoCon.FAILED) { Application.DoEvents(); }
             r = ir_val;
             ir_val = PCremote.RemoCon.FAILED;
@@ -224,9 +256,9 @@ namespace RobobuilderLib
             return k;
         }
 
-        private int readVideo()
+        private int readVideo(int f)
         {
-            while (video_obj_loc == 0) { Application.DoEvents(); }
+            while (f==1 && video_obj_loc == 0) { Application.DoEvents(); }
             return video_obj_loc;
         }
 
@@ -303,6 +335,9 @@ namespace RobobuilderLib
             try
             {
                 script_active = true;
+                output_txt.Text = "";
+                Application.DoEvents();
+
                 object result = runtime.EvalString(script.Text);
                 output_txt.Text = (result == null) ? "null" : result.ToString();
             }
@@ -331,7 +366,17 @@ namespace RobobuilderLib
                 OpenFileDialog od = new OpenFileDialog();
                 od.ShowDialog();
                 n = od.FileName;
-                script.Text = File.ReadAllText(n);
+                try
+                {
+                    script.Text = File.ReadAllText(n);
+                    string t = n.Substring(1 + n.LastIndexOf('\\'));
+                    t = t.Substring(0, t.LastIndexOf('.'));
+                    action.Text = t;
+                }
+                catch
+                {
+                    return;
+                }
             }
             else
             {

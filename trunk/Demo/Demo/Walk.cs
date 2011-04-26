@@ -76,10 +76,9 @@ namespace Demo
 
         Compare zm;
 
-        public BalanceWalk(wckMotion w1, bool dh)
+        public BalanceWalk(wckMotion w1, bool dhf)
         {
             w = w1;
-            dhf = dh;
 
             n_of_s = countServos(22);
             Console.WriteLine("Balance walk - {0}", n_of_s);
