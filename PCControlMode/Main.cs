@@ -438,12 +438,21 @@ namespace RobobuilderLib
             medit.viewport = null;
         }
 
-
         private void balance_Click(object sender, EventArgs e)
         {
             bal.pcr = pcR;
             bal.Show();
         }
+
+        private void toolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            this.Close();
+        }
+
+        //private void Main_Deactivate(object sender, EventArgs e)
+        //{
+        //    this.Close();
+        //}
 
 
     }

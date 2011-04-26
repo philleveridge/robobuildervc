@@ -149,13 +149,12 @@
 (= basic18 '( 143 179 198  83 106 106  69  48 167 141  47  47  49 199 204 204 122 125 127 ))	
 
 (def stand ()     "Stand" (smove (getallServos 17) basic18 10 0.1)) ; basic pose
-
-(def readIR ()    "Read IR - simulate" (.readIR form)) ;eg (is (readIR) (RobobuilderLib.PCremote+RemoCon.A))
-
-(def readVideo () "Read Video " (.readVideo form))
-
-(def alert (x)    "Display alert box!" (MessageBox.Show x))
-(def message (x)  "Display message"    (.Message form x))
+(def readIR ()     "Read IR - (or simulate)" (.readIR form)) ;eg (is (readIR) (RobobuilderLib.PCremote+RemoCon.A))
+(def testIR ()     "Test IR "   (.testIR form)) 
+(def testBttn ()   "Test Bttn " (.testBttn form)) 
+(def readVideo (x) "Read Video " (.readVideo form x))
+(def alert (x)     "Display alert box!" (MessageBox.Show x))
+(def message (x)   "Display message"    (.Message form x))
 
 (mac repeat (n & body) `(for x 1 ,n ,@body))
 
