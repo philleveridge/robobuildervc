@@ -1,4 +1,4 @@
-﻿package net.robobuilderlib;
+package net.robobuilderlib;
 
 import java.io.BufferedReader;
 import java.io.DataInputStream;
@@ -623,19 +623,19 @@ public class wckMotion
 
 			if (n>=0 && wckReadPos(n))                 //readPOS (servoID)
 			{
-				if (respnse[1] < 255)
+				if (respnse[1] != (byte)255)
 				{
 					pos[id] = respnse[1];
 				}
 				else
 				{
 					pos[id] = 0;
-					//System.Diagnostics.Debug.WriteLine(String.Format("Id {0} = {1}", id, respnse[1]));
+					Debug.WriteLine("ID=" + id + "=" + respnse[1]);
 				}
 			}
 			else
 			{
-				//System.Diagnostics.Debug.WriteLine("Id " + id + "not connected" );
+				Debug.WriteLine("Id " + id + "not connected" );
 				//sids[id] = -1; // not connected
 			}
 		}
@@ -644,9 +644,13 @@ public class wckMotion
 
 	public void delay_ms(int t1)
 	{
-		//if (pcR.dbg) Console.WriteLine("dly=" + t1);
-		//System.Threading.Thread.Sleep(t1);
-		android.os.SystemClock.sleep((long)t1);
+            //android.os.SystemClock.sleep((long)t1);
+            try
+            {
+              Thread.sleep((long)t1);   
+            }  
+            catch (Exception e)
+            {}
 	}
 
 	public void BasicPose(int duration, int no_steps)
@@ -661,8 +665,8 @@ public class wckMotion
 
 	public boolean PlayFile(String filename, int startrow, int endrow)
 	{
-		try
-		{
+            try
+            {
 		    FileInputStream fstream = new FileInputStream(filename);
 		    DataInputStream in = new DataInputStream(fstream);
 		    return PlayFile(in, startrow, endrow);

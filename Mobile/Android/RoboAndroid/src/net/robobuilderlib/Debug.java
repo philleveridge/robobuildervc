@@ -1,21 +1,22 @@
 package net.robobuilderlib;
 
-import android.util.Log;
-
 public class Debug {
 	
 	//-- debugging --//	
-    private static final boolean D = true;
+    public static final boolean D = true;
     static String LOG= "MoboRobo";
 
-	public static void WriteLine(String string) {
+	public static void WriteLine(String str) {
 		// TODO Auto-generated method stub
-		Write(string + "\n");	
+		Write(str + "\n");	
 	}
 
-	public static void Write(String string) {
+	public static void Write(String str) {
 		// TODO Auto-generated method stub
-        if (D) Log.i(LOG, "++ " + string);
+        if (D) 
+        	android.util.Log.i(LOG, "++ " + str);
+        else 
+        	System.out.print("++ " + str);
 	}
 
 }

@@ -1,11 +1,13 @@
-﻿package net.robobuilderlib;
+package net.robobuilderlib;
 
-class Walk
+public class Walk
 {
     wckMotion w;
     
     boolean first = true;
     boolean hip, dh, done;
+    int fdel;
+    int fpsd;
     
     Thread	wThread;  
 
@@ -86,17 +88,19 @@ class Walk
     	}
     }
 
-    public void forward ()
+    public void forward (int del, int psd)
     {
         Debug.WriteLine("Continuous walk - reverses if PSD < 25");
+
+        fdel = del;
+        fpsd = psd;
         
         if (wThread!= null)
         	stop();
         
-		wThread = new Thread() {
+	wThread = new Thread() {
 	        public void run() 
 	        {   	            
-	            int dely = 20;
 	            
 	            int[][] step_r = reverse(step);
 	            
@@ -105,40 +109,40 @@ class Walk
 	            int[][] nxt = step;
 	            done = false;
 	            first= true;
-	            
-	            
-		        while (done==false || count !=0)
-		        {
-		        	if (count==0)
-		        	{
-			            int d = readdistance();
-			            Debug.WriteLine("PSD=" + d);
-			            	
-			            if (d > 25)
-			            {
-			            	nxt = step;
-			            }
-			            else
-			            {
-			            	nxt = step_r;
-			            }
-		        	}
-	                w.PlayPose(dely, 1, cv18(nxt[count]), first);
-	                if (first) first=false;
-	                count++;
-	                if (count>15) count=0;
-		        }
+	            	            
+                    while (done==false || count !=0)
+                    {
+                            if (count==0)
+                            {
+                                int d = readdistance();
+                                Debug.WriteLine("PSD=" + d);
+
+                                if (d > fpsd)
+                                {
+                                    nxt = step;
+                                }
+                                else
+                                {
+                                    nxt = step_r;
+                                }
+                            }
+                    w.PlayPose(fdel, 1, cv18(nxt[count]), first);
+                    if (first) first=false;
+                    count++;
+                    if (count>15) count=0;
+                    }
 	        }};
-	    wThread.start();
+        wThread.start();
     }
 
-	private int readdistance() {
+    private int readdistance()
+    {
         if (w.wckReadPos(30, 5))
         {
             return w.respnse[0];
         }
         return 0;
-	}
+    }
 
 }
 

@@ -819,7 +819,7 @@ public class RoboAndroid extends Activity implements OnClickListener, OnItemClic
 				            newArray[1] = "STOP";
 				            ad1.notifyDataSetChanged();
     						
-    						walk.forward(); 
+    						walk.forward(25, 50); 
     					}
     					else if (s.equals("STOP"))
     					{
