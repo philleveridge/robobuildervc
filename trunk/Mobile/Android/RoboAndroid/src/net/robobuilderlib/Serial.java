@@ -11,13 +11,17 @@ import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-
+import gnu.io.*;
 
 public class Serial 
 {
 	public  boolean IsOpen = false;
 	public int WriteTimeout=500;
 	public int ReadTimeout=500;
+
+
+    SerialPort serialPort = null;
+
 	
 	InputStream in;
 	OutputStream out;
@@ -38,6 +42,23 @@ public class Serial
 		out= b;
 		IsOpen=true;
 	}
+
+    public Serial (String portName, int Baud)
+    {
+        try {
+            CommPortIdentifier portIdentifier = CommPortIdentifier.getPortIdentifier(portName);
+            CommPort commPort = portIdentifier.open("RoboController",2000);
+            serialPort = (SerialPort) commPort;
+            serialPort.setSerialPortParams(Baud, SerialPort.DATABITS_8,SerialPort.STOPBITS_1,SerialPort.PARITY_NONE);
+            in  = serialPort.getInputStream();
+            out = serialPort.getOutputStream();
+            IsOpen=true;
+         }
+         catch (Exception e) {
+            System.out.println("connect failed " + e.getMessage());
+            IsOpen=false;
+         }
+    }
 
 	public void Write(byte[] buff, int off, int nob) {
 		// TODO Auto-generated method stub
@@ -75,8 +96,11 @@ public class Serial
 	}
 
 	public void Close() {
-		// TODO Auto-generated method stub
-		IsOpen=false;		
+        if (IsOpen)
+        {
+            if (serialPort != null) serialPort.close();
+            IsOpen=false;
+        }
 	}
 
 	public void Open() {
