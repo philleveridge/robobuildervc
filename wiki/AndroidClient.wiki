@@ -4,7 +4,7 @@
 
 Java port of the robobuilderlib files with a basic Android front end and Bluetooth connection. 
 
-Download latest version from here: http://robobuildervc.googlecode.com/files/RoboAndroid-new.apk
+Download latest version from here: http://robobuildervc.googlecode.com/files/RoboAndroid.apk
 
 _Note: when selecting motions with standard firmware - you must first do "Basic Posture" which then enables the other actions. This is equivalent of pressing the "Red Square" on the remote _
 
