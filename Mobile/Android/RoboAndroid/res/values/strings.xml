@@ -59,5 +59,8 @@
 <item>User defined 6</item>
 </string-array>
 <color name="white">#FFFFFF</color>
+<string name="run">Run</string>
+<string name="list">List</string>
+<string name="stop">Stop</string>
 
 </resources>
