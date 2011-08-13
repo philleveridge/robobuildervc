@@ -73,7 +73,7 @@ public class RoboAndroid extends Activity implements OnClickListener, OnItemClic
 	int				rbconfig				= 0; 				//BIT wise: (0=standard, 1=hipkit, 2=Dance hands)
 	
 	//-- Bluetooth functionality --//
-    boolean 					nobt					=false; // =true; // 
+    boolean 					nobt					 =false; // =true; //
 	
 	final static int			MAX_DEVICES				= 50;
 	 
@@ -620,14 +620,14 @@ public class RoboAndroid extends Activity implements OnClickListener, OnItemClic
 	    	}
 	    	mt.append(s);
 
-	        sv.post(new Runnable()
+        	sv.post(new Runnable()
 	        {
 	            public void run()
 	            {
-	            	sv.pageScroll(View.FOCUS_DOWN);
-	                sv.fullScroll(View.FOCUS_DOWN);
+	            	sv.fullScroll(View.FOCUS_DOWN);
 	            }
 	        });
+	    	
     	
 	    }
     }
@@ -1009,6 +1009,8 @@ public class RoboAndroid extends Activity implements OnClickListener, OnItemClic
         
         setMenus();
         
+
+        
     	hotspot=null;
     	
         if (( m_tv = (TextView) findViewById(R.id.TextView01))  == null)
@@ -1101,7 +1103,18 @@ public class RoboAndroid extends Activity implements OnClickListener, OnItemClic
 	                Debug.WriteLine("++ SEND MSG S++");
 	                sendMessage(message);
 	                view.setText("");
-	                Debug.WriteLine("++ SEND MSG E++");
+	                Debug.WriteLine("++ SEND MSG E++");	                	                
+	                
+	                if (nobt) // debug scrolling
+	                {	                
+		                for (int cnt=0; cnt<100; cnt++)
+		                {
+		                	updateText("N = " + cnt + "\n");
+		                }
+	                }
+	                
+	                //
+	                
 	            }
 	        });
         }
