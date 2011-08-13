@@ -29,6 +29,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.os.Vibrator;
+import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -53,6 +54,7 @@ import android.widget.LinearLayout;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.RadioButton;
+import android.widget.ScrollView;
 
 import android.widget.TextView;
 import android.widget.Toast;
@@ -71,7 +73,7 @@ public class RoboAndroid extends Activity implements OnClickListener, OnItemClic
 	int				rbconfig				= 0; 				//BIT wise: (0=standard, 1=hipkit, 2=Dance hands)
 	
 	//-- Bluetooth functionality --//
-    boolean 					nobt					 =true; // =false; //
+    boolean 					nobt					=false; // =true; // 
 	
 	final static int			MAX_DEVICES				= 50;
 	 
@@ -592,12 +594,12 @@ public class RoboAndroid extends Activity implements OnClickListener, OnItemClic
 	  final Handler m_Handler = new Handler() 
 	  {
 		  // Instantiating the Handler associated with the main thread.
-
+	
 	      @Override
 	      public void handleMessage(Message msg) {  
 	    	  updateText((String)msg.obj);
 	      }
-
+	
 	  };
 
 	
@@ -605,7 +607,9 @@ public class RoboAndroid extends Activity implements OnClickListener, OnItemClic
     {
     	Debug.WriteLine("++ Update text :: " + s);
         
-        final TextView mt = (TextView) findViewById(R.id.TextView01); 
+        final TextView mt = (TextView) findViewById(R.id.TextView01);         
+        final ScrollView sv = (ScrollView) findViewById(R.id.scrollView1); 
+        
 	    if (mt != null && s != null && s.length()>0) 
 	    {
 	    	int p = s.indexOf("\0332J");
@@ -615,6 +619,16 @@ public class RoboAndroid extends Activity implements OnClickListener, OnItemClic
 	    		s = s.substring(p+3);
 	    	}
 	    	mt.append(s);
+
+	        sv.post(new Runnable()
+	        {
+	            public void run()
+	            {
+	            	sv.pageScroll(View.FOCUS_DOWN);
+	                sv.fullScroll(View.FOCUS_DOWN);
+	            }
+	        });
+    	
 	    }
     }
     
@@ -696,7 +710,9 @@ public class RoboAndroid extends Activity implements OnClickListener, OnItemClic
 	        });
         }      
     }
- 
+    
+	Serial   sp1 = null;
+	pcRemote pc1 = null;
     
     protected void startSimple()
     {
@@ -948,16 +964,13 @@ public class RoboAndroid extends Activity implements OnClickListener, OnItemClic
     			@Override
     			public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,long arg3) 
     			{
-    				// TODO Auto-generated method stub
-    				
     				Debug.WriteLine("++ CLICK=" + arg2);			
     				
-        			Serial sp;
 					try {
 						if (m_btSck != null) {
-							sp = new Serial(m_btSck.getInputStream(),m_btSck.getOutputStream());
-		        			pcRemote pc = new pcRemote(sp);
-	                    	pc.run(arg2+1); //built in motion
+							if (sp1==null) sp1 = new Serial(m_btSck.getInputStream(),m_btSck.getOutputStream());
+		        			if (pc1==null) pc1 = new pcRemote(sp1);
+	                    	pc1.run(arg2+1); //built in motion
 						}							        			
 					} catch (IOException e) {
 						// TODO Auto-generated catch block
@@ -1004,6 +1017,7 @@ public class RoboAndroid extends Activity implements OnClickListener, OnItemClic
         }
         else
         {
+        	m_tv.setMovementMethod(new ScrollingMovementMethod());
         	m_tv.setText("");
             updateText("Robo V1.0\nPlease Connect");
         }      
@@ -1029,6 +1043,69 @@ public class RoboAndroid extends Activity implements OnClickListener, OnItemClic
 	            }
 	        });
         }
+        
+        // *****************
+        
+        if ((m_sb = (Button) findViewById(R.id.Button01))  == null)
+        {
+        	Debug.WriteLine("++ BUTTON FAILED ++");
+        }
+        else
+        {
+        	//RUN
+	        m_sb.setOnClickListener(new OnClickListener() {
+	            public void onClick(View v) {
+	                // Send a message using content of the edit text widget
+	                TextView view = (TextView) findViewById(R.id.edit_text_out);
+	                String message = "r";
+	                Debug.WriteLine("++ SEND MSG S++");
+	                sendMessage(message);
+	                view.setText("");
+	                Debug.WriteLine("++ SEND MSG E++");
+	            }
+	        });
+        }
+        
+        if ((m_sb = (Button) findViewById(R.id.Button02))  == null)
+        {
+        	Debug.WriteLine("++ BUTTON FAILED ++");
+        }
+        else
+        {
+        	// List
+	        m_sb.setOnClickListener(new OnClickListener() {
+	            public void onClick(View v) {
+	                // Send a message using content of the edit text widget
+	                TextView view = (TextView) findViewById(R.id.edit_text_out);
+	                String message = "l";
+	                Debug.WriteLine("++ SEND MSG S++");
+	                sendMessage(message);
+	                view.setText("");
+	                Debug.WriteLine("++ SEND MSG E++");
+	            }
+	        });
+        }
+        
+        if ((m_sb = (Button) findViewById(R.id.Button03))  == null)
+        {
+        	Debug.WriteLine("++ BUTTON FAILED ++");
+        }
+        else
+        {
+        	// Stop / Escape
+	        m_sb.setOnClickListener(new OnClickListener() {
+	            public void onClick(View v) {
+	                // Send a message using content of the edit text widget
+	                TextView view = (TextView) findViewById(R.id.edit_text_out);
+	                String message = "\033";
+	                Debug.WriteLine("++ SEND MSG S++");
+	                sendMessage(message);
+	                view.setText("");
+	                Debug.WriteLine("++ SEND MSG E++");
+	            }
+	        });
+        }
+        
     }
     
     protected void startJoystick(OpModes n)
@@ -1116,12 +1193,11 @@ public class RoboAndroid extends Activity implements OnClickListener, OnItemClic
                 		case DCMP: // DCMP
                 			break;
                 		case RBFirmware: // FIRMWARE
-                			Serial sp;
         					try {
         						if (m_btSck != null) {
-        							sp = new Serial(m_btSck.getInputStream(),m_btSck.getOutputStream());
-        		        			pcRemote pc = new pcRemote(sp);
-        	                    	pc.run(act); //built in motion
+        							if (sp1 == null) sp1 = new Serial(m_btSck.getInputStream(),m_btSck.getOutputStream());
+        		        			if (pc1 == null) pc1 = new pcRemote(sp1);
+        	                    	pc1.run(act); //built in motion
         						}							        			
         					} catch (IOException e) {
         						// TODO Auto-generated catch block
