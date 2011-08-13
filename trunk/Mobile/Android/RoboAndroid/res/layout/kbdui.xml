@@ -19,12 +19,17 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:scrollbars="vertical">
-    
-    <TextView android:layout_height="wrap_content" android:text="@+id/TextView01" android:scrollbars="vertical"  android:layout_width="wrap_content" android:id="@+id/TextView01" android:scrollbarAlwaysDrawVerticalTrack="true"></TextView>
-    
-    <LinearLayout android:orientation="horizontal" android:id="@+id/LinearLayout01" android:layout_width="fill_parent" android:layout_height="wrap_content">
-        <EditText android:layout_width="wrap_content" android:text="@+id/EditText01" android:id="@+id/edit_text_out" android:layout_weight="1" android:layout_height="wrap_content" android:layout_gravity="bottom"></EditText>
-        <Button android:id="@+id/button_send" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/send"></Button>
-    </LinearLayout>
 <ListView android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/in"></ListView>
+<LinearLayout android:layout_width="fill_parent" android:id="@+id/LinearLayout01" android:orientation="horizontal" android:layout_height="wrap_content">
+    <EditText android:layout_width="wrap_content" android:id="@+id/edit_text_out" android:text="@+id/EditText01" android:layout_gravity="bottom" android:layout_weight="1" android:layout_height="wrap_content">
+        <requestFocus></requestFocus>
+    </EditText>
+    <Button android:layout_width="wrap_content" android:id="@+id/button_send" android:text="@string/send" android:layout_height="wrap_content"></Button>
+    <Button android:layout_width="wrap_content" android:id="@+id/Button01" android:layout_height="wrap_content" android:text="@string/run"></Button>
+    <Button android:id="@+id/Button02" android:layout_height="wrap_content" android:layout_width="wrap_content" android:text="@string/list"></Button>
+    <Button android:id="@+id/Button03" android:layout_height="wrap_content" android:layout_width="wrap_content" android:text="@string/stop"></Button>
+</LinearLayout>
+<ScrollView android:id="@+id/scrollView1" android:layout_height="wrap_content" android:layout_width="fill_parent" android:isScrollContainer="true" android:visibility="visible">
+    <TextView android:layout_height="wrap_content" android:scrollbars="vertical" android:text="@+id/TextView01" android:id="@+id/TextView01" android:scrollHorizontally="false" android:isScrollContainer="false" android:lines="20" android:scrollbarAlwaysDrawVerticalTrack="false" android:layout_width="fill_parent"></TextView>
+</ScrollView>
 </LinearLayout>
