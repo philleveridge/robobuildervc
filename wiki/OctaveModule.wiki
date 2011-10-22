@@ -21,6 +21,13 @@ octave:4> robobuilder.readXYZ()
 ans =
 
   -16   -2   62
+octave:5> robobuilder.readservos(0)
+ans =
+
+ Columns 1 through 16:
+
+  143  185  246   44  101  118   65    0  207  152   70   70  152  182  181   97
+
 }}}
 
 the first command robobuilder instructs octave to load the module. If its not in the current directory you will need to set pwd. Before any commands are issued first initialise the serial link. The defaults are /dev/ttyUSB0 and 115200.
@@ -43,3 +50,4 @@ the first command robobuilder instructs octave to load the module. If its not in
 ||readXYZ|| ||1x3 matrix returned ||read accelerometer||
 ||SyncPosSend||	int SpeedLevel,Matrix(1:x) || ||Move each servo to position defined in matrix ||
 ||PlayPoseA||	int d, int f, int tq, int flag, matrix(1:x) || || ||
+||readservos||int n||vector contain servo positions||read n servo positions||
