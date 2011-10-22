@@ -124,7 +124,7 @@ void writebyte(int b)
 
 int readbyte()
 {
-	char buf[1];
+	int buf[1];
 	if(fd == -1) {
 	  printf( "read: open port failed\n" );
 	  return -1;
@@ -136,7 +136,7 @@ int readbyte()
 	{
 		int b = read(fd, buf, 1);
 		if (b>0)
-			return buf[0];
+			return buf[0]&0xFF;
 
 		if (b<0)
 			return -1;
@@ -173,7 +173,7 @@ int  wckPosRead(char ServoID)
 	free(p);
 
 	DBO(printf ("ROBO: Servo Read %d=%d\n", ServoID, n); )
-		return n;
+	return n;
 }
 
 void wckSetPassive(char ServoID)
@@ -459,9 +459,8 @@ WORD send_hex_str(char *bus_str, int n)
 			if (p<0 || p>255) break;
 			v->values[i]=cpos[i]=p;
 		}
-		v->nos=i;
- 		nos=i;
-		return i;
+		nos=v->nos=i;
+		return v;
 	}
 
 	enum { AccelDecel=0, Accel, Decel, Linear };
