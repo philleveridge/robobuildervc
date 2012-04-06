@@ -16,16 +16,15 @@ using RobobuilderLib;
 I also added at the top of the code in the "private state" area 
 
 {{{
-        wckMotion rbWCK = null; 
-        PCremote rbPCR = null; 
-        Boolean bRBConnected = false; 
+wckMotion rbWCK = null; 
+PCremote rbPCR = null; 
+Boolean bRBConnected = false; 
 
-        //Define maximum thresholds for relating Kinect to Shoulder 
-        Single sMaxKinectHandY = (Single)0.25; 
-        Byte bMaxShoulder = 185; 
-
-        Single sMinKinectHandY  = (Single)0.7; 
-        Byte bMinShoulder  = 47; 
+//Define maximum thresholds for relating Kinect to Shoulder 
+Single sMaxKinectHandY = (Single)0.25; 
+Byte bMaxShoulder = 185; 
+Single sMinKinectHandY  = (Single)0.7; 
+Byte bMinShoulder  = 47; 
 }}}
 
 Code to update robot arm positions
@@ -68,24 +67,24 @@ void UpdateRobobuilderArms(Byte bServo11, Byte bservo14)
 Code to send new positions to robot using Robobuilderlib
 
 {{{
- void SendArmPosition(Byte bServo10, Byte bServo11, Byte bServo12, Byte bServo13, Byte bServo14, Byte bServo15 ) 
-        { 
-            try { 
-                if (!bRBConnected) 
+void SendArmPosition(Byte bServo10, Byte bServo11, Byte bServo12, Byte bServo13, Byte bServo14, Byte bServo15 ) 
+{ 
+      try { 
+           if (!bRBConnected) 
                      return; 
 
-                rbWCK.wckMovePos(10, bServo10, 1); // 3rd parameter is Torque 0~4: 0=maximum 
-                rbWCK.wckMovePos(11, bServo11, 1); 
-                rbWCK.wckMovePos(12, bServo12, 1); 
-                rbWCK.wckMovePos(13, bServo13, 1); 
-                rbWCK.wckMovePos(14, bServo14, 1); 
-                rbWCK.wckMovePos(15, bServo15, 1); 
-            } 
-            catch(Exception e) 
-            { 
-                MessageBox.Show("Unable to Update Servo Position " + e.Message); 
-            } 
-        } 
+           rbWCK.wckMovePos(10, bServo10, 1); // 3rd parameter is Torque 0~4: 0=maximum 
+           rbWCK.wckMovePos(11, bServo11, 1); 
+           rbWCK.wckMovePos(12, bServo12, 1); 
+           rbWCK.wckMovePos(13, bServo13, 1); 
+           rbWCK.wckMovePos(14, bServo14, 1); 
+           rbWCK.wckMovePos(15, bServo15, 1); 
+       } 
+       catch(Exception e) 
+       { 
+           MessageBox.Show("Unable to Update Servo Position " + e.Message); 
+       } 
+} 
 }}}
 
 Scale the arms position to a servo ange
