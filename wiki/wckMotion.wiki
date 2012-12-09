@@ -6,9 +6,39 @@ RobobuilderLib.wckMotion class. Provides access through the RBC controller to th
 = Details =
 
 == example ==
+
+===Smooth move===
+
+To achieve smooth motion with the lib. When moving between two points you need to calculate the "inbetween positions" ot tweens to get that smooth motion. So rather than a servo going from position 20 -> 40 you need it to go to 20 -> 25 -> 30 ->35 -> 40. There is a command "PlayPose" in wckMotion class that will do that for you. i.e. 
+
+wckMotion.PlayPose(duration, no_steps, position_array, true);
+
 {{{
-wckMotion w = new wckMotion("COM1", true);
+            PCremote p = new PCremote("com1"); 
+            wckMotion w = new wckMotion(p); 
+
+            w.PlayPose(3000, 10, new byte[] {125, 179, 199, 88, 108, 126, 72, 49, 163, 141, 51, 47, 49, 199, 205, 205 }, true);
 }}}
+Note:
+Playpose also has variations Playfile (play moves from a csv file) and PlayMatrix that takes a matrix of moves. So you can store built in moves in a csv file and play them like stock motions - I do this in my android app. 
+
+Also the interpolation by default is linear or equal steps, but there is a variation where you can pass a type in that switches modes and allows for different types (Accel, De Accel or Accel then Deaccel). This is based on code published by RN1A on this very forum. 
+
+===Reading a value===
+{{{
+            if (w.wckReadPos(5)) 
+            { 
+                Console.WriteLine("Servo pos 5 = {0}", w.respnse[0]); 
+            } 
+            else 
+            { 
+                Console.WriteLine("Servo 5 NOT CONNECTED"); 
+            } 
+}}}
+
+Note: if using the DCMP software you can retrieve sensors by reading the values for Servo 30 and adding the optional parameter, do for instance wckReadPos(30,0) will return DCMP version number in respnse array.
+
+See CSharp wiki for full example and code.
 
 == constructor ==
 {{{
