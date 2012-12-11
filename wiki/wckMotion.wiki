@@ -3,11 +3,11 @@
 
 RobobuilderLib.wckMotion class. Provides access through the RBC controller to the wckBus for control of the servos. Works with either standard firmware or DCMP.hex
 
-= Details =
 
-== example ==
 
-===Smooth move===
+== Examples ==
+
+==Smooth move==
 
 To achieve smooth motion with the lib. When moving between two points you need to calculate the "inbetween positions" ot tweens to get that smooth motion. So rather than a servo going from position 20 -> 40 you need it to go to 20 -> 25 -> 30 ->35 -> 40. There is a command "PlayPose" in wckMotion class that will do that for you. i.e. 
 
@@ -24,7 +24,7 @@ Playpose also has variations Playfile (play moves from a csv file) and PlayMatri
 
 Also the interpolation by default is linear or equal steps, but there is a variation where you can pass a type in that switches modes and allows for different types (Accel, De Accel or Accel then Deaccel). This is based on code published in the Robosavvy forum 
 
-===Reading a value===
+==Reading a value==
 {{{
             if (w.wckReadPos(5)) 
             { 
@@ -36,18 +36,20 @@ Also the interpolation by default is linear or equal steps, but there is a varia
             } 
 }}}
 
-Note: if using the DCMP software you can retrieve sensors by reading the values for Servo 30 and adding the optional parameter, do for instance wckReadPos(30,0) will return DCMP version number in respnse array.
+Note: if using the DCMP software you can retrieve sensors by reading the values for Servo 30 and adding the optional parameter, do for instance wckReadPos(30,0) will return DCMP version number in respnse[0,1] array.
 
 See CSharp wiki for full example and code.
 
-== constructor ==
+= Details =
+
+== Constructor ==
 {{{
 RobobuilderLib.wckMotion.wckMotion(string, bool) 
 RobobuilderLib.wckMotion.wckMotion(RobobuilderLib.PCremote)
 RobobuilderLib.wckMotion.~wckMotion() 
 }}}
 
-== methods ==
+== Methods ==
 === low level access ===
 {{{
 RobobuilderLib.wckMotion.wckBreak() 
