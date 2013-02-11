@@ -17,7 +17,7 @@ namespace RoboKinnect
         //Define maximum thresholds for relating Kinect to Shoulder 
         //Single sMaxKinectHandY = (Single)0.25;
         //Single sMinKinectHandY = (Single)0.7;
-        //SByte sbKinectAngle;
+        SByte sbKinectAngle;
         Byte bMaxShoulder = 185;
         Byte bMinShoulder = 47;
 
@@ -33,24 +33,18 @@ namespace RoboKinnect
         void init()
         {
             //            ' define maximum ranges for servos
-            bServoRange[14, atMINwck] = 125; dDegreesRange[14, atMINwck] = -90; //' when at 125 this corresponds to -90 deg
-            bServoRange[14, atMAXwck] = 207; dDegreesRange[14, atMAXwck] = 0; //' and when at 207 this corresponds to 0
-
-            bServoRange[13, atMINwck] = 0; dDegreesRange[13, atMINwck] = 80;
-            bServoRange[13, atMAXwck] = 208; dDegreesRange[13, atMAXwck] = -120;
-
-            bServoRange[15, atMINwck] = 140; dDegreesRange[15, atMINwck] = 0;
-            bServoRange[15, atMAXwck] = 242; dDegreesRange[15, atMAXwck] = 135;
-
-
-            bServoRange[11, atMINwck] = 48; dDegreesRange[11, atMINwck] = 0;
-            bServoRange[11, atMAXwck] = 130; dDegreesRange[11, atMAXwck] = -90;
-
-            bServoRange[10, atMINwck] = 48; dDegreesRange[10, atMINwck] = 120;
-            bServoRange[10, atMAXwck] = 255; dDegreesRange[10, atMAXwck] = -80;
-
-            bServoRange[12, atMINwck] = 13; dDegreesRange[12, atMINwck] = 135;
-            bServoRange[12, atMAXwck] = 115; dDegreesRange[12, atMAXwck] = 0;
+            bServoRange[14, atMINwck] = 125;    dDegreesRange[14, atMINwck] = -90;  //' when at 125 this corresponds to -90 deg
+            bServoRange[14, atMAXwck] = 207;    dDegreesRange[14, atMAXwck] = 0;    //' and when at 207 this corresponds to 0
+            bServoRange[13, atMINwck] = 0;      dDegreesRange[13, atMINwck] = 80;
+            bServoRange[13, atMAXwck] = 208;    dDegreesRange[13, atMAXwck] = -120;
+            bServoRange[15, atMINwck] = 140;    dDegreesRange[15, atMINwck] = 0;
+            bServoRange[15, atMAXwck] = 242;    dDegreesRange[15, atMAXwck] = 135;
+            bServoRange[11, atMINwck] = 48;     dDegreesRange[11, atMINwck] = 0;
+            bServoRange[11, atMAXwck] = 130;    dDegreesRange[11, atMAXwck] = -90;
+            bServoRange[10, atMINwck] = 48;     dDegreesRange[10, atMINwck] = 120;
+            bServoRange[10, atMAXwck] = 255;    dDegreesRange[10, atMAXwck] = -80;
+            bServoRange[12, atMINwck] = 13;     dDegreesRange[12, atMINwck] = 135;
+            bServoRange[12, atMAXwck] = 115;    dDegreesRange[12, atMAXwck] = 0;
         }
 
         public void Connect(string sCOMMNum)
@@ -95,28 +89,6 @@ namespace RoboKinnect
             bRBConnected = false;
         }
 
-        public void SendArmPosition(Byte bServo10, Byte bServo11, Byte bServo12, Byte bServo13, Byte bServo14, Byte bServo15)
-        {
-            try
-            {
-                Console.WriteLine("MOVE {0},{1},{2},{3},{4},{5}", bServo10, bServo11, bServo12, bServo13, bServo14, bServo15);
-                if (!bRBConnected)
-                {
-                    return;
-                }
-                rbWCK.wckMovePos(10, bServo10, 1); // 3rd parameter is Torque 0~4: 0=maximum 
-                rbWCK.wckMovePos(11, bServo11, 1);
-                rbWCK.wckMovePos(12, bServo12, 1);
-                rbWCK.wckMovePos(13, bServo13, 1);
-                rbWCK.wckMovePos(14, bServo14, 1);
-                rbWCK.wckMovePos(15, bServo15, 1);
-            }
-            catch
-            {
-                //MessageBox.Show("Unable to Update Servo Position " + e.Message); 
-            }
-        }
-
         void CalculateVector(double[] vectorXYZ, Microsoft.Kinect.Skeleton playerSkeleton, Microsoft.Kinect.JointType jEndJoint, Microsoft.Kinect.JointType jStartJoint)
         {
             //' the vector is passed By Reference so we will write the results directly to the original argument passed.
@@ -142,8 +114,6 @@ namespace RoboKinnect
             if (val > dmax) val = dmax;
             val = (val - dmin) / (dmax - dmin);
             r = (int)((double)(imax - imin) * val) + imin;
-
-            System.Console.WriteLine("DEBUG: " + val + ": " + r);
             return r;
         }
 
@@ -156,7 +126,6 @@ namespace RoboKinnect
                 double dServo11 = Convert.ToDouble(bServo11);
                 //               5E-05x3 - 0.0213x2 + 2.9618x - 46.011
                 bServo10 = Convert.ToByte(0.00005 * Math.Pow(dServo11, 3) - 0.0213 * Math.Pow(dServo11, 2) + 2.9618 * dServo11 - 46.011);
-
                 //             8E-05x3 - 0.0339x2 + 4.7877x - 108.15
                 bServo12 = Convert.ToByte(0.00008 * Math.Pow(dServo11, 3) - 0.0339 * Math.Pow(dServo11, 2) + 4.7877 * dServo11 - 108.15);
             }
@@ -180,30 +149,52 @@ namespace RoboKinnect
         public void updaterobot(Skeleton playerSkeleton)
         {
             if (simple)
-            {
-                //Figure out values for the shoulder based on Hand position.
-                // Kinect returns positive values if the hand is above the head and negative values if it's bellow the head
-                int ServoRange = bMaxShoulder - bMinShoulder;
+                updaterobot_simple(playerSkeleton);
+            else
+                updaterobot_advanced(playerSkeleton);
+        }
 
-                //Left Arm
-                //Dim scaledLeftArm = playerSkeleton.Joints(JointType.HandRight).ScaleTo(1, ServoRange, 0.5F, 0.3F);
-                int sla = ScaleTo(playerSkeleton.Joints[JointType.HandRight].Position.Y, 0, ServoRange, 0.0, 0.3);
-                Byte bServo11 = Convert.ToByte(255 - (ServoRange - sla + bMinShoulder));
+        public void updaterobot_simple(Skeleton playerSkeleton)
+        {
+            //Figure out values for the shoulder based on Hand position.
+            // Kinect returns positive values if the hand is above the head and negative values if it's bellow the head
+            int ServoRange = bMaxShoulder - bMinShoulder;
 
-                // Right Arm
-                //Dim scaledRightArm = playerSkeleton.Joints(JointType.HandLeft).ScaleTo(1, ServoRange, 0.5F, 0.3F);
-                int sra = ScaleTo(playerSkeleton.Joints[JointType.HandLeft].Position.Y, 0, ServoRange, 0.0, 0.3);
-                Byte bServo14 = Convert.ToByte(255 - (255 - (ServoRange - sra + bMinShoulder)));
-                UpdateRobobuilderArms(bServo11, bServo14);
-            }
+            //Left Arm
+            //Dim scaledLeftArm = playerSkeleton.Joints(JointType.HandRight).ScaleTo(1, ServoRange, 0.5F, 0.3F);
+            int sla = ScaleTo(playerSkeleton.Joints[JointType.HandRight].Position.Y, 0, ServoRange, 0.0, 0.3);
+            Byte bServo11 = Convert.ToByte(255 - (ServoRange - sla + bMinShoulder));
+
+            // Right Arm
+            //Dim scaledRightArm = playerSkeleton.Joints(JointType.HandLeft).ScaleTo(1, ServoRange, 0.5F, 0.3F);
+            int sra = ScaleTo(playerSkeleton.Joints[JointType.HandLeft].Position.Y, 0, ServoRange, 0.0, 0.3);
+            Byte bServo14 = Convert.ToByte(255 - (255 - (ServoRange - sra + bMinShoulder)));
+            UpdateRobobuilderArms(bServo11, bServo14);
+        }
+
+        public void updaterobot_advanced(Skeleton playerSkeleton)
+        {
+            byte[] r = new byte[3];
+            byte[] l = new byte[3];
+
+            //' Kinect Angle
+            if (playerSkeleton.Joints[JointType.Head].Position.Z == 0 )
+                sbKinectAngle = 0;
             else
             {
-                byte[] r = new byte[3];
-                byte[] l = new byte[3];
-                r = UpdateRightArm(playerSkeleton);
-                l = UpdateLeftArm(playerSkeleton);
-                SendArmPosition(r[0], r[1], r[2], l[0], l[1], l[2]);
+                sbKinectAngle = (SByte)((180 * Math.Atan(playerSkeleton.Joints[JointType.Head].Position.X / playerSkeleton.Joints[JointType.Head].Position.Z)) / 3.14159);
+
+                if (Math.Abs(sbKinectAngle) <= 5) // Then ' set dead zone
+                    sbKinectAngle = 0;
+                else
+                    sbKinectAngle = (SByte)(sbKinectAngle / 2); // ' we want to take small steps; since this is an iteration this will help prevent overshoot
+
             }
+            Console.WriteLine("Angle={0}", sbKinectAngle);
+
+            r = UpdateRightArm(playerSkeleton);
+            l = UpdateLeftArm(playerSkeleton);
+            SendArmPosition(r[0], r[1], r[2], l[0], l[1], l[2]);
         }
 
         byte[] UpdateRightArm(Microsoft.Kinect.Skeleton playerSkeleton)
@@ -215,7 +206,7 @@ namespace RoboKinnect
 
             //' Calculate Angles and values for Right Arm (Robobuilder's Left Arm).
             double[] dVectorRS_RElbowShoulder = new double[3];
-            double[] dVectorRS_RWristElbow = new double[3];
+            double[] dVectorRS_RWristElbow    = new double[3];
 
             CalculateVector(dVectorRS_RElbowShoulder, playerSkeleton, JointType.ElbowRight, JointType.ShoulderRight);
 
@@ -250,7 +241,6 @@ namespace RoboKinnect
                 + dVectorRS_RWristElbow[Z] * dVectorRS_RElbowShoulder[Z]) / (CalculateVectorSize(dVectorRS_RWristElbow) * CalculateVectorSize(dVectorRS_RElbowShoulder)));
 
             System.Console.WriteLine("{0}", RadToDeg(dAngle_RWristElbow));
-
 
             //' Write Angles to Servos
             //' the trigonometric functions may return NaN when a skeleton is not in a realistic position.
@@ -289,20 +279,16 @@ namespace RoboKinnect
 
             CalculateVector(dVectorRS_LElbowShoulder, playerSkeleton, JointType.ElbowLeft, JointType.ShoulderLeft);
 
-            //'HEADKinectX.Text = CStr(dVectorRS_LElbowShoulder(X))
-            //'HEADKinectY.Text = CStr(dVectorRS_LElbowShoulder(Y))
-            //'HEADKinectZ.Text = CStr(dVectorRS_LElbowShoulder(Z))
-
             double[] dVectorRobobuilder = new double[3];
 
-            dVectorRobobuilder[0] = 0 - dVectorRS_LElbowShoulder[2];
-            dVectorRobobuilder[1] = dVectorRS_LElbowShoulder[1];
-            dVectorRobobuilder[2] = dVectorRS_LElbowShoulder[0];
+            dVectorRobobuilder[X] = 0 - dVectorRS_LElbowShoulder[Z];
+            dVectorRobobuilder[Y] = dVectorRS_LElbowShoulder[Y];
+            dVectorRobobuilder[Z] = dVectorRS_LElbowShoulder[X];
 
             double dRadius_LElbowShoulder = CalculateVectorSize(dVectorRobobuilder);
 
-            double dAzimuth_LElbowShoulder = Math.Atan(dVectorRobobuilder[1] / dVectorRobobuilder[0]);
-            double dElevation_LElbowShoulder = Math.PI / 2 - Math.Acos(dVectorRobobuilder[2] / dRadius_LElbowShoulder);
+            double dAzimuth_LElbowShoulder   = Math.Atan(dVectorRobobuilder[Y] / dVectorRobobuilder[X]);
+            double dElevation_LElbowShoulder = Math.PI / 2 - Math.Acos(dVectorRobobuilder[Z] / dRadius_LElbowShoulder);
 
             if (dVectorRobobuilder[0] < 0)
             { //' correction to prevent going fron +90 to -90 when the arm is upright
@@ -315,10 +301,6 @@ namespace RoboKinnect
                     dAzimuth_LElbowShoulder = -Math.PI + dAzimuth_LElbowShoulder;
                 }
             }
-            else
-            {
-                //' don't touch azimuth
-            }
 
             //' Now calculate the Vector for the Elbow/Wrist
             CalculateVector(dVectorRS_LWristElbow, playerSkeleton, JointType.WristLeft, JointType.ElbowLeft);
@@ -326,8 +308,6 @@ namespace RoboKinnect
             double dAngle_LWristElbow = Math.Acos((dVectorRS_LWristElbow[0] * dVectorRS_LElbowShoulder[0]
                 + dVectorRS_LWristElbow[1] * dVectorRS_LElbowShoulder[1]
                 + dVectorRS_LWristElbow[2] * dVectorRS_LElbowShoulder[2]) / (CalculateVectorSize(dVectorRS_LWristElbow) * CalculateVectorSize(dVectorRS_LElbowShoulder)));
-            //'Me.HLKinectZ.Text = CStr(RadToDeg(dAngle_LWristElbow))
-
 
             //' Write Angles to Servos
             //' the trigonometric functions may return NaN when a skeleton is not in a realistic position.
@@ -338,7 +318,7 @@ namespace RoboKinnect
                 dElevation_LElbowShoulder = RadToDeg(dElevation_LElbowShoulder);
                 dAngle_LWristElbow = RadToDeg(dAngle_LWristElbow);
 
-                res[0] = AngleToWckPosition(dAzimuth_LElbowShoulder, 13);
+                res[0] = AngleToWckPosition(dAzimuth_LElbowShoulder,   13);
                 res[1] = AngleToWckPosition(dElevation_LElbowShoulder, 14);
                 res[2] = AngleToWckPosition(dElevation_LElbowShoulder, 15);
 
@@ -346,7 +326,6 @@ namespace RoboKinnect
             }
             return null;
         }
-
 
         byte AngleToWckPosition(double dAngle, byte iServoNumber)
         {
@@ -386,6 +365,28 @@ namespace RoboKinnect
                 bPos = (byte)(bPos + bServoRange[iServoNumber, atMINwck]);
             }
             return bPos;
+        }
+
+        public void SendArmPosition(Byte bServo10, Byte bServo11, Byte bServo12, Byte bServo13, Byte bServo14, Byte bServo15)
+        {
+            try
+            {
+                Console.WriteLine("MOVE {0},{1},{2},{3},{4},{5}", bServo10, bServo11, bServo12, bServo13, bServo14, bServo15);
+                if (!bRBConnected)
+                {
+                    return;
+                }
+                rbWCK.wckMovePos(10, bServo10, 1); // 3rd parameter is Torque 0~4: 0=maximum 
+                rbWCK.wckMovePos(11, bServo11, 1);
+                rbWCK.wckMovePos(12, bServo12, 1);
+                rbWCK.wckMovePos(13, bServo13, 1);
+                rbWCK.wckMovePos(14, bServo14, 1);
+                rbWCK.wckMovePos(15, bServo15, 1);
+            }
+            catch
+            {
+                Console.WriteLine("Unable to Update Servo Position");
+            }
         }
     }
 }
