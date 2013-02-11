@@ -6,7 +6,15 @@ This is based on Robosavvy  routine used in their impressive Kinect demo. For mo
 
 http://robosavvy.com/forum/viewtopic.php?t=7854&postdays=0&postorder=asc&start=0
 
+This has now been updatd to cover Robosavvy v2 code:
+
+http://robosavvy.com/forum/viewtopic.php?t=8026
+
+C# Source available : http://code.google.com/p/robobuildervc/source/browse/trunk/RoboKinnect
+
 = Details =
+
+The details below are a little out of date - the code is now encapsulated with in RoboKinnectAPI class and includes both Simple (V1) algorithm and the more advanced algorithm
 
 This is based on a Kinect ! ( Xbox 360 Version) and modified the "Shape Game" demo from the Kinect SDK with C# 
 
